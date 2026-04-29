@@ -1,0 +1,44 @@
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+@Injectable()
+export class OtpDeliveryService {
+  private readonly logger = new Logger(OtpDeliveryService.name);
+
+  constructor(private readonly config: ConfigService) {}
+
+  async send(phone: string, otp: string): Promise<void> {
+    const gatewayUrl = this.config.get<string>('SMS_GATEWAY_URL');
+    const gatewayKey = this.config.get<string>('SMS_GATEWAY_API_KEY');
+
+    if (!gatewayUrl || !gatewayKey) {
+      if (this.config.get<string>('NODE_ENV') === 'production') {
+        throw new InternalServerErrorException('SMS gateway is not configured');
+      }
+
+      this.logger.warn(`Development OTP for ${phone}: ${otp}`);
+      return;
+    }
+
+    const response = await fetch(gatewayUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${gatewayKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: `+91${phone}`,
+        message: `Your QuickNest verification OTP is ${otp}. It expires in 5 minutes.`,
+      }),
+    });
+
+    if (!response.ok) {
+      this.logger.error(`SMS gateway failed with status ${response.status}`);
+      throw new InternalServerErrorException('Unable to send OTP');
+    }
+  }
+}

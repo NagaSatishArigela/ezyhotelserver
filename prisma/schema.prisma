@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GlobalRole {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum PropertyRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+enum UserStatus {
+  active
+  suspended
+  deleted
+}
+
+model User {
+  id                    String     @id @default(uuid()) @db.Uuid
+  phone                 String     @unique @db.VarChar(10)
+  email                 String     @unique @db.VarChar(254)
+  passwordHash          String     @map("password_hash")
+  globalRole            GlobalRole @default(USER) @map("global_role")
+  isPhoneVerified       Boolean    @default(false) @map("is_phone_verified")
+  isEmailVerified       Boolean    @default(false) @map("is_email_verified")
+  status                UserStatus @default(active)
+  refreshTokenHash      String?    @map("refresh_token_hash")
+  refreshTokenExpiresAt DateTime?  @map("refresh_token_expires_at")
+  createdAt             DateTime   @default(now()) @map("created_at")
+  updatedAt             DateTime   @updatedAt @map("updated_at")
+  ownedProperties       Property[]
+  propertyRoles         UserPropertyRole[]
+  sessions              Session[]
+
+  @@index([phone])
+  @@index([email])
+  @@map("users")
+}
+
+model Property {
+  id        String             @id @default(uuid()) @db.Uuid
+  name      String             @db.VarChar(160)
+  ownerId   String             @map("owner_id") @db.Uuid
+  owner     User               @relation(fields: [ownerId], references: [id])
+  roles     UserPropertyRole[]
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  @@index([ownerId])
+  @@map("properties")
+}
+
+model UserPropertyRole {
+  id         String       @id @default(uuid()) @db.Uuid
+  userId     String       @map("user_id") @db.Uuid
+  propertyId String       @map("property_id") @db.Uuid
+  role       PropertyRole
+  user       User         @relation(fields: [userId], references: [id])
+  property   Property     @relation(fields: [propertyId], references: [id])
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("user_property_roles")
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @map("refresh_token_hash")
+  device           String?   @db.VarChar(255)
+  ip               String?   @db.VarChar(64)
+  expiresAt        DateTime  @map("expires_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  revokedAt        DateTime? @map("revoked_at")
+  user             User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@unique([userId, refreshTokenHash])
+  @@map("sessions")
+}
+
+model Otp {
+  id          String    @id @default(uuid()) @db.Uuid
+  phone       String    @db.VarChar(10)
+  code        String    @db.Text
+  attempts    Int       @default(0)
+  expiresAt   DateTime  @map("expires_at")
+  lockedUntil DateTime? @map("locked_until")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([phone])
+  @@map("otps")
+}
