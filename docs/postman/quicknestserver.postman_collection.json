@@ -1,7 +1,7 @@
 {
   "item": [
     {
-      "id": "eedf9be9-cfa6-4954-9bd3-c542112cdf20",
+      "id": "a0a8a297-e5de-4a93-906a-c7b2fd6cc51e",
       "name": "Auth",
       "description": {
         "content": "",
@@ -9,7 +9,7 @@
       },
       "item": [
         {
-          "id": "b6c7df4c-df1a-4d25-b99f-96156b052bcb",
+          "id": "a26b90cc-462d-4142-979c-0d0993ab0843",
           "name": "Send OTP to an Indian mobile number",
           "request": {
             "name": "Send OTP to an Indian mobile number",
@@ -49,7 +49,7 @@
           },
           "response": [
             {
-              "id": "91c6ddb9-dbc4-4b6b-bc17-d757c5b1dbdf",
+              "id": "b649080d-6795-4db1-9c2f-46ddc0a25b85",
               "name": "OTP accepted for delivery",
               "originalRequest": {
                 "url": {
@@ -93,7 +93,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "2673f11b-ad4e-4baa-b3dd-0b3750484a84",
+              "id": "97f1e6c6-938b-4f28-8d5d-ff3e0ff354a8",
               "name": "Invalid phone number",
               "originalRequest": {
                 "url": {
@@ -131,7 +131,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "e53f39cc-57c6-49d6-a777-2fcf39939c56",
+              "id": "ff939a49-01a9-45ee-b18d-cfc88d51f508",
               "name": "Rate limit, cooldown, or lock active",
               "originalRequest": {
                 "url": {
@@ -175,7 +175,7 @@
           }
         },
         {
-          "id": "1aa86386-ef01-4cd9-9485-a5e6a7976970",
+          "id": "210b71d5-2c9f-4d11-8fb6-d521dba3ed3c",
           "name": "Verify OTP and login existing users or continue registration",
           "request": {
             "name": "Verify OTP and login existing users or continue registration",
@@ -215,7 +215,7 @@
           },
           "response": [
             {
-              "id": "82c8886d-2f5b-4c58-a0aa-b8ae3f7b677f",
+              "id": "f17440c5-ed57-4332-9937-5248c0e4b5fa",
               "name": "OTP verified. Existing users receive tokens; new users continue to registration.",
               "originalRequest": {
                 "url": {
@@ -259,7 +259,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b9dfda7f-570c-456e-8c9a-c921504f5b5c",
+              "id": "350f70e8-d7f9-4b3a-887c-10e3f841981e",
               "name": "Expired or incorrect OTP",
               "originalRequest": {
                 "url": {
@@ -297,7 +297,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "6c49503a-0d8e-4144-8030-5979d2d42c37",
+              "id": "1860a14d-a2b3-44b6-8c6a-db43893cb021",
               "name": "OTP verification locked",
               "originalRequest": {
                 "url": {
@@ -341,7 +341,7 @@
           }
         },
         {
-          "id": "67f43c0e-2375-4811-b8dd-f86f2668f203",
+          "id": "70f57fa9-c260-42e8-aeb7-049366f1b6be",
           "name": "Register a user after verification",
           "request": {
             "name": "Register a user after verification",
@@ -377,7 +377,7 @@
           },
           "response": [
             {
-              "id": "633a02a1-68bd-4261-bfe9-fbe6d07412b8",
+              "id": "3ad00686-ec5e-47f7-a56c-e5ede7f4072d",
               "name": "User registered and tokens issued",
               "originalRequest": {
                 "url": {
@@ -415,7 +415,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "2210a52d-235c-459d-b047-69f066a2d9a3",
+              "id": "077e85bf-db22-4033-b5d1-67974af8554e",
               "name": "Invalid verification token or payload is invalid",
               "originalRequest": {
                 "url": {
@@ -453,7 +453,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "7c8f8daf-b953-4795-8920-1a872f6f046c",
+              "id": "60c9d5a3-ee7c-4bc4-838f-70c3196cad9c",
               "name": "Phone or email already exists",
               "originalRequest": {
                 "url": {
@@ -489,6 +489,44 @@
               "body": "",
               "cookie": [],
               "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "bd20a4b5-3db8-4263-9254-e46fccd48ac5",
+              "name": "Too many registration attempts",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
             }
           ],
           "event": [],
@@ -497,7 +535,7 @@
           }
         },
         {
-          "id": "7e815543-0a3c-4ea3-8436-cb2be374010f",
+          "id": "0ab9eacf-b61b-4151-925d-c6813402d832",
           "name": "Login with email and password fallback",
           "request": {
             "name": "Login with email and password fallback",
@@ -533,7 +571,7 @@
           },
           "response": [
             {
-              "id": "48983cd6-f688-4219-825d-78c2df53dee6",
+              "id": "e153314d-9354-4050-ab20-41fc1e1768d4",
               "name": "Credentials accepted and tokens issued",
               "originalRequest": {
                 "url": {
@@ -571,7 +609,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "816467bf-f20a-40f7-a1cb-478c44326faa",
+              "id": "5e83adc8-cecd-4809-ac90-1aede0834779",
               "name": "Invalid credentials",
               "originalRequest": {
                 "url": {
@@ -609,7 +647,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "3ad4cbde-83c1-440c-af96-5551efbf2007",
+              "id": "c4268d4e-dc90-46ea-be85-edc2ae911e6a",
               "name": "Too many login attempts",
               "originalRequest": {
                 "url": {
@@ -653,7 +691,7 @@
           }
         },
         {
-          "id": "928f6136-8847-45bb-bafa-a42a5ac5678e",
+          "id": "5159ea88-cdb7-44cc-abe4-de64f5b02ac1",
           "name": "Verify Firebase phone auth token and login or continue registration",
           "request": {
             "name": "Verify Firebase phone auth token and login or continue registration",
@@ -689,7 +727,7 @@
           },
           "response": [
             {
-              "id": "14a964a0-c535-4a36-9560-5b01e1afaf77",
+              "id": "30923842-75d3-46c5-9fc1-0ae179dae3aa",
               "name": "Firebase verified user logged in or registration required",
               "originalRequest": {
                 "url": {
@@ -727,7 +765,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "b095fe3c-3b83-4eb5-be1d-52e80754ef23",
+              "id": "50328203-fab6-4e43-ae22-668a1585707e",
               "name": "Invalid Firebase token",
               "originalRequest": {
                 "url": {
@@ -771,7 +809,7 @@
           }
         },
         {
-          "id": "38c025e8-7ce8-4313-b448-e9f346c18786",
+          "id": "375304f4-41a7-4dff-8e06-402375a3bf82",
           "name": "Rotate refresh token and issue a new access token",
           "request": {
             "name": "Rotate refresh token and issue a new access token",
@@ -807,7 +845,7 @@
           },
           "response": [
             {
-              "id": "7488c35e-7927-494a-8508-fe829f746beb",
+              "id": "1b2d12dc-04ee-4620-8a38-eb0436aafd36",
               "name": "Refresh token rotated successfully",
               "originalRequest": {
                 "url": {
@@ -845,7 +883,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "f6efb6b2-8076-439d-84ea-59ade9d14295",
+              "id": "2c9f324d-5b4f-4738-a585-8ae8e626f3e5",
               "name": "Invalid, revoked, or expired refresh token",
               "originalRequest": {
                 "url": {
@@ -883,7 +921,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "07bbe14e-1095-4658-9f20-6be412849a55",
+              "id": "260ee545-70db-460f-9b2f-6427ee59fd60",
               "name": "Too many refresh attempts",
               "originalRequest": {
                 "url": {
@@ -927,7 +965,7 @@
           }
         },
         {
-          "id": "0a1b8f87-a5b2-4fbf-afd5-6d9d1a8725e4",
+          "id": "624c554d-0d8b-4ec2-b6bb-7e95097edec4",
           "name": "Revoke the current refresh token",
           "request": {
             "name": "Revoke the current refresh token",
@@ -967,7 +1005,7 @@
           },
           "response": [
             {
-              "id": "c48bb5fc-0cc6-4892-af27-27a983195eed",
+              "id": "fc00b64a-04f7-4f65-9f2f-d07862164760",
               "name": "Refresh token revoked",
               "originalRequest": {
                 "url": {
@@ -1011,7 +1049,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "d8375ce1-e3fc-44c0-819c-16d43f644594",
+              "id": "1fad28e7-093a-4e2f-9aa4-0dd67262657f",
               "name": "Invalid refresh token",
               "originalRequest": {
                 "url": {
@@ -1058,7 +1096,7 @@
       "event": []
     },
     {
-      "id": "43e38048-baa1-40a1-a969-044282324536",
+      "id": "4c729e29-e6ff-45ec-9451-12fcff2a2975",
       "name": "Me",
       "description": {
         "content": "",
@@ -1066,7 +1104,7 @@
       },
       "item": [
         {
-          "id": "d51dff56-9c8e-49d6-bca0-e78541c17871",
+          "id": "eb7a5fa4-5045-4614-a7fe-79cdc3e32ea0",
           "name": "Get current authenticated user profile",
           "request": {
             "name": "Get current authenticated user profile",
@@ -1087,7 +1125,7 @@
           },
           "response": [
             {
-              "id": "ab8e3c15-893a-4ab0-ad64-37fba8443ae8",
+              "id": "3f4bec0f-66dc-4304-812f-f84f82e5b3aa",
               "name": "Authenticated user profile returned",
               "originalRequest": {
                 "url": {
@@ -1117,7 +1155,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "465793e8-dd09-4cbc-90c4-bbec7633f9ed",
+              "id": "52a6c760-f7eb-444b-8271-76d0689d52f3",
               "name": "Missing or invalid access token",
               "originalRequest": {
                 "url": {
@@ -1153,7 +1191,7 @@
           }
         },
         {
-          "id": "c0186f7a-d70b-4505-9c8d-64b318cf3be7",
+          "id": "9e664505-abda-4436-9b8e-0ce4cb817a6b",
           "name": "Get current user capabilities for onboarding and admin flows",
           "request": {
             "name": "Get current user capabilities for onboarding and admin flows",
@@ -1174,7 +1212,7 @@
           },
           "response": [
             {
-              "id": "2bd5a8d2-5e48-4207-9279-183e94aba45d",
+              "id": "8b73203a-ea0c-45b6-ab56-418450d6c304",
               "name": "User capabilities returned",
               "originalRequest": {
                 "url": {
@@ -1204,7 +1242,7 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "b75e1ae7-2486-4678-9e94-72e1d857992d",
+              "id": "be01dc9b-a09f-4993-9e14-c324d0bf9301",
               "name": "Missing or invalid access token",
               "originalRequest": {
                 "url": {
@@ -1240,7 +1278,7 @@
           }
         },
         {
-          "id": "f340f8dc-4ad6-4835-b7e6-66486ce557ac",
+          "id": "b2255e57-73a0-41dd-a8bc-a14e84326070",
           "name": "Get current user onboarding state",
           "request": {
             "name": "Get current user onboarding state",
@@ -1261,7 +1299,7 @@
           },
           "response": [
             {
-              "id": "bfb501ee-5616-4699-ad2b-aa959bff84f6",
+              "id": "d34203be-1c96-4e49-bd5e-bc6f2b6fdbd3",
               "name": "User onboarding state returned",
               "originalRequest": {
                 "url": {
@@ -1291,13 +1329,100 @@
               "_postman_previewlanguage": "text"
             },
             {
-              "id": "54941e05-a64e-4f2e-b155-2c587e6ffe4d",
+              "id": "b7e41952-329a-40af-9e91-2c51d248185e",
               "name": "Missing or invalid access token",
               "originalRequest": {
                 "url": {
                   "path": [
                     "me",
                     "onboarding"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9bfda2a9-02c7-44f6-b65f-a3de0a956596",
+          "name": "Get the owner's most recent property status (for portal routing)",
+          "request": {
+            "name": "Get the owner's most recent property status (for portal routing)",
+            "description": {},
+            "url": {
+              "path": [
+                "me",
+                "property-status"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f0f3e1a0-4f49-41ae-96b6-a84b14f0239e",
+              "name": "Property status or nulls if owner has no property yet",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "property-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "92583412-30fa-4c44-9940-7813624de2d9",
+              "name": "Missing or invalid access token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "property-status"
                   ],
                   "host": [
                     "{{baseUrl}}"
@@ -1330,7 +1455,7 @@
       "event": []
     },
     {
-      "id": "fde2cc26-9217-4722-b4cf-2239fada9fac",
+      "id": "4942c900-d3df-4589-9605-a88a411b4f66",
       "name": "Properties",
       "description": {
         "content": "",
@@ -1338,7 +1463,7 @@
       },
       "item": [
         {
-          "id": "ab9483a8-b57e-44a8-8b7f-efa51bf0727d",
+          "id": "ffe96d1d-fde8-486c-a900-c40be4192111",
           "name": "Create a new property onboarding draft",
           "request": {
             "name": "Create a new property onboarding draft",
@@ -1367,7 +1492,7 @@
           },
           "response": [
             {
-              "id": "41413fca-c937-42f2-8862-e75ecccfdf13",
+              "id": "6a9f2c00-6649-49bd-bf1b-19de2cfdb5e4",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1412,7 +1537,7 @@
           }
         },
         {
-          "id": "bbd7ecb5-493f-4f8d-9f2c-072a59fd9241",
+          "id": "56612d0e-3d6b-4b71-a1c5-f3645c56b20e",
           "name": "Auto-save a wizard step (1-5) for a draft property",
           "request": {
             "name": "Auto-save a wizard step (1-5) for a draft property",
@@ -1439,7 +1564,7 @@
                 {
                   "disabled": false,
                   "type": "any",
-                  "value": "6922.75042889696",
+                  "value": "5077.534078290391",
                   "key": "stepNum",
                   "description": "(Required) "
                 }
@@ -1458,7 +1583,7 @@
           },
           "response": [
             {
-              "id": "6cb37769-5c81-4464-b52a-5480b7f45afd",
+              "id": "9b8b880c-8120-446a-bd73-8c5ec68bc13c",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1482,7 +1607,7 @@
                     {
                       "disabled": false,
                       "type": "any",
-                      "value": "6922.75042889696",
+                      "value": "5077.534078290391",
                       "key": "stepNum",
                       "description": "(Required) "
                     }
@@ -1520,7 +1645,7 @@
           }
         },
         {
-          "id": "a1885552-25c1-4081-896c-f698df03178c",
+          "id": "6def2462-9369-446e-88ad-850d79da78c0",
           "name": "Get the current onboarding draft state",
           "request": {
             "name": "Get the current onboarding draft state",
@@ -1558,7 +1683,7 @@
           },
           "response": [
             {
-              "id": "2344924a-d47f-43cc-80cd-db39afc98ac8",
+              "id": "79f83d10-7a6f-45d3-b029-8d57b4574ff5",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1612,7 +1737,7 @@
           }
         },
         {
-          "id": "8f581eac-6ca5-45e2-80d7-1488bd84050d",
+          "id": "f2adb748-f06f-405b-a71f-59be24a388ca",
           "name": "Submit a draft property for review",
           "request": {
             "name": "Submit a draft property for review",
@@ -1650,7 +1775,7 @@
           },
           "response": [
             {
-              "id": "ae006164-86ba-45ee-a5bb-b8d7fa405501",
+              "id": "ead240ed-325d-4dbf-bd13-f2a5c02f3ef3",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1704,7 +1829,7 @@
           }
         },
         {
-          "id": "577836d7-a0d9-4d01-8e18-32bfe119997c",
+          "id": "03e7b782-25f0-4de1-8f0f-40a2f50c2f61",
           "name": "Get the submission status and review timeline",
           "request": {
             "name": "Get the submission status and review timeline",
@@ -1742,7 +1867,7 @@
           },
           "response": [
             {
-              "id": "bb344e14-493f-412b-a812-a98fcfb94f92",
+              "id": "47921dfe-9e86-4b62-b4f6-e0553996d347",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1796,7 +1921,7 @@
           }
         },
         {
-          "id": "5b70957b-1746-4816-bbdd-64c9ec436cd5",
+          "id": "bd837c66-b084-48ea-8383-7300e370e6b4",
           "name": "Resubmit a property after a requested revision",
           "request": {
             "name": "Resubmit a property after a requested revision",
@@ -1834,7 +1959,7 @@
           },
           "response": [
             {
-              "id": "3a160ee5-9459-45f9-963d-d5462da89c0b",
+              "id": "c5eb9784-b435-4774-9c0b-b25c2b59373f",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1891,7 +2016,7 @@
       "event": []
     },
     {
-      "id": "94c0b09f-7825-44c4-a9f2-07a3817fb16d",
+      "id": "f0c00829-9f52-4988-8cd4-8cca54b9f42d",
       "name": "Admin / Properties",
       "description": {
         "content": "",
@@ -1899,7 +2024,7 @@
       },
       "item": [
         {
-          "id": "b26b69d6-ea22-42ed-a4b5-ca72c263c1f4",
+          "id": "1332fd60-e980-48f9-9635-ba9af8685d8c",
           "name": "List properties in the moderation queue",
           "request": {
             "name": "List properties in the moderation queue",
@@ -1944,7 +2069,7 @@
           },
           "response": [
             {
-              "id": "f2fa2fb1-83ca-4d77-aba6-b0b1c1e5dc7f",
+              "id": "c11c6776-01c6-4b91-808f-89411c24e969",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2002,7 +2127,7 @@
           }
         },
         {
-          "id": "c83d7f35-3a5f-4b5a-a48b-512f420d40b0",
+          "id": "acc1e169-7710-4c4a-8d57-06f8f652ea26",
           "name": "Get full property detail for moderation",
           "request": {
             "name": "Get full property detail for moderation",
@@ -2040,7 +2165,7 @@
           },
           "response": [
             {
-              "id": "7eed916e-c391-402a-b5ac-bb398c68fa23",
+              "id": "28c19e64-7a01-4304-bf43-8a22cfa5e848",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2094,7 +2219,7 @@
           }
         },
         {
-          "id": "8134b440-9dd4-4420-8a52-61c134640c2e",
+          "id": "10b4bf16-e9f1-4e25-b0f4-d1d18d44cb10",
           "name": "Approve a pending property submission",
           "request": {
             "name": "Approve a pending property submission",
@@ -2133,7 +2258,7 @@
           },
           "response": [
             {
-              "id": "e8aa9e81-7d77-4666-86c4-bb22617345fb",
+              "id": "c0562e3b-1f36-4337-93f9-9fae3fc5826a",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2188,7 +2313,7 @@
           }
         },
         {
-          "id": "219284c6-979b-4fd5-accf-31a05256c0cc",
+          "id": "c4ad4b31-36d9-42a7-b892-9a540477024c",
           "name": "Reject a pending property submission",
           "request": {
             "name": "Reject a pending property submission",
@@ -2242,7 +2367,7 @@
           },
           "response": [
             {
-              "id": "4c224f98-7a19-495b-9a7b-473e135b8a9e",
+              "id": "c453b0f5-6125-461b-b541-fddee2151955",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2305,7 +2430,7 @@
           }
         },
         {
-          "id": "06b901da-946a-4515-a852-54496ac12bfb",
+          "id": "73ec19a3-62d3-4161-920d-c78fe0104eca",
           "name": "Request changes to a pending property submission",
           "request": {
             "name": "Request changes to a pending property submission",
@@ -2359,7 +2484,7 @@
           },
           "response": [
             {
-              "id": "6e7891d3-6ee3-499f-a0f4-12488dacbc03",
+              "id": "4e3cc112-544f-459e-9f2e-2214880e4902",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2425,7 +2550,7 @@
       "event": []
     },
     {
-      "id": "8bd89763-77a7-42bb-9c3b-a0a3ebad1278",
+      "id": "8a0949e9-5e7a-45c3-a677-63d69c54ca3a",
       "name": "Properties / Public",
       "description": {
         "content": "",
@@ -2433,7 +2558,7 @@
       },
       "item": [
         {
-          "id": "5c85e442-2573-409a-8e6b-666c66852398",
+          "id": "da436c34-0323-4c30-b3fc-73cc500d5fc8",
           "name": "List approved, active properties",
           "request": {
             "name": "List approved, active properties",
@@ -2472,13 +2597,13 @@
                 {
                   "disabled": false,
                   "key": "minPrice",
-                  "value": "5047.780204486409",
+                  "value": "2280.708653554413",
                   "description": "Minimum hourly rate in paise"
                 },
                 {
                   "disabled": false,
                   "key": "maxPrice",
-                  "value": "5047.780204486409",
+                  "value": "2280.708653554413",
                   "description": "Maximum hourly rate in paise"
                 },
                 {
@@ -2502,7 +2627,7 @@
                 {
                   "disabled": false,
                   "key": "durationHours",
-                  "value": "2133.411666219119",
+                  "value": "6606.902695744811",
                   "description": "Availability filter: requested duration in hours"
                 },
                 {
@@ -2523,7 +2648,7 @@
           },
           "response": [
             {
-              "id": "8ce7e1a4-813e-4660-9fb9-c9b625951c32",
+              "id": "95535942-34a4-48b2-9c76-813970285cf7",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2552,11 +2677,11 @@
                     },
                     {
                       "key": "minPrice",
-                      "value": "5047.780204486409"
+                      "value": "2280.708653554413"
                     },
                     {
                       "key": "maxPrice",
-                      "value": "5047.780204486409"
+                      "value": "2280.708653554413"
                     },
                     {
                       "key": "amenities",
@@ -2572,7 +2697,7 @@
                     },
                     {
                       "key": "durationHours",
-                      "value": "2133.411666219119"
+                      "value": "6606.902695744811"
                     },
                     {
                       "key": "bookingType",
@@ -2607,7 +2732,7 @@
           }
         },
         {
-          "id": "57b159ae-fc28-4747-8d7f-807cda572336",
+          "id": "98f892ce-b672-40b5-a639-f0255b372f0a",
           "name": "Get an approved property with room types and photos",
           "request": {
             "name": "Get an approved property with room types and photos",
@@ -2637,7 +2762,7 @@
           },
           "response": [
             {
-              "id": "d80cb85a-084c-4093-8680-628079a8e3a3",
+              "id": "77e468b5-6d08-4807-acca-90161ed7c79d",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2684,7 +2809,7 @@
       "event": []
     },
     {
-      "id": "6774364c-dfeb-4c05-9a98-d213bf614c00",
+      "id": "613b1a58-4b4a-470d-9f41-c2ba108d8dbf",
       "name": "Owner Notifications",
       "description": {
         "content": "",
@@ -2692,7 +2817,85 @@
       },
       "item": [
         {
-          "id": "5bd485f7-6a5c-4678-a3f1-8e6dc774355c",
+          "id": "b994961c-c9fc-4a32-9a75-26048cd94b44",
+          "name": "Unread notification count for bell badge",
+          "request": {
+            "name": "Unread notification count for bell badge",
+            "description": {},
+            "url": {
+              "path": [
+                "owners",
+                "me",
+                "notifications",
+                "unread-count"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "1568ad4c-e525-4f78-b62f-8f6e9c34097b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owners",
+                    "me",
+                    "notifications",
+                    "unread-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ec338959-8576-40cf-b971-94f92f5866f3",
           "name": "Get the caller's notification inbox",
           "request": {
             "name": "Get the caller's notification inbox",
@@ -2738,7 +2941,7 @@
           },
           "response": [
             {
-              "id": "0d2d0349-3ab7-41b3-8f49-f342ced065ab",
+              "id": "997b108f-5f55-4d50-8e96-2876f35f9c08",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2797,7 +3000,85 @@
           }
         },
         {
-          "id": "c852342d-930c-40a8-b44a-6cda3199f4b8",
+          "id": "9af0328e-a062-4db9-828a-c696aa893f38",
+          "name": "Mark all unread notifications as read",
+          "request": {
+            "name": "Mark all unread notifications as read",
+            "description": {},
+            "url": {
+              "path": [
+                "owners",
+                "me",
+                "notifications",
+                "read-all"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "8e20a6f0-4a6a-4287-8da5-0ede2e611fb5",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owners",
+                    "me",
+                    "notifications",
+                    "read-all"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "980db036-17c4-4c90-9514-fa1b2867ec28",
           "name": "Mark a notification as read",
           "request": {
             "name": "Mark a notification as read",
@@ -2837,7 +3118,7 @@
           },
           "response": [
             {
-              "id": "2ca02661-7325-4b23-b5cb-c83d807e645f",
+              "id": "da914714-1df7-4e24-ab75-af54ba11b7d5",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2896,7 +3177,7 @@
       "event": []
     },
     {
-      "id": "cb286a7c-d979-4df4-8c17-d2c32ae06704",
+      "id": "e06bcca7-04f8-4f3d-a1f4-aec7c7097bb2",
       "name": "Bookings",
       "description": {
         "content": "",
@@ -2904,7 +3185,7 @@
       },
       "item": [
         {
-          "id": "004d7af7-2521-4134-9e75-e17f3454536d",
+          "id": "6723c918-200a-4162-9284-219ff9be653a",
           "name": "Get booked intervals for a room type on a given date",
           "request": {
             "name": "Get booked intervals for a room type on a given date",
@@ -2947,7 +3228,7 @@
           },
           "response": [
             {
-              "id": "d12dec60-e975-4924-a8ff-d56759cd964f",
+              "id": "e014c60f-aeab-415e-93b0-e4ebdabc4c18",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3000,7 +3281,7 @@
           }
         },
         {
-          "id": "7986e67b-6db6-46aa-abab-facb85d3967c",
+          "id": "235bf437-0c9a-4ed8-ae29-72fdd834eb62",
           "name": "Create a new booking (pending_payment)",
           "request": {
             "name": "Create a new booking (pending_payment)",
@@ -3033,7 +3314,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"propertyId\": \"string\",\n  \"roomTypeId\": \"string\",\n  \"bookingType\": \"hourly\",\n  \"checkInAt\": \"string\",\n  \"guestCount\": 8810.21444201099,\n  \"durationHours\": 5202.44358536806\n}",
+              "raw": "{\n  \"propertyId\": \"string\",\n  \"roomTypeId\": \"string\",\n  \"bookingType\": \"fullday\",\n  \"checkInAt\": \"string\",\n  \"guestCount\": 1246.3516078341797,\n  \"durationHours\": 1568.865849340524\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3043,7 +3324,7 @@
           },
           "response": [
             {
-              "id": "2eff4330-e226-4075-8c47-89e03d67d48a",
+              "id": "b257039a-9cc0-4350-90ac-eeb6026a497e",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3068,7 +3349,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"propertyId\": \"string\",\n  \"roomTypeId\": \"string\",\n  \"bookingType\": \"hourly\",\n  \"checkInAt\": \"string\",\n  \"guestCount\": 8810.21444201099,\n  \"durationHours\": 5202.44358536806\n}",
+                  "raw": "{\n  \"propertyId\": \"string\",\n  \"roomTypeId\": \"string\",\n  \"bookingType\": \"fullday\",\n  \"checkInAt\": \"string\",\n  \"guestCount\": 1246.3516078341797,\n  \"durationHours\": 1568.865849340524\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -3095,7 +3376,7 @@
           }
         },
         {
-          "id": "86ddab2f-6d09-4168-ad65-cb0a2c75d447",
+          "id": "52374c3b-c1cc-4f1e-ae5d-b6029f54b7ab",
           "name": "Get full booking detail",
           "request": {
             "name": "Get full booking detail",
@@ -3132,7 +3413,7 @@
           },
           "response": [
             {
-              "id": "129e0ab6-43d9-4ff4-ba52-b65063e4cad1",
+              "id": "e9cea6ea-bdfd-4e4d-aeab-cb3c0c93a51c",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3185,7 +3466,7 @@
           }
         },
         {
-          "id": "10f03ef7-9208-4ae3-94f9-7c5ab3939bf9",
+          "id": "f28dfdda-8a16-4ce1-a2d6-55299fe40266",
           "name": "Mock payment gateway confirmation",
           "request": {
             "name": "Mock payment gateway confirmation",
@@ -3239,7 +3520,7 @@
           },
           "response": [
             {
-              "id": "a500929d-579d-4a29-bb8a-1ba00996b7b0",
+              "id": "f0d50e0d-551f-4c98-b33b-4a55686365f3",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3302,7 +3583,7 @@
           }
         },
         {
-          "id": "8537e333-cc2b-4501-9450-d81b0cdebdb1",
+          "id": "bdad131b-8e96-4bb1-8cad-e06297ae2bd8",
           "name": "Check in using the booking QR code",
           "request": {
             "name": "Check in using the booking QR code",
@@ -3355,7 +3636,7 @@
           },
           "response": [
             {
-              "id": "0f1a8345-e740-4831-a000-d846a01915e3",
+              "id": "d65635d1-8a7d-432f-9f52-96b77ff89921",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3417,7 +3698,7 @@
           }
         },
         {
-          "id": "c6639168-f3f8-4d0f-8ff6-21ed880d65ea",
+          "id": "5197b2e2-ff1b-448b-b96e-37aeec9db917",
           "name": "Manually check out a booking",
           "request": {
             "name": "Manually check out a booking",
@@ -3455,7 +3736,7 @@
           },
           "response": [
             {
-              "id": "aaae9339-328a-49a4-9576-806eea665173",
+              "id": "fee0bfea-3152-4fc5-bf8b-c85fe3e7219d",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3509,7 +3790,7 @@
           }
         },
         {
-          "id": "327d2394-902b-4b5a-bd30-92eb40d982f1",
+          "id": "a9b791de-c042-4273-bd11-c9a9d5f62d99",
           "name": "Cancel a confirmed booking",
           "request": {
             "name": "Cancel a confirmed booking",
@@ -3562,7 +3843,7 @@
           },
           "response": [
             {
-              "id": "a1c5cb9f-4a9a-4369-90e5-929a89861357",
+              "id": "40ff55de-c5e0-488e-b2c3-05d79a3e04e6",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3624,7 +3905,7 @@
           }
         },
         {
-          "id": "b0be2a76-5e3f-4f83-99c2-8263ad4b770e",
+          "id": "4384c92e-9fdd-4b84-b75b-483a78086015",
           "name": "List the current guest's bookings",
           "request": {
             "name": "List the current guest's bookings",
@@ -3669,7 +3950,7 @@
           },
           "response": [
             {
-              "id": "e478566c-3859-4f6f-8aad-d7bd7682337d",
+              "id": "340b64c4-94bf-4496-9277-a5196d8d3629",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3727,7 +4008,7 @@
           }
         },
         {
-          "id": "73a17dff-c7f9-45fa-a0e1-37fe45a12be4",
+          "id": "260b8c63-e50e-4d1e-9af5-84dc5c58c867",
           "name": "Read-only list of a property's bookings",
           "request": {
             "name": "Read-only list of a property's bookings",
@@ -3782,7 +4063,7 @@
           },
           "response": [
             {
-              "id": "694729d4-ce75-4cd3-8a29-2ae00b406447",
+              "id": "9c5878d3-3890-4ae6-bbed-e228e1054812",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3853,7 +4134,7 @@
       "event": []
     },
     {
-      "id": "7afa9707-ad36-4712-bd60-c02c0ec22d23",
+      "id": "d0584561-ec51-476e-8b98-10229ab6de01",
       "name": "Admin / Bookings",
       "description": {
         "content": "",
@@ -3861,7 +4142,7 @@
       },
       "item": [
         {
-          "id": "12702af4-12b4-4d2c-9b69-bc96e87993d1",
+          "id": "ee72cf0d-6dff-4aaa-ab53-ae1d90151f20",
           "name": "List bookings with admin filters",
           "request": {
             "name": "List bookings with admin filters",
@@ -3900,7 +4181,7 @@
                 {
                   "disabled": false,
                   "key": "bookingType",
-                  "value": "fullday"
+                  "value": "hourly"
                 },
                 {
                   "disabled": false,
@@ -3911,13 +4192,13 @@
                 {
                   "disabled": false,
                   "key": "amountMin",
-                  "value": "6922.75042889696",
+                  "value": "5077.534078290391",
                   "description": "Minimum totalAmountPaise"
                 },
                 {
                   "disabled": false,
                   "key": "amountMax",
-                  "value": "6922.75042889696",
+                  "value": "5077.534078290391",
                   "description": "Maximum totalAmountPaise"
                 },
                 {
@@ -3967,7 +4248,7 @@
           },
           "response": [
             {
-              "id": "d45d0523-6104-4d82-899f-71116d6335f3",
+              "id": "274eaffa-2766-4181-bf84-7fec82fe8038",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3996,7 +4277,7 @@
                     },
                     {
                       "key": "bookingType",
-                      "value": "fullday"
+                      "value": "hourly"
                     },
                     {
                       "key": "status",
@@ -4004,11 +4285,11 @@
                     },
                     {
                       "key": "amountMin",
-                      "value": "6922.75042889696"
+                      "value": "5077.534078290391"
                     },
                     {
                       "key": "amountMax",
-                      "value": "6922.75042889696"
+                      "value": "5077.534078290391"
                     },
                     {
                       "key": "guestPhone",
@@ -4069,7 +4350,7 @@
           }
         },
         {
-          "id": "fb88b326-5b06-4e36-a424-32d02960f140",
+          "id": "9a4eb4fe-2378-4389-8c86-65a8789fe60f",
           "name": "KPI summary for the active filter set",
           "request": {
             "name": "KPI summary for the active filter set",
@@ -4107,7 +4388,7 @@
                 {
                   "disabled": false,
                   "key": "bookingType",
-                  "value": "fullday"
+                  "value": "hourly"
                 },
                 {
                   "disabled": false,
@@ -4117,12 +4398,12 @@
                 {
                   "disabled": false,
                   "key": "amountMin",
-                  "value": "6922.75042889696"
+                  "value": "5077.534078290391"
                 },
                 {
                   "disabled": false,
                   "key": "amountMax",
-                  "value": "6922.75042889696"
+                  "value": "5077.534078290391"
                 },
                 {
                   "disabled": false,
@@ -4151,7 +4432,7 @@
           },
           "response": [
             {
-              "id": "b280eafe-8365-45e5-9431-b9362055ec2b",
+              "id": "f854ba02-6c16-4566-a085-4a889cb65aab",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4181,7 +4462,7 @@
                     },
                     {
                       "key": "bookingType",
-                      "value": "fullday"
+                      "value": "hourly"
                     },
                     {
                       "key": "status",
@@ -4189,11 +4470,11 @@
                     },
                     {
                       "key": "amountMin",
-                      "value": "6922.75042889696"
+                      "value": "5077.534078290391"
                     },
                     {
                       "key": "amountMax",
-                      "value": "6922.75042889696"
+                      "value": "5077.534078290391"
                     },
                     {
                       "key": "guestPhone",
@@ -4238,7 +4519,7 @@
           }
         },
         {
-          "id": "2246c2dc-b7a9-452b-8733-2e98b12dee18",
+          "id": "87f55219-ca29-48d4-a01c-3f2c83b013d7",
           "name": "Currently checked-in bookings, soonest-expiring first",
           "request": {
             "name": "Currently checked-in bookings, soonest-expiring first",
@@ -4268,7 +4549,7 @@
           },
           "response": [
             {
-              "id": "362e4a3d-7b1b-44e1-9540-0ed57e0e59ed",
+              "id": "9502b4e9-14c9-4243-8376-44a6abcd6700",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4314,7 +4595,7 @@
           }
         },
         {
-          "id": "4fb2a58b-81bc-4913-9332-585a994eb67e",
+          "id": "316bf58c-f595-4322-8a9f-5d97b457e6ea",
           "name": "Full booking detail incl. timeline and admin actions",
           "request": {
             "name": "Full booking detail incl. timeline and admin actions",
@@ -4352,7 +4633,7 @@
           },
           "response": [
             {
-              "id": "6aec6d72-62e7-4e5d-af6c-fc2c3ef59300",
+              "id": "660c11e1-b7dc-45dd-9d4a-7c979ffa3d3a",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4406,7 +4687,7 @@
           }
         },
         {
-          "id": "78bc55ea-b104-4521-8c07-8341edaa6ce0",
+          "id": "7b7688a2-54d5-465d-b2a7-acf4d1e2d3cf",
           "name": "Void a booking (fraud/error, auto-refunds 100%)",
           "request": {
             "name": "Void a booking (fraud/error, auto-refunds 100%)",
@@ -4450,7 +4731,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"reasonCategory\": \"other\",\n  \"reasonText\": \"string\"\n}",
+              "raw": "{\n  \"reasonCategory\": \"hotel_request\",\n  \"reasonText\": \"string\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4460,7 +4741,7 @@
           },
           "response": [
             {
-              "id": "c70a8e6d-34cf-4703-8cb1-6035d128d23b",
+              "id": "82b05fb1-6881-4940-91de-d976d5ce4b7d",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4496,7 +4777,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"reasonCategory\": \"other\",\n  \"reasonText\": \"string\"\n}",
+                  "raw": "{\n  \"reasonCategory\": \"hotel_request\",\n  \"reasonText\": \"string\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4523,7 +4804,7 @@
           }
         },
         {
-          "id": "9bd181cc-b294-46f3-b01a-fdb044b4750e",
+          "id": "27287d7e-5f91-472c-bf79-cc3827cddf83",
           "name": "Admin-initiated cancellation",
           "request": {
             "name": "Admin-initiated cancellation",
@@ -4567,7 +4848,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"reasonCategory\": \"system_error\",\n  \"reasonText\": \"string\"\n}",
+              "raw": "{\n  \"reasonCategory\": \"admin_decision\",\n  \"reasonText\": \"string\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4577,7 +4858,7 @@
           },
           "response": [
             {
-              "id": "156e7f77-e6ce-4d99-babd-21403ee89a3a",
+              "id": "10221a44-1718-4f9d-8a9b-ce6191a6df48",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4613,7 +4894,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"reasonCategory\": \"system_error\",\n  \"reasonText\": \"string\"\n}",
+                  "raw": "{\n  \"reasonCategory\": \"admin_decision\",\n  \"reasonText\": \"string\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4640,7 +4921,7 @@
           }
         },
         {
-          "id": "398786db-a685-48d9-a593-37d1df9a0995",
+          "id": "f18d2d0b-f34a-47a1-8569-2a86743f7e77",
           "name": "Issue a full or partial refund",
           "request": {
             "name": "Issue a full or partial refund",
@@ -4684,7 +4965,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amountPaise\": 1158.5751261057453,\n  \"reasonCategory\": \"string\",\n  \"reasonText\": \"string\"\n}",
+              "raw": "{\n  \"amountPaise\": 8867.418093203509,\n  \"reasonCategory\": \"string\",\n  \"reasonText\": \"string\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4694,7 +4975,7 @@
           },
           "response": [
             {
-              "id": "24e8a3d2-cb86-4955-b5db-e35315412926",
+              "id": "874cb316-284f-40d7-87e6-187e20a06862",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4730,7 +5011,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"amountPaise\": 1158.5751261057453,\n  \"reasonCategory\": \"string\",\n  \"reasonText\": \"string\"\n}",
+                  "raw": "{\n  \"amountPaise\": 8867.418093203509,\n  \"reasonCategory\": \"string\",\n  \"reasonText\": \"string\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4757,7 +5038,7 @@
           }
         },
         {
-          "id": "d7b0fb6e-b93a-462f-a009-0aa54ce41f88",
+          "id": "31dff3b9-6c2c-42e2-9756-08948a69c8f0",
           "name": "Force-checkout a checked-in guest",
           "request": {
             "name": "Force-checkout a checked-in guest",
@@ -4811,7 +5092,7 @@
           },
           "response": [
             {
-              "id": "cceeb1f3-12a2-4ffa-9434-59f7ee56ec70",
+              "id": "36471aad-76ca-4e1c-856f-66d2e911ab8b",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4874,7 +5155,7 @@
           }
         },
         {
-          "id": "10e87530-409a-47a8-b96c-a57237dcafcd",
+          "id": "76480c35-06ea-440d-90da-d23764280a69",
           "name": "Extend a checked-in booking checkout time",
           "request": {
             "name": "Extend a checked-in booking checkout time",
@@ -4918,7 +5199,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"newCheckOutAt\": \"string\",\n  \"extensionAmountPaise\": 4228.775838105987\n}",
+              "raw": "{\n  \"newCheckOutAt\": \"string\",\n  \"extensionAmountPaise\": 9427.63809440387\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4928,7 +5209,7 @@
           },
           "response": [
             {
-              "id": "0aa09cd8-0d11-4a84-bbd4-019e64e09eaf",
+              "id": "d773abc6-835c-405c-b4bc-a06f4f619a31",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4964,7 +5245,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"newCheckOutAt\": \"string\",\n  \"extensionAmountPaise\": 4228.775838105987\n}",
+                  "raw": "{\n  \"newCheckOutAt\": \"string\",\n  \"extensionAmountPaise\": 9427.63809440387\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4991,7 +5272,7 @@
           }
         },
         {
-          "id": "307ffb43-f35c-4a36-90fc-bb5a21af334a",
+          "id": "1f0dcc0e-97d6-4548-a6e4-a9a5ece3d8e8",
           "name": "Flag a booking for review",
           "request": {
             "name": "Flag a booking for review",
@@ -5035,7 +5316,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"flagType\": \"quality_issue\",\n  \"flagNotes\": \"string\"\n}",
+              "raw": "{\n  \"flagType\": \"suspicious\",\n  \"flagNotes\": \"string\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5045,7 +5326,7 @@
           },
           "response": [
             {
-              "id": "0e301774-f795-4718-aea7-bb37f19960a2",
+              "id": "5792a633-7371-4b48-af67-d2881f83bd3f",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -5081,7 +5362,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"flagType\": \"quality_issue\",\n  \"flagNotes\": \"string\"\n}",
+                  "raw": "{\n  \"flagType\": \"suspicious\",\n  \"flagNotes\": \"string\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -5108,7 +5389,7 @@
           }
         },
         {
-          "id": "469be957-d884-4561-a9f1-16d9b1933027",
+          "id": "16926db6-72fd-40a4-b481-379dde8fd2aa",
           "name": "Remove a flag from a booking",
           "request": {
             "name": "Remove a flag from a booking",
@@ -5147,7 +5428,7 @@
           },
           "response": [
             {
-              "id": "da37fb8e-367b-4e31-9c13-30c8dee7da21",
+              "id": "5dc2c96a-b402-4333-86d1-2f3f7ddd70c7",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -5203,6 +5484,4343 @@
         }
       ],
       "event": []
+    },
+    {
+      "id": "8df96619-dbff-4b97-954f-8039eee8102d",
+      "name": "Admin / Anomalies",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "8ca92379-c676-4d0c-a824-16becf801a44",
+          "name": "List anomalies with admin filters",
+          "request": {
+            "name": "List anomalies with admin filters",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "anomalies"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "severity",
+                  "value": "string",
+                  "description": "Comma-separated list of AnomalySeverity values"
+                },
+                {
+                  "disabled": false,
+                  "key": "ruleId",
+                  "value": "string",
+                  "description": "Exact rule id, e.g. 'ANO-001'"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "string",
+                  "description": "Comma-separated list of AnomalyStatus values"
+                },
+                {
+                  "disabled": false,
+                  "key": "dateFrom",
+                  "value": "string",
+                  "description": "Filters on detectedAt"
+                },
+                {
+                  "disabled": false,
+                  "key": "dateTo",
+                  "value": "string",
+                  "description": "Filters on detectedAt"
+                },
+                {
+                  "disabled": false,
+                  "key": "propertyId",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "customerId",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "severity"
+                },
+                {
+                  "disabled": false,
+                  "key": "order",
+                  "value": "desc"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b6441eba-9778-43e2-928d-9730066b6e74",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "anomalies"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "severity",
+                      "value": "string"
+                    },
+                    {
+                      "key": "ruleId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "status",
+                      "value": "string"
+                    },
+                    {
+                      "key": "dateFrom",
+                      "value": "string"
+                    },
+                    {
+                      "key": "dateTo",
+                      "value": "string"
+                    },
+                    {
+                      "key": "propertyId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "customerId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "severity"
+                    },
+                    {
+                      "key": "order",
+                      "value": "desc"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f7170a90-64e0-4635-9f08-389b2be54f64",
+          "name": "Count of unresolved anomalies (for tab badge)",
+          "request": {
+            "name": "Count of unresolved anomalies (for tab badge)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "anomalies",
+                "unresolved-count"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "95626e0e-5866-4e66-a4ee-d2c0a838d43a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "anomalies",
+                    "unresolved-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "68fdd1d5-3712-40d1-84c4-be07501788d0",
+          "name": "Anomaly detail incl. evidence and related actions",
+          "request": {
+            "name": "Anomaly detail incl. evidence and related actions",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "anomalies",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "79a08702-33c5-4002-a45e-bff5d1cec06c",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "anomalies",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2ffdf110-39e6-44e8-9732-24fac081ee03",
+          "name": "Update anomaly status (investigate / resolve / escalate)",
+          "request": {
+            "name": "Update anomaly status (investigate / resolve / escalate)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "anomalies",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved_action\",\n  \"resolutionType\": \"no_action_needed\",\n  \"resolutionNotes\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "4d6edb0b-b5e1-47ce-9279-9467f8a8045a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "anomalies",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"resolved_action\",\n  \"resolutionType\": \"no_action_needed\",\n  \"resolutionNotes\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "e2a4dbfd-61c6-434f-98ab-208b426f7501",
+      "name": "Disputes",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ab93a7c1-e5c7-40eb-bf3e-d76f808a4aca",
+          "name": "File a dispute for a completed booking (within 48h of checkout)",
+          "request": {
+            "name": "File a dispute for a completed booking (within 48h of checkout)",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings",
+                ":id",
+                "disputes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"other\",\n  \"description\": \"string\",\n  \"requestedResolution\": \"apology\",\n  \"evidence\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "dc5abdcb-02a5-4daa-9bda-ba3bbafe856f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings",
+                    ":id",
+                    "disputes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category\": \"charges\",\n  \"description\": \"string\",\n  \"requestedResolution\": \"partial_refund\",\n  \"evidence\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6190c079-f281-47ed-9eb1-89927ec9804f",
+          "name": "Hotel owner/manager submits a response to a dispute against their property",
+          "request": {
+            "name": "Hotel owner/manager submits a response to a dispute against their property",
+            "description": {},
+            "url": {
+              "path": [
+                "disputes",
+                ":id",
+                "hotel-response"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"response\": \"string\",\n  \"evidence\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "390fbdc2-5b09-427b-b2f2-f9a51eed56cf",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "disputes",
+                    ":id",
+                    "hotel-response"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"response\": \"string\",\n  \"evidence\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6f22077a-c3d7-474a-9dfd-27d17f6ad0e2",
+          "name": "Read-only list of a property's disputes",
+          "request": {
+            "name": "Read-only list of a property's disputes",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "properties",
+                ":propertyId",
+                "disputes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e1ba9403-0342-46e9-b3ed-cc84d0f856f4",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "properties",
+                    ":propertyId",
+                    "disputes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "9137b449-4f93-4f84-935e-63a7284ca962",
+      "name": "Admin / Disputes",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d09cb4c2-a330-4be5-8c4a-fb3d0cc6292e",
+          "name": "List disputes with admin filters",
+          "request": {
+            "name": "List disputes with admin filters",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "disputes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "string",
+                  "description": "Comma-separated list of DisputeStatus values"
+                },
+                {
+                  "disabled": false,
+                  "key": "category",
+                  "value": "string",
+                  "description": "Comma-separated list of DisputeCategory values"
+                },
+                {
+                  "disabled": false,
+                  "key": "dateFrom",
+                  "value": "string",
+                  "description": "Filters on filedAt"
+                },
+                {
+                  "disabled": false,
+                  "key": "dateTo",
+                  "value": "string",
+                  "description": "Filters on filedAt"
+                },
+                {
+                  "disabled": false,
+                  "key": "propertyId",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "disabled": false,
+                  "key": "order",
+                  "value": "asc",
+                  "description": "Order by resolutionDeadline"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ca8b7178-bfa2-4ca1-a58c-efbb9d6c96be",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "disputes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "string"
+                    },
+                    {
+                      "key": "category",
+                      "value": "string"
+                    },
+                    {
+                      "key": "dateFrom",
+                      "value": "string"
+                    },
+                    {
+                      "key": "dateTo",
+                      "value": "string"
+                    },
+                    {
+                      "key": "propertyId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "order",
+                      "value": "asc"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ba5253d9-b929-443c-a059-f2fd522461ee",
+          "name": "Count of unresolved disputes (Disputes tab badge)",
+          "request": {
+            "name": "Count of unresolved disputes (Disputes tab badge)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "disputes",
+                "unresolved-count"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "516550b2-9987-4d38-9d1a-424af5753ff7",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "disputes",
+                    "unresolved-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a0244a12-0373-4edf-8ebb-27d2b51ddb8a",
+          "name": "Full dispute detail incl. booking/guest/property context",
+          "request": {
+            "name": "Full dispute detail incl. booking/guest/property context",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "disputes",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a920c246-5525-45c1-83f5-9756d8a0a471",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "disputes",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bc530e45-5ca4-4969-80a6-609e97b0bb99",
+          "name": "Open the 48h hotel-response window for a dispute",
+          "request": {
+            "name": "Open the 48h hotel-response window for a dispute",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "disputes",
+                ":id",
+                "request-response"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2ed64e05-c6bd-4ac7-8dc0-cd6fb3a6396f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "disputes",
+                    ":id",
+                    "request-response"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1ce5388f-ebc0-459b-abf9-65376dde07b3",
+          "name": "Resolve a dispute (full/partial refund, no action, wallet credit, or escalate)",
+          "request": {
+            "name": "Resolve a dispute (full/partial refund, no action, wallet credit, or escalate)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "disputes",
+                ":id",
+                "resolve"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolutionType\": \"full_refund\",\n  \"adminNotes\": \"string\",\n  \"refundAmountPaise\": 4176.8468963360665,\n  \"walletCreditAmountPaise\": 6173.037170875069\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "9973eea7-3ab5-477b-a8a8-7809aeb9f02b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "disputes",
+                    ":id",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resolutionType\": \"full_refund\",\n  \"adminNotes\": \"string\",\n  \"refundAmountPaise\": 4176.8468963360665,\n  \"walletCreditAmountPaise\": 6173.037170875069\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "1e5e813a-e1ea-4ab8-a023-57a98ab8c35a",
+      "name": "Reviews",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "62aa00ae-eba2-471e-9a03-935b02794fec",
+          "name": "Submit a review for a completed booking",
+          "request": {
+            "name": "Submit a review for a completed booking",
+            "description": {},
+            "url": {
+              "path": [
+                "reviews"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"string\",\n  \"scoreOverall\": 3.30226753473172,\n  \"scoreCleanliness\": 3.8347415242561915,\n  \"scoreAmenities\": 4.903570170150483,\n  \"scoreAccuracy\": 4.033842980278106,\n  \"scoreValue\": 1.6051261910956338,\n  \"scoreCheckin\": 3.570799799965081,\n  \"reviewText\": \"string\",\n  \"photoUrls\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "9394ef33-0c19-4859-b9a1-6831c042861e",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "reviews"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"string\",\n  \"scoreOverall\": 3.976768257214002,\n  \"scoreCleanliness\": 4.814722274719749,\n  \"scoreAmenities\": 2.062050135770039,\n  \"scoreAccuracy\": 2.1438978260813366,\n  \"scoreValue\": 1.409995701498251,\n  \"scoreCheckin\": 3.009083794409994,\n  \"reviewText\": \"string\",\n  \"photoUrls\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "052f7819-2130-44ea-925c-46c751f37dee",
+          "name": "List bookings awaiting review (guest)",
+          "request": {
+            "name": "List bookings awaiting review (guest)",
+            "description": {},
+            "url": {
+              "path": [
+                "reviews",
+                "pending"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "7b921a83-95b1-4864-8a6e-f150fa05971b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "reviews",
+                    "pending"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2a488f96-6151-44c1-824c-d4705e829907",
+          "name": "All reviews submitted by the authenticated guest",
+          "request": {
+            "name": "All reviews submitted by the authenticated guest",
+            "description": {},
+            "url": {
+              "path": [
+                "reviews",
+                "my"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "570ee361-daa2-4033-9aa9-0a9ede9ca323",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "reviews",
+                    "my"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9064817e-5bd9-49c0-bb5d-8953db2756a7",
+          "name": "Report a published review (guest)",
+          "request": {
+            "name": "Report a published review (guest)",
+            "description": {},
+            "url": {
+              "path": [
+                "reviews",
+                ":id",
+                "report"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "9d104cab-aee9-4731-817f-2c35f605b7a1",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "reviews",
+                    ":id",
+                    "report"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "412e573c-e538-476c-b375-7006c2340cae",
+          "name": "Paginated published reviews for a property (public)",
+          "request": {
+            "name": "Paginated published reviews for a property (public)",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":id",
+                "reviews"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "recent"
+                },
+                {
+                  "disabled": false,
+                  "key": "scoreFilter",
+                  "value": "5077.534078290391",
+                  "description": "Filter by score_overall (1–5)"
+                },
+                {
+                  "disabled": false,
+                  "key": "withPhotos",
+                  "value": "true"
+                },
+                {
+                  "disabled": false,
+                  "key": "withReply",
+                  "value": "true"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "110707f9-d762-42cd-9ae2-c2680c527adb",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":id",
+                    "reviews"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "recent"
+                    },
+                    {
+                      "key": "scoreFilter",
+                      "value": "5077.534078290391"
+                    },
+                    {
+                      "key": "withPhotos",
+                      "value": "true"
+                    },
+                    {
+                      "key": "withReply",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "801622ea-9c98-4da0-8e95-df5449d076f0",
+          "name": "Rating summary for a property (public)",
+          "request": {
+            "name": "Rating summary for a property (public)",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":id",
+                "reviews",
+                "summary"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "12417c8d-d6a9-4d68-aa27-baf641e5959f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":id",
+                    "reviews",
+                    "summary"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "2e040073-c4a3-4f23-8687-cee751830166",
+      "name": "Owner / Reviews",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "23dce69b-a502-4842-9164-fc0e6aebb50e",
+          "name": "All reviews for a property (owner/manager view)",
+          "request": {
+            "name": "All reviews for a property (owner/manager view)",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "properties",
+                ":propertyId",
+                "reviews"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "bf18d711-3101-45ad-ba68-6abf2169ec16",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "properties",
+                    ":propertyId",
+                    "reviews"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5ef740c0-7795-4630-81f4-d75e55c55ba9",
+          "name": "Post a public reply to a review",
+          "request": {
+            "name": "Post a public reply to a review",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "reviews",
+                ":id",
+                "reply"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reply\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "e66711f1-b551-4554-bb8b-cb39c6448470",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "reviews",
+                    ":id",
+                    "reply"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reply\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "78bb5037-5a03-45dc-913f-314096a431cf",
+          "name": "Flag a review for admin moderation",
+          "request": {
+            "name": "Flag a review for admin moderation",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "reviews",
+                ":id",
+                "flag"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "87a71709-b429-4990-9faa-1cb8e61ed6fd",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "reviews",
+                    ":id",
+                    "flag"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "4479820c-cd4c-4967-aa63-4d95ef504c51",
+      "name": "Admin / Reviews",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9bc6dcfb-fb70-4aa6-b428-dbc37fb9d03c",
+          "name": "List all reviews with filters",
+          "request": {
+            "name": "List all reviews with filters",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "reviews"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "removed"
+                },
+                {
+                  "disabled": false,
+                  "key": "propertyId",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "scoreMin",
+                  "value": "4.227351083307006"
+                },
+                {
+                  "disabled": false,
+                  "key": "scoreMax",
+                  "value": "4.227351083307006"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f33f9311-e421-4064-8de4-c89204e076d3",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "reviews"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "status",
+                      "value": "removed"
+                    },
+                    {
+                      "key": "propertyId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "scoreMin",
+                      "value": "4.227351083307006"
+                    },
+                    {
+                      "key": "scoreMax",
+                      "value": "4.227351083307006"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0ae6700e-3eac-4350-aa51-9842b7a1f9b9",
+          "name": "Moderation queue — flagged reviews",
+          "request": {
+            "name": "Moderation queue — flagged reviews",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "reviews",
+                "flagged"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a416bdda-9738-45c4-b7ce-60e4d19e34ff",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "reviews",
+                    "flagged"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2a461b28-8675-46e5-9baa-be1d99d4c9b2",
+          "name": "Count of flagged reviews (sidebar badge)",
+          "request": {
+            "name": "Count of flagged reviews (sidebar badge)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "reviews",
+                "flagged-count"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "9f1b3a96-e321-46b1-83d3-8e31a48fcb8f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "reviews",
+                    "flagged-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2c579b88-7b2e-4f3a-8c97-4bb3400af61c",
+          "name": "Full audit log for a review",
+          "request": {
+            "name": "Full audit log for a review",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "reviews",
+                ":id",
+                "audit"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ce5b7148-0a8e-4a98-919d-97c2fec5ecf4",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "reviews",
+                    ":id",
+                    "audit"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9f1487df-435c-43db-9a48-5ca2516c337f",
+          "name": "Publish or remove a flagged review",
+          "request": {
+            "name": "Publish or remove a flagged review",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "reviews",
+                ":id",
+                "moderate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"remove\",\n  \"reason\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a6a978b1-6628-4632-93a3-4184672bcc34",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "reviews",
+                    ":id",
+                    "moderate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"remove\",\n  \"reason\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2cb54891-67e6-4103-954b-59d006e4bffc",
+          "name": "Hard-remove any review (mandatory reason)",
+          "request": {
+            "name": "Hard-remove any review (mandatory reason)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "reviews",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "f7f90043-9aab-45fb-ab3c-3f523cf367eb",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "reviews",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "c367528f-5e24-4cf8-a330-9b1294680d77",
+      "name": "Owner / Payouts",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "08bb0776-5bdd-4fcd-9328-27eaa7868d25",
+          "name": "List payout history for the authenticated owner",
+          "request": {
+            "name": "List payout history for the authenticated owner",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "payouts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3bc45b34-56a9-4e69-86c9-83ca56bc5d6b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "payouts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "014090e5-412c-48fc-aa37-0a92775b3cdd",
+          "name": "Payout batch detail with booking breakdown",
+          "request": {
+            "name": "Payout batch detail with booking breakdown",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "payouts",
+                ":batchId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "batchId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f640fc62-e92f-4514-a1f7-ff4bc9f20dfd",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "payouts",
+                    ":batchId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "batchId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "fe4b4e1d-190c-4ee7-9340-177642805858",
+      "name": "Admin / Payouts",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "c00b08e4-97c8-4266-9631-9cd5642b504e",
+          "name": "KPI summary strip",
+          "request": {
+            "name": "KPI summary strip",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts",
+                "summary"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f195d102-a028-4de3-bec3-4422dc373ae9",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts",
+                    "summary"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "90675888-d097-4557-8ca1-66f6c91098cd",
+          "name": "List all payout batches (filterable by status)",
+          "request": {
+            "name": "List all payout batches (filterable by status)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "processing"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "df8a4f23-6b51-40d9-a45b-adc91c83f9ac",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "status",
+                      "value": "processing"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b8884118-1873-4646-a6cb-26bf23fed105",
+          "name": "Batch detail with all payout items",
+          "request": {
+            "name": "Batch detail with all payout items",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts",
+                ":batchId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "batchId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "c6fa2fca-4a50-45d3-a5fb-517f4885d365",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts",
+                    ":batchId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "batchId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f4abf635-5b46-4eb5-bf92-67de474d1b1c",
+          "name": "Manually generate a payout batch for a date range",
+          "request": {
+            "name": "Manually generate a payout batch for a date range",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts",
+                "generate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cycleStartAt\": \"2026-06-09T00:00:00.000Z\",\n  \"cycleEndAt\": \"2026-06-15T23:59:59.999Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c025705c-8fb2-41a9-b654-4f1fa2687e0a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts",
+                    "generate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cycleStartAt\": \"2026-06-09T00:00:00.000Z\",\n  \"cycleEndAt\": \"2026-06-15T23:59:59.999Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5159da81-80bf-44f7-89b1-06260c93a6d2",
+          "name": "Release all pending items in a batch",
+          "request": {
+            "name": "Release all pending items in a batch",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts",
+                ":batchId",
+                "release"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "batchId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "7e85ecd7-9825-412a-8456-0faed4b95a4f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts",
+                    ":batchId",
+                    "release"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "batchId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "02ddb66f-b020-409a-aa57-4e9f9c0c66b3",
+          "name": "Put a single payout item on hold",
+          "request": {
+            "name": "Put a single payout item on hold",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts",
+                "items",
+                ":itemId",
+                "hold"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "itemId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"stringstring\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "48bf7836-2978-4d63-9aa6-cc24d252a591",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts",
+                    "items",
+                    ":itemId",
+                    "hold"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "itemId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"stringstring\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9c6a1b4a-0d4f-4318-8570-a7890cfe8837",
+          "name": "Release a single held payout item",
+          "request": {
+            "name": "Release a single held payout item",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "payouts",
+                "items",
+                ":itemId",
+                "release"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "itemId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "0d205f9b-53c7-4be5-9a82-bbdade4dcad5",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "payouts",
+                    "items",
+                    ":itemId",
+                    "release"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "itemId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "6e30691c-3c7a-43f4-b603-303192c33442",
+      "name": "Super Admin",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "6c81ce04-88af-4371-b851-15633921aef9",
+          "name": "Platform-wide KPI stats",
+          "request": {
+            "name": "Platform-wide KPI stats",
+            "description": {},
+            "url": {
+              "path": [
+                "super-admin",
+                "stats"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "138b8408-0dd6-4ae5-a5f9-935de58123e5",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "super-admin",
+                    "stats"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a55bdea2-00c4-47c6-95ce-8616f6c32952",
+          "name": "List admin and super-admin users",
+          "request": {
+            "name": "List admin and super-admin users",
+            "description": {},
+            "url": {
+              "path": [
+                "super-admin",
+                "admins"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ad33caaa-8146-4d37-8f10-308920679a65",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "super-admin",
+                    "admins"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "908fa3fa-7375-4d9d-b0e8-205937f58b53",
+          "name": "Create a new admin account",
+          "request": {
+            "name": "Create a new admin account",
+            "description": {},
+            "url": {
+              "path": [
+                "super-admin",
+                "admins"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "140d3375-961b-4776-8ac1-86eaaa9e622f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "super-admin",
+                    "admins"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b30a37cf-63cb-4848-b883-69b8a26f5a1f",
+          "name": "Suspend or activate an admin account",
+          "request": {
+            "name": "Suspend or activate an admin account",
+            "description": {},
+            "url": {
+              "path": [
+                "super-admin",
+                "admins",
+                ":id",
+                "status"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "f39afb8d-a469-45d9-96f7-79bb5472ff98",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "super-admin",
+                    "admins",
+                    ":id",
+                    "status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9dd90295-5b11-4a96-9e4a-ae5216f8c594",
+          "name": "Get platform settings singleton",
+          "request": {
+            "name": "Get platform settings singleton",
+            "description": {},
+            "url": {
+              "path": [
+                "super-admin",
+                "settings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e9aa10cb-177a-43d7-b62c-27f6993c31c1",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "super-admin",
+                    "settings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "cc8d2673-b573-4ec9-aee2-3d56583a9f1e",
+          "name": "Update platform settings",
+          "request": {
+            "name": "Update platform settings",
+            "description": {},
+            "url": {
+              "path": [
+                "super-admin",
+                "settings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "90eb4c7f-ab80-4096-a07b-5356b372d3c1",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "super-admin",
+                    "settings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
     }
   ],
   "event": [],
@@ -5214,7 +9832,7 @@
     }
   ],
   "info": {
-    "_postman_id": "e5a92be0-8018-44f8-b08a-5497d42638fd",
+    "_postman_id": "d994ce3a-d9fa-4c8b-9a41-1575e23a4bfa",
     "name": "QuickNest API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": {
