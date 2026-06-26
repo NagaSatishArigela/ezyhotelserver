@@ -19,7 +19,6 @@ export class TokenService {
   async createTokens(user: User, sessionId: string): Promise<AuthTokens> {
     const payload: JwtPayload = {
       id: user.id,
-      phone: user.phone,
       globalRole: user.globalRole,
       sessionId,
     };
@@ -28,10 +27,12 @@ export class TokenService {
       this.jwt.signAsync(payload, {
         secret: this.config.getOrThrow<string>('JWT_ACCESS_SECRET'),
         expiresIn: ACCESS_TOKEN_SECONDS,
+        algorithm: 'HS256',
       }),
       this.jwt.signAsync(payload, {
         secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
         expiresIn: REFRESH_TOKEN_SECONDS,
+        algorithm: 'HS256',
       }),
     ]);
 
@@ -55,6 +56,7 @@ export class TokenService {
     try {
       return await this.jwt.verifyAsync<JwtPayload>(refreshToken, {
         secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        algorithms: ['HS256'],
       });
     } catch (error) {
       if (error && typeof error === 'object' && 'name' in error) {

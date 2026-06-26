@@ -1,0 +1,5225 @@
+{
+  "item": [
+    {
+      "id": "eedf9be9-cfa6-4954-9bd3-c542112cdf20",
+      "name": "Auth",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "b6c7df4c-df1a-4d25-b99f-96156b052bcb",
+          "name": "Send OTP to an Indian mobile number",
+          "request": {
+            "name": "Send OTP to an Indian mobile number",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "send-otp"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "91c6ddb9-dbc4-4b6b-bc17-d757c5b1dbdf",
+              "name": "OTP accepted for delivery",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "send-otp"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"9876543210\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2673f11b-ad4e-4baa-b3dd-0b3750484a84",
+              "name": "Invalid phone number",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "send-otp"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"9876543210\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e53f39cc-57c6-49d6-a777-2fcf39939c56",
+              "name": "Rate limit, cooldown, or lock active",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "send-otp"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"9876543210\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1aa86386-ef01-4cd9-9485-a5e6a7976970",
+          "name": "Verify OTP and login existing users or continue registration",
+          "request": {
+            "name": "Verify OTP and login existing users or continue registration",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "verify-otp"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "82c8886d-2f5b-4c58-a0aa-b8ae3f7b677f",
+              "name": "OTP verified. Existing users receive tokens; new users continue to registration.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "verify-otp"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b9dfda7f-570c-456e-8c9a-c921504f5b5c",
+              "name": "Expired or incorrect OTP",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "verify-otp"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "6c49503a-0d8e-4144-8030-5979d2d42c37",
+              "name": "OTP verification locked",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "verify-otp"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "67f43c0e-2375-4811-b8dd-f86f2668f203",
+          "name": "Register a user after verification",
+          "request": {
+            "name": "Register a user after verification",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "register"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "633a02a1-68bd-4261-bfe9-fbe6d07412b8",
+              "name": "User registered and tokens issued",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "2210a52d-235c-459d-b047-69f066a2d9a3",
+              "name": "Invalid verification token or payload is invalid",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "7c8f8daf-b953-4795-8920-1a872f6f046c",
+              "name": "Phone or email already exists",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7e815543-0a3c-4ea3-8436-cb2be374010f",
+          "name": "Login with email and password fallback",
+          "request": {
+            "name": "Login with email and password fallback",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "48983cd6-f688-4219-825d-78c2df53dee6",
+              "name": "Credentials accepted and tokens issued",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "816467bf-f20a-40f7-a1cb-478c44326faa",
+              "name": "Invalid credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "3ad4cbde-83c1-440c-af96-5551efbf2007",
+              "name": "Too many login attempts",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "928f6136-8847-45bb-bafa-a42a5ac5678e",
+          "name": "Verify Firebase phone auth token and login or continue registration",
+          "request": {
+            "name": "Verify Firebase phone auth token and login or continue registration",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "firebase"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "14a964a0-c535-4a36-9560-5b01e1afaf77",
+              "name": "Firebase verified user logged in or registration required",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "firebase"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "b095fe3c-3b83-4eb5-be1d-52e80754ef23",
+              "name": "Invalid Firebase token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "firebase"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "38c025e8-7ce8-4313-b448-e9f346c18786",
+          "name": "Rotate refresh token and issue a new access token",
+          "request": {
+            "name": "Rotate refresh token and issue a new access token",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "refresh-token"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7488c35e-7927-494a-8508-fe829f746beb",
+              "name": "Refresh token rotated successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "refresh-token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "f6efb6b2-8076-439d-84ea-59ade9d14295",
+              "name": "Invalid, revoked, or expired refresh token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "refresh-token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "07bbe14e-1095-4658-9f20-6be412849a55",
+              "name": "Too many refresh attempts",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "refresh-token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0a1b8f87-a5b2-4fbf-afd5-6d9d1a8725e4",
+          "name": "Revoke the current refresh token",
+          "request": {
+            "name": "Revoke the current refresh token",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "logout"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c48bb5fc-0cc6-4892-af27-27a983195eed",
+              "name": "Refresh token revoked",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "logout"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d8375ce1-e3fc-44c0-819c-16d43f644594",
+              "name": "Invalid refresh token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "logout"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"stringstringstringstring\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "43e38048-baa1-40a1-a969-044282324536",
+      "name": "Me",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d51dff56-9c8e-49d6-bca0-e78541c17871",
+          "name": "Get current authenticated user profile",
+          "request": {
+            "name": "Get current authenticated user profile",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ab8e3c15-893a-4ab0-ad64-37fba8443ae8",
+              "name": "Authenticated user profile returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "465793e8-dd09-4cbc-90c4-bbec7633f9ed",
+              "name": "Missing or invalid access token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c0186f7a-d70b-4505-9c8d-64b318cf3be7",
+          "name": "Get current user capabilities for onboarding and admin flows",
+          "request": {
+            "name": "Get current user capabilities for onboarding and admin flows",
+            "description": {},
+            "url": {
+              "path": [
+                "me",
+                "capabilities"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "2bd5a8d2-5e48-4207-9279-183e94aba45d",
+              "name": "User capabilities returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "capabilities"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "b75e1ae7-2486-4678-9e94-72e1d857992d",
+              "name": "Missing or invalid access token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "capabilities"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f340f8dc-4ad6-4835-b7e6-66486ce557ac",
+          "name": "Get current user onboarding state",
+          "request": {
+            "name": "Get current user onboarding state",
+            "description": {},
+            "url": {
+              "path": [
+                "me",
+                "onboarding"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "bfb501ee-5616-4699-ad2b-aa959bff84f6",
+              "name": "User onboarding state returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "onboarding"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "54941e05-a64e-4f2e-b155-2c587e6ffe4d",
+              "name": "Missing or invalid access token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "onboarding"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "fde2cc26-9217-4722-b4cf-2239fada9fac",
+      "name": "Properties",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ab9483a8-b57e-44a8-8b7f-efa51bf0727d",
+          "name": "Create a new property onboarding draft",
+          "request": {
+            "name": "Create a new property onboarding draft",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                "draft"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "41413fca-c937-42f2-8862-e75ecccfdf13",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    "draft"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bbd7ecb5-493f-4f8d-9f2c-072a59fd9241",
+          "name": "Auto-save a wizard step (1-5) for a draft property",
+          "request": {
+            "name": "Auto-save a wizard step (1-5) for a draft property",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":propertyId",
+                "step",
+                ":stepNum"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "6922.75042889696",
+                  "key": "stepNum",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "6cb37769-5c81-4464-b52a-5480b7f45afd",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":propertyId",
+                    "step",
+                    ":stepNum"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "6922.75042889696",
+                      "key": "stepNum",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a1885552-25c1-4081-896c-f698df03178c",
+          "name": "Get the current onboarding draft state",
+          "request": {
+            "name": "Get the current onboarding draft state",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":propertyId",
+                "draft"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2344924a-d47f-43cc-80cd-db39afc98ac8",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":propertyId",
+                    "draft"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8f581eac-6ca5-45e2-80d7-1488bd84050d",
+          "name": "Submit a draft property for review",
+          "request": {
+            "name": "Submit a draft property for review",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":propertyId",
+                "submit"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ae006164-86ba-45ee-a5bb-b8d7fa405501",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":propertyId",
+                    "submit"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "577836d7-a0d9-4d01-8e18-32bfe119997c",
+          "name": "Get the submission status and review timeline",
+          "request": {
+            "name": "Get the submission status and review timeline",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":propertyId",
+                "status"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "bb344e14-493f-412b-a812-a98fcfb94f92",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":propertyId",
+                    "status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5b70957b-1746-4816-bbdd-64c9ec436cd5",
+          "name": "Resubmit a property after a requested revision",
+          "request": {
+            "name": "Resubmit a property after a requested revision",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":propertyId",
+                "revise"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3a160ee5-9459-45f9-963d-d5462da89c0b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":propertyId",
+                    "revise"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "94c0b09f-7825-44c4-a9f2-07a3817fb16d",
+      "name": "Admin / Properties",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "b26b69d6-ea22-42ed-a4b5-ca72c263c1f4",
+          "name": "List properties in the moderation queue",
+          "request": {
+            "name": "List properties in the moderation queue",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "properties"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "pending_review"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f2fa2fb1-83ca-4d77-aba6-b0b1c1e5dc7f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "properties"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "pending_review"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c83d7f35-3a5f-4b5a-a48b-512f420d40b0",
+          "name": "Get full property detail for moderation",
+          "request": {
+            "name": "Get full property detail for moderation",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "properties",
+                ":propertyId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "7eed916e-c391-402a-b5ac-bb398c68fa23",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "properties",
+                    ":propertyId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8134b440-9dd4-4420-8a52-61c134640c2e",
+          "name": "Approve a pending property submission",
+          "request": {
+            "name": "Approve a pending property submission",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "properties",
+                ":propertyId",
+                "approve"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e8aa9e81-7d77-4666-86c4-bb22617345fb",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "properties",
+                    ":propertyId",
+                    "approve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "219284c6-979b-4fd5-accf-31a05256c0cc",
+          "name": "Reject a pending property submission",
+          "request": {
+            "name": "Reject a pending property submission",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "properties",
+                ":propertyId",
+                "reject"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "4c224f98-7a19-495b-9a7b-473e135b8a9e",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "properties",
+                    ":propertyId",
+                    "reject"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "06b901da-946a-4515-a852-54496ac12bfb",
+          "name": "Request changes to a pending property submission",
+          "request": {
+            "name": "Request changes to a pending property submission",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "properties",
+                ":propertyId",
+                "request-revision"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"field\": \"string\",\n      \"reason\": \"string\"\n    },\n    {\n      \"field\": \"string\",\n      \"reason\": \"string\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "6e7891d3-6ee3-499f-a0f4-12488dacbc03",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "properties",
+                    ":propertyId",
+                    "request-revision"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"field\": \"string\",\n      \"reason\": \"string\"\n    },\n    {\n      \"field\": \"string\",\n      \"reason\": \"string\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "8bd89763-77a7-42bb-9c3b-a0a3ebad1278",
+      "name": "Properties / Public",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5c85e442-2573-409a-8e6b-666c66852398",
+          "name": "List approved, active properties",
+          "request": {
+            "name": "List approved, active properties",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                "public"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "string",
+                  "description": "Free-text search across name, description, landmark, city"
+                },
+                {
+                  "disabled": false,
+                  "key": "city",
+                  "value": "string",
+                  "description": "Exact city match (case-insensitive)"
+                },
+                {
+                  "disabled": false,
+                  "key": "minPrice",
+                  "value": "5047.780204486409",
+                  "description": "Minimum hourly rate in paise"
+                },
+                {
+                  "disabled": false,
+                  "key": "maxPrice",
+                  "value": "5047.780204486409",
+                  "description": "Maximum hourly rate in paise"
+                },
+                {
+                  "disabled": false,
+                  "key": "amenities",
+                  "value": "string",
+                  "description": "Comma-separated amenity list - property must have all"
+                },
+                {
+                  "disabled": false,
+                  "key": "rating",
+                  "value": "string",
+                  "description": "Accepted for forward-compatibility but ignored - no Reviews module yet (M4 spec §1)"
+                },
+                {
+                  "disabled": false,
+                  "key": "checkInAt",
+                  "value": "string",
+                  "description": "Availability filter: requested check-in instant (ISO 8601)"
+                },
+                {
+                  "disabled": false,
+                  "key": "durationHours",
+                  "value": "2133.411666219119",
+                  "description": "Availability filter: requested duration in hours"
+                },
+                {
+                  "disabled": false,
+                  "key": "bookingType",
+                  "value": "hourly"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "relevance"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8ce7e1a4-813e-4660-9fb9-c9b625951c32",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    "public"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "q",
+                      "value": "string"
+                    },
+                    {
+                      "key": "city",
+                      "value": "string"
+                    },
+                    {
+                      "key": "minPrice",
+                      "value": "5047.780204486409"
+                    },
+                    {
+                      "key": "maxPrice",
+                      "value": "5047.780204486409"
+                    },
+                    {
+                      "key": "amenities",
+                      "value": "string"
+                    },
+                    {
+                      "key": "rating",
+                      "value": "string"
+                    },
+                    {
+                      "key": "checkInAt",
+                      "value": "string"
+                    },
+                    {
+                      "key": "durationHours",
+                      "value": "2133.411666219119"
+                    },
+                    {
+                      "key": "bookingType",
+                      "value": "hourly"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "relevance"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "57b159ae-fc28-4747-8d7f-807cda572336",
+          "name": "Get an approved property with room types and photos",
+          "request": {
+            "name": "Get an approved property with room types and photos",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                "public",
+                ":propertyId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d80cb85a-084c-4093-8680-628079a8e3a3",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    "public",
+                    ":propertyId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "6774364c-dfeb-4c05-9a98-d213bf614c00",
+      "name": "Owner Notifications",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5bd485f7-6a5c-4678-a3f1-8e6dc774355c",
+          "name": "Get the caller's notification inbox",
+          "request": {
+            "name": "Get the caller's notification inbox",
+            "description": {},
+            "url": {
+              "path": [
+                "owners",
+                "me",
+                "notifications"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "unread",
+                  "value": "false"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "0d2d0349-3ab7-41b3-8f49-f342ced065ab",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owners",
+                    "me",
+                    "notifications"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "unread",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c852342d-930c-40a8-b44a-6cda3199f4b8",
+          "name": "Mark a notification as read",
+          "request": {
+            "name": "Mark a notification as read",
+            "description": {},
+            "url": {
+              "path": [
+                "owners",
+                "me",
+                "notifications",
+                ":id",
+                "read"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2ca02661-7325-4b23-b5cb-c83d807e645f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owners",
+                    "me",
+                    "notifications",
+                    ":id",
+                    "read"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "cb286a7c-d979-4df4-8c17-d2c32ae06704",
+      "name": "Bookings",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "004d7af7-2521-4134-9e75-e17f3454536d",
+          "name": "Get booked intervals for a room type on a given date",
+          "request": {
+            "name": "Get booked intervals for a room type on a given date",
+            "description": {},
+            "url": {
+              "path": [
+                "properties",
+                ":propertyId",
+                "availability"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "roomTypeId",
+                  "value": "string",
+                  "description": "(Required) Room type to check availability for"
+                },
+                {
+                  "disabled": false,
+                  "key": "date",
+                  "value": "string",
+                  "description": "(Required) Date to check, format YYYY-MM-DD"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d12dec60-e975-4924-a8ff-d56759cd964f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "properties",
+                    ":propertyId",
+                    "availability"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "roomTypeId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "date",
+                      "value": "string"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7986e67b-6db6-46aa-abab-facb85d3967c",
+          "name": "Create a new booking (pending_payment)",
+          "request": {
+            "name": "Create a new booking (pending_payment)",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"string\",\n  \"roomTypeId\": \"string\",\n  \"bookingType\": \"hourly\",\n  \"checkInAt\": \"string\",\n  \"guestCount\": 8810.21444201099,\n  \"durationHours\": 5202.44358536806\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "2eff4330-e226-4075-8c47-89e03d67d48a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"propertyId\": \"string\",\n  \"roomTypeId\": \"string\",\n  \"bookingType\": \"hourly\",\n  \"checkInAt\": \"string\",\n  \"guestCount\": 8810.21444201099,\n  \"durationHours\": 5202.44358536806\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "86ddab2f-6d09-4168-ad65-cb0a2c75d447",
+          "name": "Get full booking detail",
+          "request": {
+            "name": "Get full booking detail",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "129e0ab6-43d9-4ff4-ba52-b65063e4cad1",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "10f03ef7-9208-4ae3-94f9-7c5ab3939bf9",
+          "name": "Mock payment gateway confirmation",
+          "request": {
+            "name": "Mock payment gateway confirmation",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings",
+                ":id",
+                "payment",
+                "confirm"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"success\": true,\n  \"paymentRef\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a500929d-579d-4a29-bb8a-1ba00996b7b0",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings",
+                    ":id",
+                    "payment",
+                    "confirm"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"success\": true,\n  \"paymentRef\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8537e333-cc2b-4501-9450-d81b0cdebdb1",
+          "name": "Check in using the booking QR code",
+          "request": {
+            "name": "Check in using the booking QR code",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings",
+                ":id",
+                "check-in"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0f1a8345-e740-4831-a000-d846a01915e3",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings",
+                    ":id",
+                    "check-in"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qrCode\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c6639168-f3f8-4d0f-8ff6-21ed880d65ea",
+          "name": "Manually check out a booking",
+          "request": {
+            "name": "Manually check out a booking",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings",
+                ":id",
+                "check-out"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "aaae9339-328a-49a4-9576-806eea665173",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings",
+                    ":id",
+                    "check-out"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "327d2394-902b-4b5a-bd30-92eb40d982f1",
+          "name": "Cancel a confirmed booking",
+          "request": {
+            "name": "Cancel a confirmed booking",
+            "description": {},
+            "url": {
+              "path": [
+                "bookings",
+                ":id",
+                "cancel"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a1c5cb9f-4a9a-4369-90e5-929a89861357",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "bookings",
+                    ":id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b0be2a76-5e3f-4f83-99c2-8263ad4b770e",
+          "name": "List the current guest's bookings",
+          "request": {
+            "name": "List the current guest's bookings",
+            "description": {},
+            "url": {
+              "path": [
+                "me",
+                "bookings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "confirmed"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e478566c-3859-4f6f-8aad-d7bd7682337d",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "bookings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "confirmed"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "73a17dff-c7f9-45fa-a0e1-37fe45a12be4",
+          "name": "Read-only list of a property's bookings",
+          "request": {
+            "name": "Read-only list of a property's bookings",
+            "description": {},
+            "url": {
+              "path": [
+                "owner",
+                "properties",
+                ":propertyId",
+                "bookings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "confirmed"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "propertyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "694729d4-ce75-4cd3-8a29-2ae00b406447",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "owner",
+                    "properties",
+                    ":propertyId",
+                    "bookings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "confirmed"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "propertyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "7afa9707-ad36-4712-bd60-c02c0ec22d23",
+      "name": "Admin / Bookings",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "12702af4-12b4-4d2c-9b69-bc96e87993d1",
+          "name": "List bookings with admin filters",
+          "request": {
+            "name": "List bookings with admin filters",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "dateFrom",
+                  "value": "string",
+                  "description": "Filters on checkInAt (default: 7 days ago)"
+                },
+                {
+                  "disabled": false,
+                  "key": "dateTo",
+                  "value": "string",
+                  "description": "Filters on checkInAt (default: now)"
+                },
+                {
+                  "disabled": false,
+                  "key": "city",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "propertyId",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "bookingType",
+                  "value": "fullday"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "string",
+                  "description": "Comma-separated list of BookingStatus values"
+                },
+                {
+                  "disabled": false,
+                  "key": "amountMin",
+                  "value": "6922.75042889696",
+                  "description": "Minimum totalAmountPaise"
+                },
+                {
+                  "disabled": false,
+                  "key": "amountMax",
+                  "value": "6922.75042889696",
+                  "description": "Maximum totalAmountPaise"
+                },
+                {
+                  "disabled": false,
+                  "key": "guestPhone",
+                  "value": "string",
+                  "description": "Partial match on guest phone, min 3 chars"
+                },
+                {
+                  "disabled": false,
+                  "key": "bookingRef",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "createdAt"
+                },
+                {
+                  "disabled": false,
+                  "key": "order",
+                  "value": "desc"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d45d0523-6104-4d82-899f-71116d6335f3",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "dateFrom",
+                      "value": "string"
+                    },
+                    {
+                      "key": "dateTo",
+                      "value": "string"
+                    },
+                    {
+                      "key": "city",
+                      "value": "string"
+                    },
+                    {
+                      "key": "propertyId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "bookingType",
+                      "value": "fullday"
+                    },
+                    {
+                      "key": "status",
+                      "value": "string"
+                    },
+                    {
+                      "key": "amountMin",
+                      "value": "6922.75042889696"
+                    },
+                    {
+                      "key": "amountMax",
+                      "value": "6922.75042889696"
+                    },
+                    {
+                      "key": "guestPhone",
+                      "value": "string"
+                    },
+                    {
+                      "key": "bookingRef",
+                      "value": "string"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "createdAt"
+                    },
+                    {
+                      "key": "order",
+                      "value": "desc"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "fb88b326-5b06-4e36-a424-32d02960f140",
+          "name": "KPI summary for the active filter set",
+          "request": {
+            "name": "KPI summary for the active filter set",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                "kpis"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "dateFrom",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "dateTo",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "city",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "propertyId",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "bookingType",
+                  "value": "fullday"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "string"
+                },
+                {
+                  "disabled": false,
+                  "key": "amountMin",
+                  "value": "6922.75042889696"
+                },
+                {
+                  "disabled": false,
+                  "key": "amountMax",
+                  "value": "6922.75042889696"
+                },
+                {
+                  "disabled": false,
+                  "key": "guestPhone",
+                  "value": "string",
+                  "description": "Partial match on guest phone, min 3 chars"
+                },
+                {
+                  "disabled": false,
+                  "key": "bookingRef",
+                  "value": "string"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b280eafe-8365-45e5-9431-b9362055ec2b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    "kpis"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "dateFrom",
+                      "value": "string"
+                    },
+                    {
+                      "key": "dateTo",
+                      "value": "string"
+                    },
+                    {
+                      "key": "city",
+                      "value": "string"
+                    },
+                    {
+                      "key": "propertyId",
+                      "value": "string"
+                    },
+                    {
+                      "key": "bookingType",
+                      "value": "fullday"
+                    },
+                    {
+                      "key": "status",
+                      "value": "string"
+                    },
+                    {
+                      "key": "amountMin",
+                      "value": "6922.75042889696"
+                    },
+                    {
+                      "key": "amountMax",
+                      "value": "6922.75042889696"
+                    },
+                    {
+                      "key": "guestPhone",
+                      "value": "string"
+                    },
+                    {
+                      "key": "bookingRef",
+                      "value": "string"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2246c2dc-b7a9-452b-8733-2e98b12dee18",
+          "name": "Currently checked-in bookings, soonest-expiring first",
+          "request": {
+            "name": "Currently checked-in bookings, soonest-expiring first",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                "active"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "362e4a3d-7b1b-44e1-9540-0ed57e0e59ed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    "active"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4fb2a58b-81bc-4913-9332-585a994eb67e",
+          "name": "Full booking detail incl. timeline and admin actions",
+          "request": {
+            "name": "Full booking detail incl. timeline and admin actions",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "6aec6d72-62e7-4e5d-af6c-fc2c3ef59300",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "78bc55ea-b104-4521-8c07-8341edaa6ce0",
+          "name": "Void a booking (fraud/error, auto-refunds 100%)",
+          "request": {
+            "name": "Void a booking (fraud/error, auto-refunds 100%)",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "void"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCategory\": \"other\",\n  \"reasonText\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c70a8e6d-34cf-4703-8cb1-6035d128d23b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "void"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reasonCategory\": \"other\",\n  \"reasonText\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9bd181cc-b294-46f3-b01a-fdb044b4750e",
+          "name": "Admin-initiated cancellation",
+          "request": {
+            "name": "Admin-initiated cancellation",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "cancel"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCategory\": \"system_error\",\n  \"reasonText\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "156e7f77-e6ce-4d99-babd-21403ee89a3a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reasonCategory\": \"system_error\",\n  \"reasonText\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "398786db-a685-48d9-a593-37d1df9a0995",
+          "name": "Issue a full or partial refund",
+          "request": {
+            "name": "Issue a full or partial refund",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "refund"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amountPaise\": 1158.5751261057453,\n  \"reasonCategory\": \"string\",\n  \"reasonText\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "24e8a3d2-cb86-4955-b5db-e35315412926",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "refund"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amountPaise\": 1158.5751261057453,\n  \"reasonCategory\": \"string\",\n  \"reasonText\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d7b0fb6e-b93a-462f-a009-0aa54ce41f88",
+          "name": "Force-checkout a checked-in guest",
+          "request": {
+            "name": "Force-checkout a checked-in guest",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "force-checkout"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonText\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "cceeb1f3-12a2-4ffa-9434-59f7ee56ec70",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "force-checkout"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reasonText\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "10e87530-409a-47a8-b96c-a57237dcafcd",
+          "name": "Extend a checked-in booking checkout time",
+          "request": {
+            "name": "Extend a checked-in booking checkout time",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "extend"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCheckOutAt\": \"string\",\n  \"extensionAmountPaise\": 4228.775838105987\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0aa09cd8-0d11-4a84-bbd4-019e64e09eaf",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "extend"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newCheckOutAt\": \"string\",\n  \"extensionAmountPaise\": 4228.775838105987\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "307ffb43-f35c-4a36-90fc-bb5a21af334a",
+          "name": "Flag a booking for review",
+          "request": {
+            "name": "Flag a booking for review",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "flag"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flagType\": \"quality_issue\",\n  \"flagNotes\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0e301774-f795-4718-aea7-bb37f19960a2",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "flag"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flagType\": \"quality_issue\",\n  \"flagNotes\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "469be957-d884-4561-a9f1-16d9b1933027",
+          "name": "Remove a flag from a booking",
+          "request": {
+            "name": "Remove a flag from a booking",
+            "description": {},
+            "url": {
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "unflag"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "string",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "da37fb8e-367b-4e31-9c13-30c8dee7da21",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "admin",
+                    "bookings",
+                    ":id",
+                    "unflag"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "string",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "http://localhost:4000",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "e5a92be0-8018-44f8-b08a-5497d42638fd",
+    "name": "QuickNest API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Backend APIs for QuickNest hotel booking platform",
+      "type": "text/plain"
+    }
+  }
+}

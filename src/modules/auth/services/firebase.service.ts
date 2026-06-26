@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 
@@ -39,14 +39,24 @@ export class FirebaseService {
     this.logger.log('Firebase admin initialized successfully');
   }
 
+  private static readonly VERIFY_TIMEOUT_MS = 5_000;
+
   async verifyIdToken(idToken: string): Promise<admin.auth.DecodedIdToken> {
     if (admin.apps.length === 0) {
       throw new UnauthorizedException('Firebase is not configured');
     }
 
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Firebase verification timeout')), FirebaseService.VERIFY_TIMEOUT_MS),
+    );
+
     try {
-      return await admin.auth().verifyIdToken(idToken);
+      return await Promise.race([admin.auth().verifyIdToken(idToken), timeout]);
     } catch (error) {
+      if (error instanceof Error && error.message === 'Firebase verification timeout') {
+        this.logger.warn({ event: 'firebase.verify_id_token_timeout' });
+        throw new ServiceUnavailableException('Authentication service temporarily unavailable. Please try again.');
+      }
       this.logger.warn({ event: 'firebase.verify_id_token_failed', error });
       throw new UnauthorizedException('Invalid Firebase ID token');
     }

@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  handleRequest(err: any, user: any, info: any, context: ExecutionContext, status?: any): any {
+  handleRequest(err: any, user: any, info: any, _context: ExecutionContext, _status?: any): any {
     if (err || !user) {
       if (info && typeof info === 'object' && 'name' in info) {
         const name = (info as Record<string, unknown>).name;

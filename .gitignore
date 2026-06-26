@@ -1,5 +1,12 @@
 node_modules
 .codex
 .env
+.env.test
+.env.test.local
 dist
 coverage
+
+# Claude Code local config
+.claude/
+.claude.zip
+.playwright-mcp/

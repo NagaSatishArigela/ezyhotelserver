@@ -1,7 +1,6 @@
 import { BadRequestException, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GlobalRole, PropertyRole } from '@prisma/client';
-import { PROPERTY_ROLES_KEY } from '../decorators/property-roles.decorator';
 import { PropertyRoleGuard } from '../guards/property-role.guard';
 
 describe(PropertyRoleGuard.name, () => {

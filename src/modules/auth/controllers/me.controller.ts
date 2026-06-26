@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { PrismaService } from '../../database/prisma.service';
 
 type MeRequest = Request & { user?: JwtPayload };
 
@@ -11,7 +12,10 @@ type MeRequest = Request & { user?: JwtPayload };
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class MeController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @ApiOperation({ summary: 'Get current authenticated user profile' })
   @ApiOkResponse({ description: 'Authenticated user profile returned' })
@@ -35,5 +39,19 @@ export class MeController {
   @Get('me/onboarding')
   onboarding(@Req() request: MeRequest) {
     return this.authService.getOnboarding(request.user as JwtPayload);
+  }
+
+  @ApiOperation({ summary: "Get the owner's most recent property status (for portal routing)" })
+  @ApiOkResponse({ description: 'Property status or nulls if owner has no property yet' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+  @Get('me/property-status')
+  async propertyStatus(@Req() request: MeRequest) {
+    const { id } = request.user as JwtPayload;
+    const property = await this.prisma.property.findFirst({
+      where: { ownerId: id },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, status: true, submissionRef: true, draftStep: true },
+    });
+    return property ?? { id: null, status: null, submissionRef: null, draftStep: null };
   }
 }

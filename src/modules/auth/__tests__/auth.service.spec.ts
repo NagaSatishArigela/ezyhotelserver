@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, HttpException, HttpStatus, Logger, UnauthorizedException } from '@nestjs/common';
 import { GlobalRole, Session, User, UserStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../services/auth.service';
@@ -15,13 +15,12 @@ const activeUser: User = {
   id: '0bb3c81a-cb04-42a9-9414-7f362a5bb143',
   phone: '9876543210',
   email: 'guest@quicknest.in',
+  name: null,
   passwordHash: '$2b$12$password',
   globalRole: GlobalRole.USER,
   isPhoneVerified: true,
   isEmailVerified: false,
   status: UserStatus.active,
-  refreshTokenHash: '$2b$12$refresh',
-  refreshTokenExpiresAt: new Date('2026-05-03T00:00:00.000Z'),
   createdAt: now,
   updatedAt: now,
 };
@@ -32,7 +31,7 @@ const activeSession: Session = {
   refreshTokenHash: '$2b$12$refresh',
   device: 'jest',
   ip: '127.0.0.1',
-  expiresAt: new Date('2026-05-03T00:00:00.000Z'),
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   createdAt: now,
   updatedAt: now,
   revokedAt: null,
@@ -50,8 +49,6 @@ describe(AuthService.name, () => {
     findByEmail: jest.fn(),
     findById: jest.fn(),
     create: jest.fn(),
-    updateRefreshToken: jest.fn(),
-    clearRefreshToken: jest.fn(),
     createSession: jest.fn(),
     findSessionById: jest.fn(),
     rotateSessionRefreshToken: jest.fn(),
@@ -73,6 +70,18 @@ describe(AuthService.name, () => {
   const firebase = {
     verifyIdToken: jest.fn(),
   };
+  const events = {
+    emit: jest.fn(),
+    on: jest.fn(),
+  };
+  const redisClient = {
+    get: jest.fn(),
+    del: jest.fn(),
+    incr: jest.fn(),
+    expire: jest.fn(),
+    ttl: jest.fn(),
+  };
+  const redis = { client: redisClient };
 
   let service: AuthService;
 
@@ -80,11 +89,19 @@ describe(AuthService.name, () => {
     jest.clearAllMocks();
     jest.mocked(bcrypt.hash).mockResolvedValue('password-hash' as never);
     jest.mocked(bcrypt.compare).mockResolvedValue(true as never);
+    // Default: no lockout active, Redis ops succeed
+    redisClient.get.mockResolvedValue(null);
+    redisClient.del.mockResolvedValue(1);
+    redisClient.incr.mockResolvedValue(1);
+    redisClient.expire.mockResolvedValue(1);
+    redisClient.ttl.mockResolvedValue(1800);
     service = new AuthService(
       users as never,
       otp as never,
       tokens as never,
       firebase as never,
+      events as never,
+      redis as never,
     );
     tokens.createTokens.mockResolvedValue({
       accessToken: 'access-token',
@@ -287,8 +304,13 @@ describe(AuthService.name, () => {
       activeSession.refreshTokenHash,
       'hashed-refresh-token',
     );
-    expect(activeSession.expiresAt).toEqual(
-      new Date('2026-05-03T00:00:00.000Z'),
+    // expiresAt must remain unchanged - rotation only swaps the hash, it
+    // does not extend the session's lifetime (fixed-window expiry).
+    expect(users.rotateSessionRefreshToken).not.toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ expiresAt: expect.anything() }),
     );
   });
 
@@ -310,6 +332,30 @@ describe(AuthService.name, () => {
     );
 
     expect(users.createSession).toHaveBeenCalledTimes(2);
+  });
+
+  it('blocks login after 5 consecutive failed attempts (account lockout)', async () => {
+    users.findByEmail.mockResolvedValue(activeUser);
+    redisClient.get.mockResolvedValue('5'); // 5 failures recorded
+    redisClient.ttl.mockResolvedValue(1200); // 20 minutes remaining
+
+    await expect(
+      service.login({ email: activeUser.email, password: 'wrong' }),
+    ).rejects.toBeInstanceOf(HttpException);
+
+    const err = await service
+      .login({ email: activeUser.email, password: 'wrong' })
+      .catch((e: HttpException) => e);
+    expect((err as HttpException).getStatus()).toBe(HttpStatus.TOO_MANY_REQUESTS);
+  });
+
+  it('clears the fail counter on successful login', async () => {
+    users.findByEmail.mockResolvedValue(activeUser);
+    redisClient.get.mockResolvedValue('2'); // 2 previous failures, not yet locked
+
+    await service.login({ email: activeUser.email, password: 'QuickNest@123' });
+
+    expect(redisClient.del).toHaveBeenCalledWith(`login:fail:${activeUser.id}`);
   });
 
   it('rejects expired sessions during refresh and revokes them', async () => {

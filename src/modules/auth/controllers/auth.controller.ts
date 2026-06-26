@@ -1,4 +1,5 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -38,6 +39,9 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: 'Invalid phone number' })
   @ApiTooManyRequestsResponse({ description: 'Rate limit, cooldown, or lock active' })
+  // OTP service has its own per-phone cooldown/limits, but also cap by IP to
+  // blunt distributed enumeration/spam across many phone numbers.
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('send-otp')
   sendOtp(@Body() dto: SendOtpDto) {
     return this.authService.sendOtp(dto);
@@ -59,7 +63,6 @@ export class AuthController {
               isPhoneVerified: true,
               isEmailVerified: false,
               status: 'active',
-              refreshTokenExpiresAt: '2026-05-03T00:00:00.000Z',
               createdAt: '2026-04-26T00:00:00.000Z',
               updatedAt: '2026-04-26T00:00:00.000Z',
             },
@@ -83,6 +86,7 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: 'Expired or incorrect OTP' })
   @ApiTooManyRequestsResponse({ description: 'OTP verification locked' })
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('verify-otp')
   verifyOtp(@Body() dto: VerifyOtpDto, @Req() request: AuthRequest) {
     return this.authService.verifyOtp(dto, this.sessionMetadata(request));
@@ -92,6 +96,8 @@ export class AuthController {
   @ApiOkResponse({ description: 'User registered and tokens issued' })
   @ApiBadRequestResponse({ description: 'Invalid verification token or payload is invalid' })
   @ApiConflictResponse({ description: 'Phone or email already exists' })
+  @ApiTooManyRequestsResponse({ description: 'Too many registration attempts' })
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('register')
   register(@Body() dto: RegisterDto, @Req() request: AuthRequest) {
     return this.authService.register(dto, this.sessionMetadata(request));
@@ -100,6 +106,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Login with email and password fallback' })
   @ApiOkResponse({ description: 'Credentials accepted and tokens issued' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiTooManyRequestsResponse({ description: 'Too many login attempts' })
+  // Tight limit to slow down credential-stuffing/brute-force attempts.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
   login(@Body() dto: LoginDto, @Req() request: AuthRequest) {
     return this.authService.login(dto, this.sessionMetadata(request));
@@ -116,6 +125,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Rotate refresh token and issue a new access token' })
   @ApiOkResponse({ description: 'Refresh token rotated successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid, revoked, or expired refresh token' })
+  @ApiTooManyRequestsResponse({ description: 'Too many refresh attempts' })
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('refresh-token')
   refreshToken(@Body() dto: RefreshTokenDto, @Req() request: AuthRequest) {
     return this.authService.refreshToken(dto, this.sessionMetadata(request));

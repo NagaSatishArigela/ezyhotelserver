@@ -1,7 +1,8 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -24,8 +25,18 @@ import { UsersRepository } from '../repositories/user.repository';
 import { OtpService } from './otp.service';
 import { TokenService } from './token.service';
 import { FirebaseService } from './firebase.service';
+import { RedisService } from '../../redis/redis.service';
+import { TypedEventEmitter } from '../../../common/events/typed-event-emitter.service';
+import { DOMAIN_EVENTS } from '../../../common/events/domain-events';
 
-type PublicUser = Omit<User, 'passwordHash' | 'refreshTokenHash'>;
+// A pre-computed bcrypt hash with no corresponding plaintext password. Used to
+// run a dummy comparison when the user does not exist, so login() takes a
+// constant amount of time regardless of whether the email is registered -
+// this prevents email-enumeration via timing analysis.
+const DUMMY_PASSWORD_HASH =
+  '$2b$12$CwTycUXWue0Thq9StjUM0uJ8aOcU/Qy.WhE0dV2OTC0qkO5e2kWyG';
+
+type PublicUser = Omit<User, 'passwordHash'>;
 
 type FirebaseLoginResponse =
   | { status: 'OK'; user: PublicUser; tokens: AuthTokens }
@@ -41,11 +52,16 @@ type FirebaseLoginResponse =
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  private static readonly LOGIN_FAIL_MAX = 5;
+  private static readonly LOGIN_FAIL_WINDOW_SEC = 30 * 60; // 30-minute lockout window
+
   constructor(
     private readonly users: UsersRepository,
     private readonly otp: OtpService,
     private readonly tokens: TokenService,
     private readonly firebase: FirebaseService,
+    private readonly events: TypedEventEmitter,
+    private readonly redis: RedisService,
   ) {}
 
   async sendOtp(dto: SendOtpDto) {
@@ -168,6 +184,11 @@ export class AuthService {
         userId: user.id,
         globalRole: user.globalRole,
       });
+      this.events.emit(DOMAIN_EVENTS.USER_REGISTERED, {
+        userId: user.id,
+        phone: user.phone,
+        email: user.email,
+      });
       return { user: this.toPublicUser(user), tokens };
     } catch (error) {
       if (
@@ -186,6 +207,8 @@ export class AuthService {
   ): Promise<{ user: PublicUser; tokens: AuthTokens }> {
     const user = await this.users.findByEmail(dto.email);
     if (!user) {
+      // Dummy compare so response time is indistinguishable regardless of email existence
+      await bcrypt.compare(dto.password, DUMMY_PASSWORD_HASH);
       this.logger.warn({ event: 'auth.login.failed', reason: 'unknown_email' });
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -194,22 +217,35 @@ export class AuthService {
       throw new ForbiddenException('User account is not active');
     }
 
+    // Per-user lockout: block after LOGIN_FAIL_MAX consecutive failures
+    const failKey = `login:fail:${user.id}`;
+    const failCount = await this.redis.client.get(failKey);
+    if (failCount !== null && parseInt(failCount, 10) >= AuthService.LOGIN_FAIL_MAX) {
+      const ttlSec = await this.redis.client.ttl(failKey);
+      this.logger.warn({ event: 'auth.login.locked', userId: user.id });
+      throw new HttpException(
+        `Account temporarily locked. Try again in ${Math.ceil(ttlSec / 60)} minute(s).`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
     const passwordMatches = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatches) {
-      this.logger.warn({
-        event: 'auth.login.failed',
-        reason: 'invalid_password',
-        userId: user.id,
-      });
+      const newCount = await this.redis.client.incr(failKey);
+      if (newCount === 1) {
+        // Set the window TTL only on the first failure so the lock expires
+        // 30 minutes from the first bad attempt, not each subsequent one.
+        await this.redis.client.expire(failKey, AuthService.LOGIN_FAIL_WINDOW_SEC);
+      }
+      this.logger.warn({ event: 'auth.login.failed', reason: 'invalid_password', userId: user.id });
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Successful login — clear the failure counter
+    await this.redis.client.del(failKey);
+
     const tokens = await this.issueAndStoreTokens(user, metadata);
-    this.logger.log({
-      event: 'auth.login.success',
-      userId: user.id,
-      globalRole: user.globalRole,
-    });
+    this.logger.log({ event: 'auth.login.success', userId: user.id, globalRole: user.globalRole });
     return { user: this.toPublicUser(user), tokens };
   }
 
@@ -220,7 +256,6 @@ export class AuthService {
     const decodedToken = await this.firebase.verifyIdToken(dto.idToken);
 
     const phone = decodedToken.phone_number;
-    const email = decodedToken.email;
     if (!phone) {
       throw new UnauthorizedException('Firebase token does not contain phone number');
     }
@@ -399,8 +434,7 @@ export class AuthService {
   }
 
   private toPublicUser(user: User): PublicUser {
-    const { passwordHash: _passwordHash, refreshTokenHash: _refreshTokenHash, ...safe } =
-      user;
+    const { passwordHash: _passwordHash, ...safe } = user;
     return safe;
   }
 

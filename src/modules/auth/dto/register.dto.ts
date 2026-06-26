@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsString,
+  IsUUID,
   Matches,
   MaxLength,
   MinLength,
@@ -18,7 +19,7 @@ export class RegisterDto {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     description: 'Short-lived verification token from OTP or Firebase verification',
   })
-  @IsString()
+  @IsUUID('4', { message: 'verificationToken must be a valid token' })
   verificationToken: string;
 
   @ApiProperty({ example: 'guest@quicknest.in', maxLength: 254 })

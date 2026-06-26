@@ -1,78 +1,65 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  schemas    = ["auth", "properties", "bookings", "finance", "notifications", "reviews", "compliance", "wallet", "payouts", "platform"]
+  extensions = [pg_trgm]
 }
 
 enum GlobalRole {
   SUPER_ADMIN
   ADMIN
   USER
+
+  @@schema("auth")
 }
 
 enum PropertyRole {
   OWNER
   MANAGER
   STAFF
+
+  @@schema("auth")
 }
 
 enum UserStatus {
   active
   suspended
   deleted
+
+  @@schema("auth")
 }
 
+// NOTE: Modular-monolith data isolation rule - models in different
+// @@schema() blocks must NOT declare Prisma `relation` fields/foreign keys
+// across schemas. Cross-domain references are stored as plain UUID columns
+// (e.g. Property.ownerId, UserPropertyRole.propertyId) and resolved via
+// application-level lookups or EventEmitter2 events, never via SQL
+// JOIN/FK. This keeps each domain schema independently extractable later
+// (strangler-fig migration).
 model User {
-  id                    String     @id @default(uuid()) @db.Uuid
-  phone                 String     @unique @db.VarChar(10)
-  email                 String     @unique @db.VarChar(254)
-  passwordHash          String     @map("password_hash")
-  globalRole            GlobalRole @default(USER) @map("global_role")
-  isPhoneVerified       Boolean    @default(false) @map("is_phone_verified")
-  isEmailVerified       Boolean    @default(false) @map("is_email_verified")
-  status                UserStatus @default(active)
-  refreshTokenHash      String?    @map("refresh_token_hash")
-  refreshTokenExpiresAt DateTime?  @map("refresh_token_expires_at")
-  createdAt             DateTime   @default(now()) @map("created_at")
-  updatedAt             DateTime   @updatedAt @map("updated_at")
-  ownedProperties       Property[]
-  propertyRoles         UserPropertyRole[]
-  sessions              Session[]
+  id              String             @id @default(uuid()) @db.Uuid
+  phone           String             @unique @db.VarChar(10)
+  email           String             @unique @db.VarChar(254)
+  name            String?            @db.VarChar(120)
+  passwordHash    String             @map("password_hash")
+  globalRole      GlobalRole         @default(USER) @map("global_role")
+  isPhoneVerified Boolean            @default(false) @map("is_phone_verified")
+  isEmailVerified Boolean            @default(false) @map("is_email_verified")
+  status          UserStatus         @default(active)
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  sessions        Session[]
+  propertyRoles   UserPropertyRole[]
 
   @@index([phone])
   @@index([email])
   @@map("users")
-}
-
-model Property {
-  id        String             @id @default(uuid()) @db.Uuid
-  name      String             @db.VarChar(160)
-  ownerId   String             @map("owner_id") @db.Uuid
-  owner     User               @relation(fields: [ownerId], references: [id])
-  roles     UserPropertyRole[]
-  createdAt DateTime           @default(now()) @map("created_at")
-  updatedAt DateTime           @updatedAt @map("updated_at")
-
-  @@index([ownerId])
-  @@map("properties")
-}
-
-model UserPropertyRole {
-  id         String       @id @default(uuid()) @db.Uuid
-  userId     String       @map("user_id") @db.Uuid
-  propertyId String       @map("property_id") @db.Uuid
-  role       PropertyRole
-  user       User         @relation(fields: [userId], references: [id])
-  property   Property     @relation(fields: [propertyId], references: [id])
-  createdAt  DateTime     @default(now()) @map("created_at")
-
-  @@unique([userId, propertyId])
-  @@index([userId])
-  @@index([propertyId])
-  @@map("user_property_roles")
+  @@schema("auth")
 }
 
 model Session {
@@ -87,22 +74,816 @@ model Session {
   revokedAt        DateTime? @map("revoked_at")
   user             User      @relation(fields: [userId], references: [id])
 
+  @@unique([userId, refreshTokenHash])
   @@index([userId])
   @@index([createdAt])
   @@index([expiresAt])
-  @@unique([userId, refreshTokenHash])
   @@map("sessions")
+  @@schema("auth")
 }
 
-model Otp {
-  id          String    @id @default(uuid()) @db.Uuid
-  phone       String    @db.VarChar(10)
-  code        String    @db.Text
-  attempts    Int       @default(0)
-  expiresAt   DateTime  @map("expires_at")
-  lockedUntil DateTime? @map("locked_until")
-  createdAt   DateTime  @default(now()) @map("created_at")
+// Cross-schema reference: propertyId points to properties.Property.id but
+// has NO Prisma relation/FK to it - properties live in a different schema.
+model UserPropertyRole {
+  id         String       @id @default(uuid()) @db.Uuid
+  userId     String       @map("user_id") @db.Uuid
+  propertyId String       @map("property_id") @db.Uuid
+  role       PropertyRole
+  user       User         @relation(fields: [userId], references: [id])
+  createdAt  DateTime     @default(now()) @map("created_at")
 
-  @@index([phone])
-  @@map("otps")
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("user_property_roles")
+  @@schema("auth")
+}
+
+enum PropertyStatus {
+  draft
+  pending_review
+  needs_revision
+  approved
+  rejected
+  suspended
+  escalated
+
+  @@schema("properties")
+}
+
+enum PropertyType {
+  hotel
+  resort
+  homestay
+  villa
+  pg
+  farm
+  banquet
+  other
+
+  @@schema("properties")
+}
+
+enum BookingPolicy {
+  hourly
+  fullday
+  both
+
+  @@schema("properties")
+}
+
+enum PropertyCategory {
+  budget
+  mid
+  premium
+
+  @@schema("properties")
+}
+
+enum DeletionTrack {
+  fast_72h
+  standard_30d
+
+  @@schema("properties")
+}
+
+enum RoomTypeCategory {
+  ac
+  nonac
+  dorm
+  suite
+
+  @@schema("properties")
+}
+
+// Cross-schema reference: ownerId points to auth.User.id but has NO Prisma
+// relation/FK to it - auth and properties are isolated schemas.
+//
+// M1 onboarding fields (status, draftStep, draftData, ...) are populated
+// progressively via PATCH /properties/:id/step/:stepNum (steps 1-4 land in
+// draftData; on submit the wizard data is materialized onto these columns
+// and draftData/draftStep are cleared). All onboarding-only fields are
+// nullable since a freshly-created draft has none of them set yet.
+model Property {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(160)
+  ownerId   String   @map("owner_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Onboarding workflow state ---
+  status        PropertyStatus @default(draft)
+  draftStep     Int?           @map("draft_step")
+  draftData     Json?          @map("draft_data")
+  submissionRef String?        @unique @map("submission_ref")
+  submittedAt   DateTime?      @map("submitted_at")
+  revisionCount Int            @default(0) @map("revision_count")
+  revisionNotes Json?          @map("revision_notes")
+
+  // --- Step 1: Basic info ---
+  propertyType    PropertyType?     @map("property_type")
+  bookingPolicy   BookingPolicy?    @map("booking_policy")
+  category        PropertyCategory?
+  description     String?           @db.VarChar(200)
+  ownerFirstName  String?           @map("owner_first_name")
+  ownerMiddleName String?           @map("owner_middle_name")
+  ownerLastName   String?           @map("owner_last_name")
+
+  // --- Step 2: Location ---
+  addressLine1 String?  @map("address_line1")
+  addressLine2 String?  @map("address_line2")
+  city         String?
+  state        String?
+  pincode      String?
+  landmark     String?
+  specialNote  String?  @map("special_note") @db.VarChar(200)
+  latitude     Decimal? @db.Decimal(9, 6)
+  longitude    Decimal? @db.Decimal(9, 6)
+
+  // --- Step 3: Rooms / policies / house rules ---
+  amenities           String[]
+  houseRules          Json?    @map("house_rules")
+  minBookingHours     Int?     @map("min_booking_hours")
+  defaultCheckinTime  String?  @map("default_checkin_time") @db.VarChar(5)
+  defaultCheckoutTime String?  @map("default_checkout_time") @db.VarChar(5)
+  seatingCapacity     Int?     @map("seating_capacity")
+
+  // --- Deletion tier (72h fast-track / 30d standard) ---
+  deletionRequestedAt  DateTime?      @map("deletion_requested_at")
+  deletionScheduledFor DateTime?      @map("deletion_scheduled_for")
+  deletionTrack        DeletionTrack? @map("deletion_track")
+  isActive             Boolean        @default(true) @map("is_active")
+
+  // --- M7: Reviews & Ratings (denormalised for fast reads) ---
+  ratingAvg        Float?   @map("rating_avg")
+  ratingCount      Int      @default(0) @map("rating_count")
+  ratingBreakdown  Json?    @map("rating_breakdown")
+  ratingDimensions Json?    @map("rating_dimensions")
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([city])
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([landmark(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([amenities], type: Gin)
+  @@map("properties")
+  @@schema("properties")
+}
+
+// Materialized from draftData.rooms on submit. No FK to Property (cross-model
+// within the same schema, but kept as a plain UUID to mirror the
+// strangler-fig-friendly pattern used elsewhere and avoid coupling to
+// Property's lifecycle during draft mutation).
+model RoomType {
+  id               String           @id @default(uuid()) @db.Uuid
+  propertyId       String           @map("property_id") @db.Uuid
+  type             RoomTypeCategory
+  count            Int
+  hourlyRatePaise  Int?             @map("hourly_rate_paise")
+  fulldayRatePaise Int?             @map("fullday_rate_paise")
+  maxOccupancy     Int?             @map("max_occupancy")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  @@unique([propertyId, type])
+  @@index([propertyId])
+  @@map("room_types")
+  @@schema("properties")
+}
+
+// Materialized from draftData.photos on submit. category is stored as a
+// plain string for now (5 categories defined by the frontend); max 5 per
+// category / 25 total enforced in the service layer, not the DB.
+model PropertyPhoto {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  category   String   @db.VarChar(40)
+  url        String
+  isPrimary  Boolean  @default(false) @map("is_primary")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([propertyId])
+  @@index([propertyId, category])
+  @@map("property_photos")
+  @@schema("properties")
+}
+
+enum ModerationAction {
+  approved
+  rejected
+  revision_requested
+
+  @@schema("properties")
+}
+
+// M2B audit trail: every admin approve/reject/request-revision action on a
+// Property is recorded here (SuperAdmin spec "Mandatory Reasoning"
+// principle). adminId is a cross-schema reference to auth.User.id - no FK.
+model PropertyModerationLog {
+  id            String           @id @default(uuid()) @db.Uuid
+  propertyId    String           @map("property_id") @db.Uuid
+  adminId       String           @map("admin_id") @db.Uuid
+  action        ModerationAction
+  reason        String?
+  revisionItems Json?            @map("revision_items")
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  @@index([propertyId])
+  @@map("property_moderation_log")
+  @@schema("properties")
+}
+
+// --- compliance schema (M1 Step 5: legal/bank details) ---
+//
+// gstinEncrypted/panEncrypted/bankAccountNumberEncrypted hold AES-256-GCM
+// ciphertext (iv:authTag:ciphertext base64) via EncryptionService.
+// *Hash columns hold HMAC-SHA256 lookup hashes (EncryptionService.lookupHash)
+// for dedup/lookup without decrypting. gstinHash is unique (cross-property
+// GSTIN dedup, see M1 spec edge case 7); panHash is intentionally NOT unique
+// (one PAN may legally own multiple properties).
+model PropertyComplianceDoc {
+  id                         String   @id @default(uuid()) @db.Uuid
+  propertyId                 String   @unique @map("property_id") @db.Uuid
+  legalBusinessName          String   @map("legal_business_name")
+  gstinEncrypted             String   @map("gstin_encrypted")
+  gstinHash                  String   @unique @map("gstin_hash")
+  panEncrypted               String   @map("pan_encrypted")
+  panHash                    String   @map("pan_hash")
+  bankAccountNumberEncrypted String   @map("bank_account_number_encrypted")
+  bankAccountNumberHash      String   @map("bank_account_number_hash")
+  ifsc                       String
+  accountHolderName          String   @map("account_holder_name")
+  tcAcceptedAt               DateTime @map("tc_accepted_at")
+  formCAcknowledgedAt        DateTime @map("form_c_acknowledged_at")
+  createdAt                  DateTime @default(now()) @map("created_at")
+  updatedAt                  DateTime @updatedAt @map("updated_at")
+
+  @@index([panHash])
+  @@map("property_compliance_docs")
+  @@schema("compliance")
+}
+
+enum DocumentType {
+  owner_photo
+  id_proof
+  pan_card
+  gstin_certificate
+  rental_agreement
+  fire_safety_cert
+  fssai_license
+  trade_license
+  other
+
+  @@schema("compliance")
+}
+
+enum DocumentStatus {
+  pending
+  verified
+  rejected
+  expired
+
+  @@schema("compliance")
+}
+
+model PropertyDocument {
+  id              String         @id @default(uuid()) @db.Uuid
+  propertyId      String         @map("property_id") @db.Uuid
+  type            DocumentType
+  url             String
+  status          DocumentStatus @default(pending)
+  expiresAt       DateTime?      @map("expires_at")
+  rejectionReason String?        @map("rejection_reason")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  @@index([propertyId])
+  @@index([propertyId, type])
+  @@map("property_documents")
+  @@schema("compliance")
+}
+
+// --- notifications schema (M2: owner notification inbox) ---
+
+enum NotificationType {
+  status_change
+  revision_request
+  approval
+  rejection
+  document_verified
+  general
+  booking_update
+  dispute_response_requested
+  dispute_resolved
+  review_new_on_property
+  review_reply_window_reminder
+  payout_released
+
+  @@schema("notifications")
+}
+
+// Owner-facing notification inbox. ownerId/propertyId are cross-schema
+// references to auth.User.id / properties.Property.id - no Prisma
+// relation/FK. Populated by event listeners reacting to hotel.verified,
+// hotel.rejected and hotel.revision_requested.
+model Notification {
+  id         String           @id @default(uuid()) @db.Uuid
+  ownerId    String           @map("owner_id") @db.Uuid
+  propertyId String?          @map("property_id") @db.Uuid
+  type       NotificationType
+  title      String           @db.VarChar(200)
+  body       String
+  actionUrl  String?          @map("action_url") @db.VarChar(500)
+  isRead     Boolean          @default(false) @map("is_read")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@index([ownerId, isRead])
+  @@index([ownerId, createdAt])
+  @@map("owner_notifications")
+  @@schema("notifications")
+}
+
+// --- bookings schema (M3: core booking engine) ---
+
+enum BookingType {
+  hourly
+  fullday
+
+  @@schema("bookings")
+}
+
+enum BookingStatus {
+  pending_payment
+  confirmed
+  checked_in
+  completed
+  cancelled
+  no_show
+  voided
+
+  @@schema("bookings")
+}
+
+enum PaymentStatus {
+  pending
+  success
+  failed
+  refunded
+
+  @@schema("bookings")
+}
+
+enum BookingAdminActionType {
+  void
+  cancel
+  refund_full
+  refund_partial
+  force_checkout
+  extend
+  flag
+  unflag
+
+  @@schema("bookings")
+}
+
+// propertyId/roomTypeId/ownerId/guestId are cross-schema references to
+// properties.Property.id / properties.RoomType.id / auth.User.id - no Prisma
+// relation/FK (modular-monolith isolation rule). ownerId is denormalized from
+// Property.ownerId at creation time so the notifications listener can route
+// owner-facing notifications without a cross-schema join.
+model Booking {
+  id         String @id @default(uuid()) @db.Uuid
+  bookingRef String @unique @map("booking_ref")
+  propertyId String @map("property_id") @db.Uuid
+  roomTypeId String @map("room_type_id") @db.Uuid
+  ownerId    String @map("owner_id") @db.Uuid
+  guestId    String @map("guest_id") @db.Uuid
+
+  bookingType   BookingType
+  checkInAt     DateTime    @map("check_in_at")
+  checkOutAt    DateTime    @map("check_out_at")
+  durationHours Int         @map("duration_hours")
+  guestCount    Int         @map("guest_count")
+
+  baseAmountPaise  Int @map("base_amount_paise")
+  gstAmountPaise   Int @map("gst_amount_paise")
+  platformFeePaise Int @map("platform_fee_paise")
+  totalAmountPaise Int @map("total_amount_paise")
+
+  status        BookingStatus @default(pending_payment)
+  paymentStatus PaymentStatus @default(pending) @map("payment_status")
+  paymentRef    String?       @map("payment_ref")
+  qrCode        String?       @map("qr_code")
+
+  checkedInAt  DateTime? @map("checked_in_at")
+  checkedOutAt DateTime? @map("checked_out_at")
+
+  cancelledAt       DateTime? @map("cancelled_at")
+  cancelledBy       String?   @map("cancelled_by")
+  cancelReason      String?   @map("cancel_reason")
+  refundAmountPaise Int?      @map("refund_amount_paise")
+
+  noShowAt DateTime? @map("no_show_at")
+
+  voidedAt   DateTime? @map("voided_at")
+  voidedBy   String?   @map("voided_by")
+  voidReason String?   @map("void_reason")
+
+  extensionAmountPaise Int? @map("extension_amount_paise")
+
+  isFlagged Boolean @default(false) @map("is_flagged")
+  flagType  String? @map("flag_type")
+  flagNotes String? @map("flag_notes")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([propertyId, checkInAt, checkOutAt])
+  @@index([roomTypeId, status, checkInAt, checkOutAt]) // availability overlap query
+  @@index([guestId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([isFlagged])
+  @@map("bookings")
+  @@schema("bookings")
+}
+
+enum AnomalySeverity {
+  critical
+  high
+  medium
+  low
+
+  @@schema("bookings")
+}
+
+enum AnomalyEntityType {
+  property
+  customer
+  booking
+
+  @@schema("bookings")
+}
+
+enum AnomalyStatus {
+  detected
+  investigating
+  resolved_action
+  resolved_fp
+  escalated
+
+  @@schema("bookings")
+}
+
+// Rule-engine-detected anomalies (M5B). entityId is a plain UUID column, not
+// a Prisma relation, per the modular-monolith isolation rule - same pattern
+// as BookingAdminAction.bookingId.
+model Anomaly {
+  id         String            @id @default(uuid()) @db.Uuid
+  ruleId     String            @map("rule_id")
+  severity   AnomalySeverity
+  entityType AnomalyEntityType @map("entity_type")
+  entityId   String            @map("entity_id") @db.Uuid
+
+  description String @db.Text
+  evidence    Json
+
+  status          AnomalyStatus @default(detected)
+  resolutionType  String?       @map("resolution_type")
+  resolutionNotes String?       @map("resolution_notes") @db.Text
+  resolvedBy      String?       @map("resolved_by") @db.Uuid
+
+  detectedAt DateTime  @default(now()) @map("detected_at")
+  resolvedAt DateTime? @map("resolved_at")
+
+  @@index([status, severity])
+  @@index([ruleId, entityType, entityId])
+  @@map("anomalies")
+  @@schema("bookings")
+}
+
+// Lightweight audit trail for admin actions on bookings (M5). bookingId is a
+// plain UUID column, not a Prisma relation, per the modular-monolith
+// isolation rule - same pattern as Booking.propertyId/guestId.
+model BookingAdminAction {
+  id        String                 @id @default(uuid()) @db.Uuid
+  bookingId String                 @map("booking_id") @db.Uuid
+  adminId   String                 @map("admin_id") @db.Uuid
+  action    BookingAdminActionType
+
+  reasonCategory String? @map("reason_category")
+  reasonText     String? @map("reason_text")
+  metadata       Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([bookingId])
+  @@map("booking_admin_actions")
+  @@schema("bookings")
+}
+
+// --- bookings schema (M6: disputes / post-checkout resolution) ---
+
+enum DisputeCategory {
+  room_quality
+  cleanliness
+  amenities
+  staff
+  safety
+  charges
+  other
+
+  @@schema("bookings")
+}
+
+enum DisputeRequestedResolution {
+  full_refund
+  partial_refund
+  credit
+  apology
+
+  @@schema("bookings")
+}
+
+enum DisputeStatus {
+  filed
+  under_review
+  awaiting_hotel_response
+  resolved_guest
+  resolved_hotel
+  resolved_partial
+  resolved_wallet_credit
+  escalated
+  closed_no_response
+
+  @@schema("bookings")
+}
+
+enum DisputeResolutionType {
+  full_refund
+  partial_refund
+  wallet_credit
+  no_action
+  escalated
+
+  @@schema("bookings")
+}
+
+// bookingId/guestId/propertyId are cross-schema references to
+// bookings.Booking.id / auth.User.id / properties.Property.id - no Prisma
+// relation/FK, per the modular-monolith isolation rule.
+model Dispute {
+  id         String @id @default(uuid()) @db.Uuid
+  disputeRef String @unique @map("dispute_ref") // 'PPH-D-00001'
+  bookingId  String @map("booking_id") @db.Uuid
+  guestId    String @map("guest_id") @db.Uuid
+  propertyId String @map("property_id") @db.Uuid
+
+  category            DisputeCategory
+  description         String                     @db.Text
+  guestEvidence       Json?                      @map("guest_evidence") // string[] of URLs
+  requestedResolution DisputeRequestedResolution @map("requested_resolution")
+
+  hotelResponse         String?   @map("hotel_response") @db.Text
+  hotelEvidence         Json?     @map("hotel_evidence") // string[] of URLs
+  hotelResponseDeadline DateTime? @map("hotel_response_deadline")
+
+  status            DisputeStatus          @default(filed)
+  resolutionType    DisputeResolutionType? @map("resolution_type")
+  refundAmountPaise Int?                   @map("refund_amount_paise")
+  adminNotes        String?                @map("admin_notes") @db.Text
+  resolvedBy        String?                @map("resolved_by") @db.Uuid
+
+  filedAt            DateTime  @default(now()) @map("filed_at")
+  resolutionDeadline DateTime  @map("resolution_deadline") // filedAt + 7 days
+  resolvedAt         DateTime? @map("resolved_at")
+
+  @@index([status])
+  @@index([bookingId])
+  @@index([propertyId, status])
+  @@map("disputes")
+  @@schema("bookings")
+}
+
+// --- wallet schema (M6: minimal append-only wallet credit ledger) ---
+
+enum WalletCreditSourceType {
+  dispute
+
+  @@schema("wallet")
+}
+
+// userId/createdBy are cross-schema references to auth.User.id; sourceId
+// references bookings.Dispute.id - no Prisma relation/FK, per the
+// modular-monolith isolation rule. No balance column: balance =
+// SUM(amountPaise) per userId if/when a redemption module needs it.
+model WalletCredit {
+  id          String                 @id @default(uuid()) @db.Uuid
+  userId      String                 @map("user_id") @db.Uuid
+  amountPaise Int                    @map("amount_paise")
+  reason      String                 @db.Text
+  sourceType  WalletCreditSourceType @map("source_type")
+  sourceId    String                 @map("source_id") @db.Uuid
+  createdBy   String                 @map("created_by") @db.Uuid
+  createdAt   DateTime               @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("wallet_credits")
+  @@schema("wallet")
+}
+
+// --- reviews schema (M7: post-checkout trust & reputation engine) ---
+
+enum ReviewStatus {
+  pending
+  published
+  flagged
+  removed
+
+  @@schema("reviews")
+}
+
+// bookingId is UNIQUE — one review per booking (enforced at DB + service).
+// propertyId/guestId/ownerId are cross-schema UUID references (no Prisma FK).
+model Review {
+  id         String @id @default(uuid()) @db.Uuid
+  bookingId  String @unique           @map("booking_id")  @db.Uuid
+  propertyId String                   @map("property_id") @db.Uuid
+  guestId    String                   @map("guest_id")    @db.Uuid
+  ownerId    String                   @map("owner_id")    @db.Uuid
+
+  // Sub-scores: 1-5 integer stars each
+  scoreOverall     Int @map("score_overall")
+  scoreCleanliness Int @map("score_cleanliness")
+  scoreAmenities   Int @map("score_amenities")
+  scoreAccuracy    Int @map("score_accuracy")
+  scoreValue       Int @map("score_value")
+  scoreCheckin     Int @map("score_checkin")
+  // Weighted average: cleanliness*0.25 + amenities*0.20 + accuracy*0.20 + value*0.20 + checkin*0.15
+  displayScore     Decimal @db.Decimal(3, 2) @map("display_score")
+
+  reviewText String?  @db.Text        @map("review_text")
+  photoUrls  String[]                 @map("photo_urls")
+
+  status ReviewStatus @default(pending)
+
+  ownerReply         String?  @db.Text @map("owner_reply")
+  ownerRepliedAt     DateTime?         @map("owner_replied_at")
+  replyWindowEnd     DateTime?         @map("reply_window_end")
+  replyReminderSent  Boolean  @default(false) @map("reply_reminder_sent")
+
+  windowOpensAt DateTime  @map("window_opens_at")
+  expiresAt     DateTime  @map("expires_at")
+  promptSentAt  DateTime? @map("prompt_sent_at")
+  submittedAt   DateTime? @map("submitted_at")
+  publishedAt   DateTime? @map("published_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  flags    ReviewFlag[]
+  auditLog ReviewAuditLog[]
+
+  @@index([propertyId, status])
+  @@index([guestId])
+  @@index([status, windowOpensAt])
+  @@index([status, expiresAt])
+  @@map("reviews")
+  @@schema("reviews")
+}
+
+model ReviewFlag {
+  id        String   @id @default(uuid()) @db.Uuid
+  reviewId  String                    @map("review_id") @db.Uuid
+  flaggedBy String                    @map("flagged_by") @db.Uuid
+  flagRole  String                    @map("flag_role")  // 'guest' | 'owner' | 'system' | 'admin'
+  reason    String?
+  createdAt DateTime @default(now())  @map("created_at")
+
+  review Review @relation(fields: [reviewId], references: [id])
+
+  @@index([reviewId])
+  @@map("review_flags")
+  @@schema("reviews")
+}
+
+model ReviewAuditLog {
+  id        String        @id @default(uuid()) @db.Uuid
+  reviewId  String                             @map("review_id") @db.Uuid
+  actor     String
+  actorRole String                             @map("actor_role")
+  action    String
+  fromStatus ReviewStatus?                     @map("from_status")
+  toStatus   ReviewStatus?                     @map("to_status")
+  reason    String?
+  createdAt DateTime      @default(now())      @map("created_at")
+
+  review Review @relation(fields: [reviewId], references: [id])
+
+  @@index([reviewId])
+  @@map("review_audit_log")
+  @@schema("reviews")
+}
+
+// ─── Payouts schema ────────────────────────────────────────────────────────
+
+enum PayoutBatchStatus {
+  pending
+  processing
+  released
+  partial
+  failed
+
+  @@schema("payouts")
+}
+
+enum PayoutItemStatus {
+  pending
+  on_hold
+  released
+  failed
+
+  @@schema("payouts")
+}
+
+model PayoutBatch {
+  id            String            @id @default(uuid()) @db.Uuid
+  batchRef      String            @unique @map("batch_ref")
+  cycleStartAt  DateTime          @map("cycle_start_at")
+  cycleEndAt    DateTime          @map("cycle_end_at")
+  status        PayoutBatchStatus @default(pending)
+  totalGrossPaise Int             @default(0) @map("total_gross_paise")
+  totalTdsPaise   Int             @default(0) @map("total_tds_paise")
+  totalNetPaise   Int             @default(0) @map("total_net_paise")
+  itemCount       Int             @default(0) @map("item_count")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  items PayoutItem[]
+
+  @@index([status])
+  @@index([cycleStartAt])
+  @@map("payout_batches")
+  @@schema("payouts")
+}
+
+model PayoutItem {
+  id              String          @id @default(uuid()) @db.Uuid
+  batchId         String          @map("batch_id") @db.Uuid
+  propertyId      String          @map("property_id") @db.Uuid
+  ownerId         String          @map("owner_id") @db.Uuid
+  status          PayoutItemStatus @default(pending)
+  bookingCount    Int             @default(0) @map("booking_count")
+  grossAmountPaise Int            @default(0) @map("gross_amount_paise")
+  tdsPaise         Int            @default(0) @map("tds_paise")
+  netAmountPaise   Int            @default(0) @map("net_amount_paise")
+  holdReason      String?         @map("hold_reason")
+  bankRef         String?         @map("bank_ref")
+  releasedAt      DateTime?       @map("released_at")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  batch    PayoutBatch         @relation(fields: [batchId], references: [id])
+  bookings PayoutBookingLink[]
+
+  @@unique([batchId, propertyId])
+  @@index([ownerId])
+  @@index([propertyId])
+  @@index([status])
+  @@map("payout_items")
+  @@schema("payouts")
+}
+
+model PayoutBookingLink {
+  id              String   @id @default(uuid()) @db.Uuid
+  payoutItemId    String   @map("payout_item_id") @db.Uuid
+  bookingId       String   @unique @map("booking_id") @db.Uuid
+  ownerGrossPaise Int      @map("owner_gross_paise")
+  tdsPaise        Int      @map("tds_paise")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  item PayoutItem @relation(fields: [payoutItemId], references: [id])
+
+  @@index([payoutItemId])
+  @@map("payout_booking_links")
+  @@schema("payouts")
+}
+
+// ── Platform schema ──────────────────────────────────────────────────────────
+
+model PlatformSettings {
+  id                      String   @id @default("singleton")
+  commissionPct           Decimal  @default(15.00) @db.Decimal(5, 2) @map("commission_pct")
+  tdsPct                  Decimal  @default(1.00)  @db.Decimal(5, 2) @map("tds_pct")
+  payoutDayOfWeek         Int      @default(1)     @map("payout_day_of_week")
+  minBookingHours         Int      @default(1)     @map("min_booking_hours")
+  maxBookingHours         Int      @default(24)    @map("max_booking_hours")
+  cancellationWindowHours Int      @default(24)    @map("cancellation_window_hours")
+  updatedAt               DateTime @updatedAt      @map("updated_at")
+  updatedBy               String?  @db.Uuid        @map("updated_by")
+
+  @@map("platform_settings")
+  @@schema("platform")
 }

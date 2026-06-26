@@ -22,24 +22,6 @@ export class UsersRepository {
     return this.prisma.user.create({ data });
   }
 
-  updateRefreshToken(
-    id: string,
-    refreshTokenHash: string,
-    refreshTokenExpiresAt: Date,
-  ): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data: { refreshTokenHash, refreshTokenExpiresAt },
-    });
-  }
-
-  clearRefreshToken(id: string): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data: { refreshTokenHash: null, refreshTokenExpiresAt: null },
-    });
-  }
-
   createSession(data: Prisma.SessionCreateInput): Promise<Session> {
     return this.prisma.session.create({ data });
   }

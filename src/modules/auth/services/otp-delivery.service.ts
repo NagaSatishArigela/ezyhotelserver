@@ -20,7 +20,13 @@ export class OtpDeliveryService {
         throw new InternalServerErrorException('SMS gateway is not configured');
       }
 
-      this.logger.warn(`Development OTP for ${phone}: ${otp}`);
+      // Never log the OTP in plaintext, even in development - logs can be
+      // shipped to third-party aggregators or shared in support tickets.
+      // Only the last 2 digits are logged so a developer can sanity-check
+      // delivery without exposing a usable code.
+      this.logger.warn(
+        `Development OTP fallback for ${this.maskPhone(phone)}: ******${otp.slice(-2)}`,
+      );
       return;
     }
 
@@ -40,5 +46,12 @@ export class OtpDeliveryService {
       this.logger.error(`SMS gateway failed with status ${response.status}`);
       throw new InternalServerErrorException('Unable to send OTP');
     }
+  }
+
+  private maskPhone(phone: string): string {
+    if (phone.length <= 4) {
+      return '*'.repeat(phone.length);
+    }
+    return `${phone.slice(0, 2)}******${phone.slice(-2)}`;
   }
 }

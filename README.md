@@ -37,6 +37,54 @@ Targeted auth tests can be run with:
 npm test -- --runInBand src/modules/auth/__tests__/auth.service.spec.ts src/modules/auth/__tests__/session-cleanup.service.spec.ts
 ```
 
+## E2E / Integration Tests
+
+E2E tests boot the full Nest application (real Postgres + Redis) against a
+dedicated **test database**, never the dev database.
+
+1. One-time setup:
+   - Create the test database: `CREATE DATABASE quicknest_test;` on the same
+     Postgres instance as `DATABASE_URL` in `.env` (default: `localhost:5433`).
+   - Review `.env.test` (already populated with test-only secrets and
+     `DATABASE_URL=postgresql://postgres:password@localhost:5433/quicknest_test`).
+   - Apply migrations to the test database:
+     ```bash
+     npm run prisma:migrate:test
+     ```
+2. Run the suite:
+   ```bash
+   npm run test:e2e
+   ```
+
+Notes:
+- `test/load-test-env.ts` loads `.env.test` (overriding any inherited env)
+  before the app boots.
+- `test/setup-e2e.ts` refuses to run unless `NODE_ENV=test` and `DATABASE_URL`
+  points at `quicknest_test`, as a guardrail against accidentally truncating
+  the dev database.
+- `test/utils/reset-database.ts` truncates all domain-schema tables between
+  tests (`beforeEach`).
+- `test/utils/test-app.ts` provides `createTestApp()`, mirroring the global
+  pipes/filters from `src/main.ts` for use with `supertest`.
+- `npm run test:integration` runs the same Jest e2e config filtered to spec
+  files matching `integration` - reserved for heavier cross-module tests
+  added as later modules (M3+) land.
+
+## E2E Flow Tests (Playwright)
+
+Frontend E2E flow tests (Gate 4 of the per-module factory loop) live in
+`payperhour-next/e2e/` and run via Playwright:
+
+```bash
+cd ../payperhour-next
+npm run test:e2e       # headless
+npm run test:e2e:ui    # interactive UI mode
+```
+
+By default Playwright starts `npm run dev` (port 3000) for you. Set
+`E2E_BASE_URL` to point at an already-running instance instead (e.g. in CI).
+The backend API (`quicknestserver`, port 4000) must be started separately.
+
 ## Notes
 
 - `@nestjs/schedule` is used for session cleanup.

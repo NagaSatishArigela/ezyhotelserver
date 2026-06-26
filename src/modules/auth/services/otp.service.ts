@@ -392,9 +392,10 @@ export class OtpService {
   }
 
   private verificationTokenHash(token: string): string {
-    const pepper =
-      this.config.get<string>('VERIFICATION_TOKEN_PEPPER') ||
-      this.config.getOrThrow<string>('OTP_PEPPER');
+    // Must be a distinct secret from OTP_PEPPER: OTP codes and verification
+    // tokens protect different stages of the flow, so a leak of one pepper
+    // must not compromise the other.
+    const pepper = this.config.getOrThrow<string>('VERIFICATION_TOKEN_PEPPER');
     return createHmac('sha256', pepper).update(token).digest('hex');
   }
 

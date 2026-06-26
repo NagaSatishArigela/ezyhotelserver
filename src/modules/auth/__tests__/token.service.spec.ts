@@ -23,18 +23,17 @@ describe(TokenService.name, () => {
     id: '0bb3c81a-cb04-42a9-9414-7f362a5bb143',
     phone: '9876543210',
     email: 'guest@quicknest.in',
+    name: null,
     passwordHash: 'hash',
     globalRole: GlobalRole.USER,
     isPhoneVerified: true,
     isEmailVerified: false,
     status: UserStatus.active,
-    refreshTokenHash: null,
-    refreshTokenExpiresAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
-  it('signs JWT payload with id, phone, globalRole, and sessionId', async () => {
+  it('signs JWT payload with id, globalRole, and sessionId (no phone — PII must not be in token)', async () => {
     const tokens = await service.createTokens(user, 'session-1');
     const payload = jwt.verify(tokens.accessToken, {
       secret: 'access-secret-for-tests-access-secret',
@@ -42,10 +41,10 @@ describe(TokenService.name, () => {
 
     expect(payload).toMatchObject({
       id: user.id,
-      phone: user.phone,
       globalRole: GlobalRole.USER,
       sessionId: 'session-1',
     });
+    expect(payload).not.toHaveProperty('phone');
     expect(payload).not.toHaveProperty('email');
     expect(payload).not.toHaveProperty('sub');
   });
@@ -54,7 +53,6 @@ describe(TokenService.name, () => {
     const expiredToken = jwt.sign(
       {
         id: user.id,
-        phone: user.phone,
         globalRole: GlobalRole.USER,
       },
       { secret: 'access-secret-for-tests-access-secret', expiresIn: '-1s' },

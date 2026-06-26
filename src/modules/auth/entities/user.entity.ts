@@ -11,8 +11,6 @@ export interface UserEntity {
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
   status: UserStatus;
-  refreshTokenHash: string | null;
-  refreshTokenExpiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

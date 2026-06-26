@@ -34,6 +34,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     RolesGuard,
     PropertyRoleGuard,
   ],
-  exports: [AuthService, JwtAuthGuard, RolesGuard, PropertyRoleGuard],
+  // UsersRepository is exported because PropertyRoleGuard depends on it and
+  // is re-instantiated in the context of any module that uses
+  // @UseGuards(PropertyRoleGuard) (e.g. PropertiesModule) - Nest resolves
+  // that guard's dependencies against the consuming module's imports.
+  exports: [AuthService, JwtAuthGuard, RolesGuard, PropertyRoleGuard, UsersRepository],
 })
 export class AuthModule {}

@@ -52,7 +52,9 @@ describe(OtpDeliveryService.name, () => {
     });
 
     await expect(service.send('9876543210', '123456')).resolves.toBeUndefined();
-    expect(Logger.prototype.warn).toHaveBeenCalledWith('Development OTP for 9876543210: 123456');
+    expect(Logger.prototype.warn).toHaveBeenCalledWith(
+      'Development OTP fallback for 98******10: ******56',
+    );
   });
 
   it('throws if generic SMS gateway response is not ok', async () => {

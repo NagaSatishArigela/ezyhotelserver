@@ -1,0 +1,2237 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/send-otp": {
+      "post": {
+        "operationId": "AuthController_sendOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP accepted for delivery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "OTP sent successfully",
+                    "expiresIn": 300,
+                    "resendAfter": 30
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid phone number"
+          },
+          "429": {
+            "description": "Rate limit, cooldown, or lock active"
+          }
+        },
+        "summary": "Send OTP to an Indian mobile number",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/verify-otp": {
+      "post": {
+        "operationId": "AuthController_verifyOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified. Existing users receive tokens; new users continue to registration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "examples": {
+                    "existingUser": {
+                      "value": {
+                        "needsRegistration": false,
+                        "user": {
+                          "id": "0bb3c81a-cb04-42a9-9414-7f362a5bb143",
+                          "phone": "9876543210",
+                          "email": "guest@quicknest.in",
+                          "globalRole": "USER",
+                          "isPhoneVerified": true,
+                          "isEmailVerified": false,
+                          "status": "active",
+                          "createdAt": "2026-04-26T00:00:00.000Z",
+                          "updatedAt": "2026-04-26T00:00:00.000Z"
+                        },
+                        "tokens": {
+                          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                          "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                          "tokenType": "Bearer",
+                          "expiresIn": 900
+                        }
+                      }
+                    },
+                    "newUser": {
+                      "value": {
+                        "needsRegistration": true,
+                        "message": "Phone verified successfully",
+                        "verificationToken": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Expired or incorrect OTP"
+          },
+          "429": {
+            "description": "OTP verification locked"
+          }
+        },
+        "summary": "Verify OTP and login existing users or continue registration",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User registered and tokens issued"
+          },
+          "400": {
+            "description": "Invalid verification token or payload is invalid"
+          },
+          "409": {
+            "description": "Phone or email already exists"
+          }
+        },
+        "summary": "Register a user after verification",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credentials accepted and tokens issued"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "Too many login attempts"
+          }
+        },
+        "summary": "Login with email and password fallback",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/firebase": {
+      "post": {
+        "operationId": "AuthController_firebaseLogin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirebaseLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Firebase verified user logged in or registration required"
+          },
+          "400": {
+            "description": "Invalid Firebase token"
+          }
+        },
+        "summary": "Verify Firebase phone auth token and login or continue registration",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/refresh-token": {
+      "post": {
+        "operationId": "AuthController_refreshToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Refresh token rotated successfully"
+          },
+          "401": {
+            "description": "Invalid, revoked, or expired refresh token"
+          },
+          "429": {
+            "description": "Too many refresh attempts"
+          }
+        },
+        "summary": "Rotate refresh token and issue a new access token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Refresh token revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Logged out successfully"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid refresh token"
+          }
+        },
+        "summary": "Revoke the current refresh token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "MeController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authenticated user profile returned"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          }
+        },
+        "summary": "Get current authenticated user profile",
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/me/capabilities": {
+      "get": {
+        "operationId": "MeController_capabilities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User capabilities returned"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          }
+        },
+        "summary": "Get current user capabilities for onboarding and admin flows",
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/me/onboarding": {
+      "get": {
+        "operationId": "MeController_onboarding",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User onboarding state returned"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          }
+        },
+        "summary": "Get current user onboarding state",
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/properties/draft": {
+      "post": {
+        "operationId": "PropertiesController_createDraft",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new property onboarding draft",
+        "tags": [
+          "Properties"
+        ]
+      }
+    },
+    "/properties/{propertyId}/step/{stepNum}": {
+      "patch": {
+        "operationId": "PropertiesController_saveStep",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepNum",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Auto-save a wizard step (1-5) for a draft property",
+        "tags": [
+          "Properties"
+        ]
+      }
+    },
+    "/properties/{propertyId}/draft": {
+      "get": {
+        "operationId": "PropertiesController_getDraft",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the current onboarding draft state",
+        "tags": [
+          "Properties"
+        ]
+      }
+    },
+    "/properties/{propertyId}/submit": {
+      "post": {
+        "operationId": "PropertiesController_submit",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit a draft property for review",
+        "tags": [
+          "Properties"
+        ]
+      }
+    },
+    "/properties/{propertyId}/status": {
+      "get": {
+        "operationId": "PropertiesController_getStatus",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the submission status and review timeline",
+        "tags": [
+          "Properties"
+        ]
+      }
+    },
+    "/properties/{propertyId}/revise": {
+      "patch": {
+        "operationId": "PropertiesController_revise",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resubmit a property after a requested revision",
+        "tags": [
+          "Properties"
+        ]
+      }
+    },
+    "/admin/properties": {
+      "get": {
+        "operationId": "AdminPropertiesController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "pending_review",
+              "enum": [
+                "draft",
+                "pending_review",
+                "needs_revision",
+                "approved",
+                "rejected",
+                "suspended",
+                "escalated"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List properties in the moderation queue",
+        "tags": [
+          "Admin / Properties"
+        ]
+      }
+    },
+    "/admin/properties/{propertyId}": {
+      "get": {
+        "operationId": "AdminPropertiesController_getDetail",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get full property detail for moderation",
+        "tags": [
+          "Admin / Properties"
+        ]
+      }
+    },
+    "/admin/properties/{propertyId}/approve": {
+      "post": {
+        "operationId": "AdminPropertiesController_approve",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve a pending property submission",
+        "tags": [
+          "Admin / Properties"
+        ]
+      }
+    },
+    "/admin/properties/{propertyId}/reject": {
+      "post": {
+        "operationId": "AdminPropertiesController_reject",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectPropertyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject a pending property submission",
+        "tags": [
+          "Admin / Properties"
+        ]
+      }
+    },
+    "/admin/properties/{propertyId}/request-revision": {
+      "post": {
+        "operationId": "AdminPropertiesController_requestRevision",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestRevisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Request changes to a pending property submission",
+        "tags": [
+          "Admin / Properties"
+        ]
+      }
+    },
+    "/properties/public": {
+      "get": {
+        "operationId": "PublicPropertiesController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Free-text search across name, description, landmark, city",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "description": "Exact city match (case-insensitive)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minPrice",
+            "required": false,
+            "in": "query",
+            "description": "Minimum hourly rate in paise",
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "required": false,
+            "in": "query",
+            "description": "Maximum hourly rate in paise",
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "amenities",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated amenity list - property must have all",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rating",
+            "required": false,
+            "in": "query",
+            "description": "Accepted for forward-compatibility but ignored - no Reviews module yet (M4 spec §1)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "checkInAt",
+            "required": false,
+            "in": "query",
+            "description": "Availability filter: requested check-in instant (ISO 8601)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "durationHours",
+            "required": false,
+            "in": "query",
+            "description": "Availability filter: requested duration in hours",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "bookingType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "hourly",
+              "enum": [
+                "hourly",
+                "fullday"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "relevance",
+                "price_asc",
+                "price_desc",
+                "newest"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List approved, active properties",
+        "tags": [
+          "Properties / Public"
+        ]
+      }
+    },
+    "/properties/public/{propertyId}": {
+      "get": {
+        "operationId": "PublicPropertiesController_getById",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get an approved property with room types and photos",
+        "tags": [
+          "Properties / Public"
+        ]
+      }
+    },
+    "/owners/me/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [
+          {
+            "name": "unread",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the caller's notification inbox",
+        "tags": [
+          "Owner Notifications"
+        ]
+      }
+    },
+    "/owners/me/notifications/{id}/read": {
+      "patch": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark a notification as read",
+        "tags": [
+          "Owner Notifications"
+        ]
+      }
+    },
+    "/properties/{propertyId}/availability": {
+      "get": {
+        "operationId": "AvailabilityController_getAvailability",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roomTypeId",
+            "required": true,
+            "in": "query",
+            "description": "Room type to check availability for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "description": "Date to check, format YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get booked intervals for a room type on a given date",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/bookings": {
+      "post": {
+        "operationId": "BookingsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new booking (pending_payment)",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/bookings/{id}": {
+      "get": {
+        "operationId": "BookingsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get full booking detail",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/bookings/{id}/payment/confirm": {
+      "post": {
+        "operationId": "BookingsController_confirmPayment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentConfirmDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mock payment gateway confirmation",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/bookings/{id}/check-in": {
+      "post": {
+        "operationId": "BookingsController_checkIn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check in using the booking QR code",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/bookings/{id}/check-out": {
+      "post": {
+        "operationId": "BookingsController_checkOut",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Manually check out a booking",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/bookings/{id}/cancel": {
+      "post": {
+        "operationId": "BookingsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a confirmed booking",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/me/bookings": {
+      "get": {
+        "operationId": "MyBookingsController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending_payment",
+                "confirmed",
+                "checked_in",
+                "completed",
+                "cancelled",
+                "no_show",
+                "voided"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the current guest's bookings",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/owner/properties/{propertyId}/bookings": {
+      "get": {
+        "operationId": "OwnerBookingsController_list",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending_payment",
+                "confirmed",
+                "checked_in",
+                "completed",
+                "cancelled",
+                "no_show",
+                "voided"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Read-only list of a property's bookings",
+        "tags": [
+          "Bookings"
+        ]
+      }
+    },
+    "/admin/bookings": {
+      "get": {
+        "operationId": "AdminBookingsController_list",
+        "parameters": [
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "description": "Filters on checkInAt (default: 7 days ago)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "description": "Filters on checkInAt (default: now)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookingType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hourly",
+                "fullday"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of BookingStatus values",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "amountMin",
+            "required": false,
+            "in": "query",
+            "description": "Minimum totalAmountPaise",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "amountMax",
+            "required": false,
+            "in": "query",
+            "description": "Maximum totalAmountPaise",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "guestPhone",
+            "required": false,
+            "in": "query",
+            "description": "Partial match on guest phone, min 3 chars",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookingRef",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "createdAt",
+              "enum": [
+                "createdAt",
+                "checkInAt",
+                "checkOutAt",
+                "totalAmountPaise"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List bookings with admin filters",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/kpis": {
+      "get": {
+        "operationId": "AdminBookingsController_kpis",
+        "parameters": [
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookingType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "hourly",
+                "fullday"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "amountMin",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "amountMax",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "guestPhone",
+            "required": false,
+            "in": "query",
+            "description": "Partial match on guest phone, min 3 chars",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookingRef",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "KPI summary for the active filter set",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/active": {
+      "get": {
+        "operationId": "AdminBookingsController_active",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Currently checked-in bookings, soonest-expiring first",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}": {
+      "get": {
+        "operationId": "AdminBookingsController_getDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Full booking detail incl. timeline and admin actions",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/void": {
+      "post": {
+        "operationId": "AdminBookingsController_void",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Void a booking (fraud/error, auto-refunds 100%)",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/cancel": {
+      "post": {
+        "operationId": "AdminBookingsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCancelBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin-initiated cancellation",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/refund": {
+      "post": {
+        "operationId": "AdminBookingsController_refund",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Issue a full or partial refund",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/force-checkout": {
+      "post": {
+        "operationId": "AdminBookingsController_forceCheckout",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForceCheckoutBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Force-checkout a checked-in guest",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/extend": {
+      "post": {
+        "operationId": "AdminBookingsController_extend",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Extend a checked-in booking checkout time",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/flag": {
+      "post": {
+        "operationId": "AdminBookingsController_flag",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlagBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Flag a booking for review",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    },
+    "/admin/bookings/{id}/unflag": {
+      "post": {
+        "operationId": "AdminBookingsController_unflag",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a flag from a booking",
+        "tags": [
+          "Admin / Bookings"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "QuickNest API",
+    "description": "Backend APIs for QuickNest hotel booking platform",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "SendOtpDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "9876543210",
+            "description": "10 digit Indian mobile number"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "VerifyOtpDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "9876543210",
+            "description": "10 digit Indian mobile number"
+          },
+          "otp": {
+            "type": "string",
+            "example": "123456",
+            "description": "6 digit OTP sent to the mobile number"
+          }
+        },
+        "required": [
+          "phone",
+          "otp"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "verificationToken": {
+            "type": "string",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "description": "Short-lived verification token from OTP or Firebase verification"
+          },
+          "email": {
+            "type": "string",
+            "example": "guest@quicknest.in",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "example": "QuickNest@123",
+            "minLength": 8,
+            "maxLength": 128,
+            "description": "Must include uppercase, lowercase, number, and special character"
+          }
+        },
+        "required": [
+          "verificationToken",
+          "email",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "guest@quicknest.in",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "example": "QuickNest@123",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "FirebaseLoginDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token issued by login, register, or refresh-token",
+            "minLength": 20
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "LogoutDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Current refresh token to revoke",
+            "minLength": 20
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "RejectPropertyDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "RevisionItemDto": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "reason"
+        ]
+      },
+      "RequestRevisionDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RevisionItemDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "CreateBookingDto": {
+        "type": "object",
+        "properties": {
+          "propertyId": {
+            "type": "string",
+            "description": "Property being booked"
+          },
+          "roomTypeId": {
+            "type": "string",
+            "description": "Room type within the property"
+          },
+          "bookingType": {
+            "type": "string",
+            "enum": [
+              "hourly",
+              "fullday"
+            ]
+          },
+          "checkInAt": {
+            "type": "string",
+            "description": "Requested check-in instant, ISO timestamp"
+          },
+          "durationHours": {
+            "type": "number",
+            "description": "Required for hourly bookings; ignored for fullday (fixed at 24)"
+          },
+          "guestCount": {
+            "type": "number",
+            "description": "Number of guests for this booking"
+          }
+        },
+        "required": [
+          "propertyId",
+          "roomTypeId",
+          "bookingType",
+          "checkInAt",
+          "guestCount"
+        ]
+      },
+      "PaymentConfirmDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Mock payment gateway result"
+          },
+          "paymentRef": {
+            "type": "string",
+            "description": "Mock gateway transaction id"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "CheckInDto": {
+        "type": "object",
+        "properties": {
+          "qrCode": {
+            "type": "string",
+            "description": "QR code token issued on booking confirmation"
+          }
+        },
+        "required": [
+          "qrCode"
+        ]
+      },
+      "CancelBookingDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Guest-supplied cancellation reason"
+          }
+        }
+      },
+      "VoidBookingDto": {
+        "type": "object",
+        "properties": {
+          "reasonCategory": {
+            "type": "string",
+            "enum": [
+              "fraud",
+              "emergency",
+              "duplicate",
+              "hotel_request",
+              "other"
+            ]
+          },
+          "reasonText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reasonCategory"
+        ]
+      },
+      "AdminCancelBookingDto": {
+        "type": "object",
+        "properties": {
+          "reasonCategory": {
+            "type": "string",
+            "enum": [
+              "guest_request",
+              "hotel_request",
+              "admin_decision",
+              "system_error"
+            ]
+          },
+          "reasonText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reasonCategory"
+        ]
+      },
+      "RefundBookingDto": {
+        "type": "object",
+        "properties": {
+          "amountPaise": {
+            "type": "number",
+            "description": "Amount to refund, in paise"
+          },
+          "reasonCategory": {
+            "type": "string"
+          },
+          "reasonText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amountPaise",
+          "reasonCategory"
+        ]
+      },
+      "ForceCheckoutBookingDto": {
+        "type": "object",
+        "properties": {
+          "reasonText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reasonText"
+        ]
+      },
+      "ExtendBookingDto": {
+        "type": "object",
+        "properties": {
+          "newCheckOutAt": {
+            "type": "string",
+            "description": "New check-out timestamp (ISO 8601)"
+          },
+          "extensionAmountPaise": {
+            "type": "number",
+            "description": "Extension surcharge, in paise"
+          }
+        },
+        "required": [
+          "newCheckOutAt",
+          "extensionAmountPaise"
+        ]
+      },
+      "FlagBookingDto": {
+        "type": "object",
+        "properties": {
+          "flagType": {
+            "type": "string",
+            "enum": [
+              "suspicious",
+              "quality_issue",
+              "partner_complaint",
+              "other"
+            ]
+          },
+          "flagNotes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "flagType"
+        ]
+      }
+    }
+  }
+}
