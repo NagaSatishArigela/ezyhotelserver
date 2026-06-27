@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { StripTags } from '../../../common/decorators/strip-tags.decorator';
 import {
   ArrayMaxSize,
   IsArray,
@@ -63,6 +64,7 @@ export class SubmitReviewDto {
 
   @ApiPropertyOptional({ description: 'Min 10 characters if provided' })
   @IsOptional()
+  @StripTags()
   @IsString()
   @MinLength(10)
   @MaxLength(5000)

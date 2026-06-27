@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DisputeCategory, DisputeRequestedResolution } from '@prisma/client';
 import { ArrayMaxSize, IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
+import { StripTags } from '../../../common/decorators/strip-tags.decorator';
 
 /** POST /bookings/:id/disputes (M6 spec §3.1). */
 export class CreateDisputeDto {
@@ -9,6 +10,7 @@ export class CreateDisputeDto {
   category: DisputeCategory;
 
   @ApiProperty()
+  @StripTags()
   @IsString()
   @MaxLength(2000)
   description: string;

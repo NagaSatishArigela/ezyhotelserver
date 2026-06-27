@@ -8,6 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { StripTags } from '../../../common/decorators/strip-tags.decorator';
 
 /**
  * Step 1 - Basics. Mirrors `step1Schema` in
@@ -54,6 +55,7 @@ export class Step1BasicsDto {
 
   @ApiProperty({ required: false, maxLength: 200 })
   @IsOptional()
+  @StripTags()
   @IsString()
   @MaxLength(200)
   description?: string;

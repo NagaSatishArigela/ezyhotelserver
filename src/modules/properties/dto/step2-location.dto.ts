@@ -8,6 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { StripTags } from '../../../common/decorators/strip-tags.decorator';
 
 /**
  * Step 2 - Location. Mirrors `step2Schema` in
@@ -58,6 +59,7 @@ export class Step2LocationDto {
 
   @ApiProperty({ required: false, maxLength: 200 })
   @IsOptional()
+  @StripTags()
   @IsString()
   @MaxLength(200)
   specialNote?: string;

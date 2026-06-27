@@ -339,7 +339,7 @@ export class AuthService {
       });
       throw new UnauthorizedException('Refresh token expired');
     }
-    this.logSessionBindingMismatch(session, metadata);
+    await this.enforceSessionBinding(user, session, metadata);
 
     const matches = await this.tokens.compareRefreshToken(
       dto.refreshToken,
@@ -442,13 +442,20 @@ export class AuthService {
     return `${phone.slice(0, 2)}******${phone.slice(-2)}`;
   }
 
-  private logSessionBindingMismatch(
+  /**
+   * Enforce session binding for privileged accounts (ADMIN, SUPER_ADMIN).
+   * A device or IP change on a high-privilege account is treated as a stolen
+   * token — the session is revoked immediately and a 401 is returned.
+   *
+   * For regular users (owners, guests) we only log the mismatch because mobile
+   * users legitimately change IPs (cell towers, Wi-Fi/mobile switching).
+   */
+  private async enforceSessionBinding(
+    user: User,
     session: { id: string; userId: string; device: string | null; ip: string | null },
     metadata?: SessionMetadata,
-  ): void {
-    if (!metadata) {
-      return;
-    }
+  ): Promise<void> {
+    if (!metadata) return;
 
     const deviceChanged =
       Boolean(session.device) &&
@@ -457,14 +464,35 @@ export class AuthService {
     const ipChanged =
       Boolean(session.ip) && Boolean(metadata.ip) && session.ip !== metadata.ip;
 
-    if (deviceChanged || ipChanged) {
+    if (!deviceChanged && !ipChanged) return;
+
+    const isPrivileged =
+      user.globalRole === GlobalRole.ADMIN ||
+      user.globalRole === GlobalRole.SUPER_ADMIN;
+
+    if (isPrivileged) {
+      // Revoke the compromised session immediately
+      await this.users.revokeSession(session.id);
       this.logger.warn({
-        event: 'auth.session.binding_mismatch',
+        event: 'auth.session.binding_enforced',
         userId: session.userId,
         sessionId: session.id,
         deviceChanged,
         ipChanged,
+        globalRole: user.globalRole,
       });
+      throw new UnauthorizedException(
+        'Session binding mismatch — access revoked. Please log in again.',
+      );
     }
+
+    // Non-privileged users: log only (mobile IP changes are expected)
+    this.logger.warn({
+      event: 'auth.session.binding_mismatch',
+      userId: session.userId,
+      sessionId: session.id,
+      deviceChanged,
+      ipChanged,
+    });
   }
 }
