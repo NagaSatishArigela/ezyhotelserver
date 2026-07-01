@@ -20,12 +20,11 @@ export class OtpDeliveryService {
         throw new InternalServerErrorException('SMS gateway is not configured');
       }
 
-      // Never log the OTP in plaintext, even in development - logs can be
-      // shipped to third-party aggregators or shared in support tickets.
-      // Only the last 2 digits are logged so a developer can sanity-check
-      // delivery without exposing a usable code.
+      // No SMS gateway configured — log the full OTP so local dev and QA
+      // can complete verification without a real phone. Never reaches
+      // production because the gateway check above throws first.
       this.logger.warn(
-        `Development OTP fallback for ${this.maskPhone(phone)}: ******${otp.slice(-2)}`,
+        `[DEV] OTP for ${this.maskPhone(phone)}: ${otp}`,
       );
       return;
     }

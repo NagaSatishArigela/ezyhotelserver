@@ -266,11 +266,11 @@ export class ReviewsRepository {
     return this.prisma.$queryRaw`
       SELECT b.id AS "bookingId", b.property_id AS "propertyId",
              b.guest_id AS "guestId", b.owner_id AS "ownerId",
-             b.checkout_at AS "checkoutAt"
+             b.checked_out_at AS "checkoutAt"
       FROM bookings.bookings b
       WHERE b.status = 'completed'::"bookings"."BookingStatus"
         AND NOT EXISTS (SELECT 1 FROM reviews.reviews r WHERE r.booking_id = b.id)
-        AND b.checkout_at + INTERVAL '2 hours' <= NOW()
+        AND b.checked_out_at + INTERVAL '2 hours' <= NOW()
     `;
   }
 

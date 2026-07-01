@@ -216,7 +216,7 @@ export class ReviewsService {
       SELECT r.booking_id AS "bookingId",
              b.booking_ref AS "bookingRef",
              p.name AS "propertyName",
-             b.checkout_at AS "checkOutAt",
+             b.checked_out_at AS "checkOutAt",
              r.window_opens_at AS "windowOpensAt",
              r.expires_at AS "expiresAt"
       FROM reviews.reviews r

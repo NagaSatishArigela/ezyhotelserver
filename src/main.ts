@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor';
+import { CacheControlInterceptor } from './common/interceptors/cache-control.interceptor';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -50,7 +51,7 @@ async function bootstrap(): Promise<void> {
     credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new RequestLoggingInterceptor());
+  app.useGlobalInterceptors(new RequestLoggingInterceptor(), new CacheControlInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
