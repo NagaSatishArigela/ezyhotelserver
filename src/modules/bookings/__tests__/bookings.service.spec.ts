@@ -130,16 +130,23 @@ describe(BookingsService.name, () => {
     emit: jest.fn(),
     on: jest.fn(),
   };
-  const config = {
-    get: jest.fn(),
+  const platformConfig = {
+    getMoneyConfig: jest.fn(),
+    commissionPaise: jest.fn((base: number, pct: number) => Math.round((base * pct) / 100)),
   };
 
   let service: BookingsService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    config.get.mockReturnValue(undefined);
-    service = new BookingsService(repo as unknown as BookingsRepository, events as never, config as never);
+    platformConfig.getMoneyConfig.mockResolvedValue({
+      commissionPct: 15,
+      tdsPct: 1,
+      payoutDayOfWeek: 1,
+      cancellationWindowHours: 24,
+    });
+    platformConfig.commissionPaise.mockImplementation((base: number, pct: number) => Math.round((base * pct) / 100));
+    service = new BookingsService(repo as unknown as BookingsRepository, events as never, platformConfig as never);
   });
 
   describe('getAvailability', () => {
@@ -187,9 +194,16 @@ describe(BookingsService.name, () => {
     };
 
     beforeEach(() => {
+      // Pin "now" so the baseDto checkInAt (2026-06-15) is a valid future
+      // instant within the booking horizon regardless of the real clock.
+      jest.useFakeTimers().setSystemTime(now);
       repo.findProperty.mockResolvedValue(buildProperty());
       repo.findRoomType.mockResolvedValue(buildRoomType());
       repo.generateBookingRef.mockResolvedValue('PPH-B-00001');
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
     });
 
     it('throws NotFoundException if property is missing or not approved', async () => {
@@ -224,6 +238,20 @@ describe(BookingsService.name, () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it('throws 400 if checkInAt is in the past (beyond the small grace)', async () => {
+      await expect(
+        service.createBooking('guest-1', { ...baseDto, checkInAt: '2026-06-10T12:00:00.000Z' }),
+      ).rejects.toThrow(BadRequestException);
+      expect(repo.createWithOverlapCheck).not.toHaveBeenCalled();
+    });
+
+    it('throws 400 if checkInAt is beyond the 90-day booking horizon', async () => {
+      await expect(
+        service.createBooking('guest-1', { ...baseDto, checkInAt: '2026-10-01T00:00:00.000Z' }),
+      ).rejects.toThrow(BadRequestException);
+      expect(repo.createWithOverlapCheck).not.toHaveBeenCalled();
+    });
+
     it('defaults durationHours to the property minimum (or 3) when omitted', async () => {
       repo.createWithOverlapCheck.mockResolvedValue(buildBooking({ durationHours: 3 }));
       await service.createBooking('guest-1', { ...baseDto, durationHours: undefined });
@@ -248,8 +276,7 @@ describe(BookingsService.name, () => {
       await expect(service.createBooking('guest-1', baseDto)).rejects.toThrow(BadRequestException);
     });
 
-    it('calculates base/GST/platform fee/total and persists pricing for an hourly booking', async () => {
-      config.get.mockReturnValue(5000);
+    it('calculates base/GST/commission/total and persists pricing for an hourly booking', async () => {
       repo.createWithOverlapCheck.mockResolvedValue(buildBooking());
 
       await service.createBooking('guest-1', baseDto);
@@ -258,8 +285,8 @@ describe(BookingsService.name, () => {
         expect.objectContaining({
           baseAmountPaise: 240000, // 80000 * 3
           gstAmountPaise: 43200, // round(240000 * 0.18)
-          platformFeePaise: 5000,
-          totalAmountPaise: 288200,
+          platformFeePaise: 36000, // 15% commission on base — deducted from owner payout, not added to guest total
+          totalAmountPaise: 283200, // base + GST only (guest is not charged commission)
           bookingType: BookingType.hourly,
           durationHours: 3,
         }),
@@ -310,97 +337,6 @@ describe(BookingsService.name, () => {
         checkOut: booking.checkOutAt.toISOString(),
         amountPaise: booking.totalAmountPaise,
       });
-    });
-  });
-
-  describe('confirmPayment', () => {
-    it('throws NotFoundException for a booking the guest does not own', async () => {
-      repo.findById.mockResolvedValue(buildBooking({ guestId: 'someone-else' }));
-      await expect(service.confirmPayment('booking-1', 'guest-1', { success: true })).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('throws ConflictException if the booking is not awaiting payment', async () => {
-      repo.findById.mockResolvedValue(buildBooking({ status: BookingStatus.confirmed }));
-      await expect(service.confirmPayment('booking-1', 'guest-1', { success: true })).rejects.toThrow(
-        ConflictException,
-      );
-    });
-
-    it('records a failed payment without confirming the booking and emits payment.failed', async () => {
-      repo.findById.mockResolvedValue(buildBooking());
-      repo.updateIfStatus.mockResolvedValue(
-        buildBooking({ paymentStatus: PaymentStatus.failed, paymentRef: 'mock_fail' }),
-      );
-
-      const result = await service.confirmPayment('booking-1', 'guest-1', {
-        success: false,
-        paymentRef: 'mock_fail',
-      });
-
-      expect(repo.updateIfStatus).toHaveBeenCalledWith('booking-1', [BookingStatus.pending_payment], {
-        paymentStatus: PaymentStatus.failed,
-        paymentRef: 'mock_fail',
-      });
-      expect(events.emit).toHaveBeenCalledWith(DOMAIN_EVENTS.PAYMENT_FAILED, {
-        bookingId: 'booking-1',
-        paymentId: 'mock_fail',
-        reason: 'Payment gateway reported failure',
-      });
-      expect(result.status).toBe(BookingStatus.pending_payment);
-    });
-
-    it('confirms the booking, generates a QR code and emits payment.captured + booking.confirmed', async () => {
-      const booking = buildBooking();
-      repo.findById.mockResolvedValue(booking);
-      const confirmed = buildBooking({
-        status: BookingStatus.confirmed,
-        paymentStatus: PaymentStatus.success,
-        paymentRef: 'pay_123',
-        qrCode: 'abc123',
-      });
-      repo.updateIfStatus.mockResolvedValue(confirmed);
-
-      const result = await service.confirmPayment('booking-1', 'guest-1', { success: true, paymentRef: 'pay_123' });
-
-      expect(repo.updateIfStatus).toHaveBeenCalledWith('booking-1', [BookingStatus.pending_payment], {
-        paymentStatus: PaymentStatus.success,
-        paymentRef: 'pay_123',
-        status: BookingStatus.confirmed,
-        qrCode: expect.any(String),
-      });
-      expect(events.emit).toHaveBeenCalledWith(
-        DOMAIN_EVENTS.PAYMENT_CAPTURED,
-        expect.objectContaining({ bookingId: 'booking-1', amountPaise: confirmed.totalAmountPaise }),
-      );
-      expect(events.emit).toHaveBeenCalledWith(
-        DOMAIN_EVENTS.BOOKING_CONFIRMED,
-        expect.objectContaining({ bookingId: 'booking-1', bookingRef: confirmed.bookingRef }),
-      );
-      expect(result.status).toBe(BookingStatus.confirmed);
-    });
-
-    it('generates a default mock paymentRef when none is supplied', async () => {
-      repo.findById.mockResolvedValue(buildBooking());
-      repo.updateIfStatus.mockResolvedValue(buildBooking({ status: BookingStatus.confirmed }));
-
-      await service.confirmPayment('booking-1', 'guest-1', { success: true });
-
-      expect(repo.updateIfStatus).toHaveBeenCalledWith(
-        'booking-1',
-        [BookingStatus.pending_payment],
-        expect.objectContaining({ paymentRef: 'mock_PPH-B-00001' }),
-      );
-    });
-
-    it('throws ConflictException if the booking moved out of pending_payment between read and update (race)', async () => {
-      repo.findById.mockResolvedValue(buildBooking());
-      repo.updateIfStatus.mockResolvedValue(null);
-
-      await expect(service.confirmPayment('booking-1', 'guest-1', { success: true })).rejects.toThrow(
-        ConflictException,
-      );
     });
   });
 
@@ -768,6 +704,14 @@ describe(BookingsService.name, () => {
       durationHours: 3,
       guestCount: 1,
     };
+
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(now); // keep checkInAt a valid future instant
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
 
     it('converts SlotUnavailableError into ConflictException for the losing request', async () => {
       repo.findProperty.mockResolvedValue(buildProperty());

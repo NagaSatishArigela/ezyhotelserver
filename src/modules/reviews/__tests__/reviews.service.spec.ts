@@ -113,9 +113,12 @@ describe(ReviewsService.name, () => {
     createAuditEntry: jest.fn(),
     countOwnerFlagsThisWeek: jest.fn(),
     findOwnerFlagForReview: jest.fn(),
+    findGuestFlagForReview: jest.fn(),
+    countGuestFlagsForReview: jest.fn(),
     getAuditLog: jest.fn(),
     listPublicForProperty: jest.fn(),
     listForAdmin: jest.fn(),
+    listByGuest: jest.fn(),
     listForOwnerProperty: jest.fn(),
     computePropertyRating: jest.fn(),
     countFlagged: jest.fn(),
@@ -382,6 +385,93 @@ describe(ReviewsService.name, () => {
         expect.objectContaining({ flagRole: 'owner', reason: 'Inappropriate content' }),
       );
       expect(repo.update).toHaveBeenCalledWith('review-1', { status: ReviewStatus.flagged });
+    });
+  });
+
+  // ─── getMyReviews ─────────────────────────────────────────────────────────
+
+  describe('getMyReviews', () => {
+    it("queries the guest's own reviews by guestId with pagination (not a platform-wide slice)", async () => {
+      repo.listByGuest.mockResolvedValue({
+        items: [{ id: 'r1', guest_id: 'guest-1' }],
+        total: 1,
+      });
+
+      const result = await service.getMyReviews('guest-1');
+
+      expect(repo.listByGuest).toHaveBeenCalledWith('guest-1', 1, 50);
+      expect(repo.listForAdmin).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        items: [{ id: 'r1', guest_id: 'guest-1' }],
+        total: 1,
+        page: 1,
+        limit: 50,
+      });
+    });
+  });
+
+  // ─── reportReview ─────────────────────────────────────────────────────────
+
+  describe('reportReview', () => {
+    const published = buildReview({ status: ReviewStatus.published });
+
+    it('throws ForbiddenException when the review is not published', async () => {
+      repo.findById.mockResolvedValue(buildReview({ status: ReviewStatus.flagged }));
+      await expect(service.reportReview('review-1', 'guest-2')).rejects.toThrow(ForbiddenException);
+    });
+
+    it('throws ConflictException when the same guest reports the same review twice', async () => {
+      repo.findById.mockResolvedValue(published);
+      repo.findGuestFlagForReview.mockResolvedValue({ id: 'flag-1' });
+      await expect(service.reportReview('review-1', 'guest-2')).rejects.toThrow(ConflictException);
+      expect(repo.createFlag).not.toHaveBeenCalled();
+    });
+
+    it('records a single report WITHOUT unpublishing the review (no trivial takedown)', async () => {
+      repo.findById.mockResolvedValue(published);
+      repo.findGuestFlagForReview.mockResolvedValue(null);
+      repo.createFlag.mockResolvedValue({});
+      repo.createAuditEntry.mockResolvedValue({});
+      repo.countGuestFlagsForReview.mockResolvedValue(1);
+
+      await service.reportReview('review-1', 'guest-2', 'Looks fake');
+
+      expect(repo.createFlag).toHaveBeenCalledWith(expect.objectContaining({ flagRole: 'guest' }));
+      // The review is NOT flipped to flagged and the rating is NOT recalculated.
+      expect(repo.update).not.toHaveBeenCalled();
+      expect(prisma.property.update).not.toHaveBeenCalled();
+      expect(events.emit).not.toHaveBeenCalledWith('review.flagged_admin', expect.anything());
+    });
+
+    it('hides the review and recalculates the property rating once the report threshold is reached', async () => {
+      repo.findById.mockResolvedValue(published);
+      repo.findGuestFlagForReview.mockResolvedValue(null);
+      repo.createFlag.mockResolvedValue({});
+      repo.createAuditEntry.mockResolvedValue({});
+      repo.countGuestFlagsForReview.mockResolvedValue(3);
+      repo.update.mockResolvedValue({ ...published, status: ReviewStatus.flagged });
+      repo.computePropertyRating.mockResolvedValue([
+        {
+          rating_count: BigInt(5),
+          rating_avg: '4.20',
+          dim_cleanliness: '4.00',
+          dim_amenities: '4.00',
+          dim_accuracy: '4.00',
+          dim_value: '4.00',
+          dim_checkin: '4.00',
+          star_1: BigInt(0),
+          star_2: BigInt(0),
+          star_3: BigInt(1),
+          star_4: BigInt(2),
+          star_5: BigInt(2),
+        },
+      ]);
+
+      await service.reportReview('review-1', 'guest-9', 'Coordinated');
+
+      expect(repo.update).toHaveBeenCalledWith('review-1', { status: ReviewStatus.flagged });
+      expect(prisma.property.update).toHaveBeenCalled();
+      expect(events.emit).toHaveBeenCalledWith('review.flagged_admin', expect.any(Object));
     });
   });
 

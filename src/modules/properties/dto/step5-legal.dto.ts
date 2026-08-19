@@ -9,6 +9,7 @@ import {
   IsISO8601,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
   MinLength,
@@ -31,8 +32,10 @@ export class PropertyDocumentWizardDto {
   @IsEnum(DocumentType)
   type: DocumentType;
 
+  // Only http/https URLs (require_tld:false so the local uploads host is
+  // accepted); rejects dangerous schemes like javascript: / data:.
   @ApiProperty()
-  @IsString()
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true, require_tld: false })
   url: string;
 
   @ApiProperty({ required: false })
@@ -47,10 +50,16 @@ export class PropertyDocumentWizardDto {
  * `documents` array for PropertyDocument rows.
  */
 export class Step5LegalDto {
-  @ApiProperty()
+  // GSTIN is ENTITY-ONLY: optional for individual/sole_proprietor, required
+  // for partnership/llp/private_limited/public_limited. The "required unless"
+  // rule is enforced at submit time in PropertiesService.assertConditionalFields
+  // (it needs the Step-1 businessEntity, out of scope for a single-step DTO).
+  // Regex is applied only when a value is present.
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
   @Matches(GSTIN_REGEX, { message: 'Invalid GSTIN format' })
-  gstin: string;
+  gstin?: string;
 
   @ApiProperty({ minLength: 2, maxLength: 200 })
   @IsString()

@@ -14,6 +14,7 @@ import { BookingsRepository } from './bookings.repository';
 import { BookingsService } from './bookings.service';
 import { MyBookingsController } from './my-bookings.controller';
 import { OwnerBookingsController } from './owner-bookings.controller';
+import { PaymentsService } from './payments.service';
 
 @Module({
   imports: [AuthModule],
@@ -27,6 +28,7 @@ import { OwnerBookingsController } from './owner-bookings.controller';
   ],
   providers: [
     BookingsService,
+    PaymentsService,
     BookingsRepository,
     BookingLifecycleScheduler,
     AdminBookingsService,

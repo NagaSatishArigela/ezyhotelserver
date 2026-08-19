@@ -1,22 +1,42 @@
 /**
- * Mirrors REQUIRES_FSSAI / REQUIRES_POOL_SAFETY in
- * payperhour-next/modules/owner/amenities.ts. Used at submission time (M1
- * spec edge case 6) to determine which compliance documents are mandatory
- * based on the amenities selected in step 3.
+ * Frozen amenity vocabulary for QuickNest onboarding (Phase 2A contract).
+ *
+ * Amenities are ID-BASED: Step 3 `amenities: string[]` carries these stable
+ * ids, and the compliance gates below match on ids (not display phrases).
+ * The canonical id list is published in docs/onboarding-contract.md and MUST
+ * stay in sync with the portal's amenity picker.
  */
-export const REQUIRES_FSSAI = [
-  'Restaurant on Premises → FSSAI required',
-  'In-house Catering → FSSAI required',
-  'Bar / Lounge → Liquor License',
-  'Restaurant → FSSAI required',
-  'Meals Provided → FSSAI if commercial',
-  'Meals Provided → FSSAI (if > 5 persons)',
-];
+export const AMENITY_IDS = [
+  'wifi',
+  'ac',
+  'parking',
+  'pool',
+  'gym',
+  'restaurant',
+  'bar',
+  'spa',
+  'reception_24',
+  'room_service',
+  'laundry',
+  'conference',
+  'rooftop',
+  'couples',
+  'pets',
+  'wheelchair',
+  'cctv',
+  'ev_charging',
+] as const;
 
-export const REQUIRES_POOL_SAFETY = [
-  'Swimming Pool',
-  'Kids Pool',
-  'Private Pool',
-  'Pool / Kids Pool → Pool Safety Cert',
-  'Pool → Pool Safety Cert',
-];
+export type AmenityId = (typeof AMENITY_IDS)[number];
+
+/**
+ * Amenity ids that make an FSSAI license mandatory at submission time
+ * (M1 spec edge case 6). Food/beverage service on premises.
+ */
+export const REQUIRES_FSSAI: AmenityId[] = ['restaurant', 'bar', 'room_service'];
+
+/**
+ * Amenity ids that trigger the pool-safety requirement. Informational unless
+ * already enforced elsewhere - kept id-based for a stable contract.
+ */
+export const REQUIRES_POOL_SAFETY: AmenityId[] = ['pool'];

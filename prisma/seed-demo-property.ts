@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 const DEMO_OWNER_EMAIL = 'demo.owner@payperhour.test';
 const DEMO_OWNER_PHONE = '9000000001';
-const DEMO_PROPERTY_NAME = 'PayPerHour Demo Suites';
+const DEMO_PROPERTY_NAME = 'EzyHotels Demo Suites';
 const DEMO_IMAGE_URL =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAK_Z8mLWjt3mB3skilQAkh2hHch24oMfSC9qLhKur_B0cr0kPZ8VEFEqUAIZBdW-TJLhKwOEinReCanobERH_Ya_HFbagphE-ReqMNvTyooYTwmRRkjAnDrYqGHNMntSZU8qYh1xW9Mjpc86OKhk2guNDILjYizAgnmGOl0UqmUS8sB6m4n0v7SCocP9AawY_anHq0IzfTvcEO0JXnGvD5ZNN_Vx7i8nFoWB7Wyka8atYQqCqpQBu9nP_siTIbBGTIxeacSn-ICqwX';
 

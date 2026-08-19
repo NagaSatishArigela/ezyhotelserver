@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import {
   BookingPolicy,
+  BusinessEntity,
   DocumentStatus,
   DocumentType,
   Property,
@@ -63,6 +64,7 @@ const step1Hourly = {
   propertyName: 'Sunrise Hotel',
   propertyType: PropertyType.hotel,
   bookingPolicy: BookingPolicy.hourly,
+  businessEntity: BusinessEntity.individual,
   ownerFirstName: 'Ravi',
   ownerLastName: 'Kumar',
   category: PropertyCategory.mid,
@@ -371,7 +373,7 @@ describe(PropertiesService.name, () => {
       repo.findById.mockResolvedValue(
         buildProperty({
           draftData: fullDraftData({
-            step3: { ...step3Hourly, amenities: ['Restaurant on Premises → FSSAI required'] },
+            step3: { ...step3Hourly, amenities: ['restaurant'] },
           }),
         }),
       );
@@ -381,6 +383,76 @@ describe(PropertiesService.name, () => {
         response: expect.objectContaining({
           step: 5,
           errors: [expect.objectContaining({ constraints: ['FSSAI license is required for the selected amenities'] })],
+        }),
+      });
+    });
+
+    it('rejects when a GSTIN-required entity has no GSTIN on file', async () => {
+      repo.findById.mockResolvedValue(
+        buildProperty({
+          draftData: fullDraftData({
+            step1: { ...step1Hourly, businessEntity: BusinessEntity.partnership },
+          }),
+        }),
+      );
+      // Partnership needs a GSTIN AND a partnership_deed; provide the deed so
+      // the GSTIN error is isolated.
+      compliance.getSummary.mockResolvedValue({
+        ...complianceSummary,
+        gstinMasked: null,
+        documents: [
+          { type: DocumentType.fire_safety_cert, status: DocumentStatus.pending, expiresAt: null },
+          { type: DocumentType.partnership_deed, status: DocumentStatus.pending, expiresAt: null },
+        ],
+      });
+
+      await expect(service.submit('prop-1')).rejects.toMatchObject({
+        response: expect.objectContaining({
+          step: 5,
+          errors: [expect.objectContaining({ field: 'gstin' })],
+        }),
+      });
+    });
+
+    it('allows an individual entity with no GSTIN on file', async () => {
+      jest.useFakeTimers().setSystemTime(now);
+      repo.findById.mockResolvedValue(
+        buildProperty({ draftData: fullDraftData(), draftStep: 5 }),
+      );
+      compliance.getSummary.mockResolvedValue({ ...complianceSummary, gstinMasked: null });
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00002');
+      repo.update.mockResolvedValue(
+        buildProperty({ status: PropertyStatus.pending_review, bookingPolicy: BookingPolicy.hourly }),
+      );
+
+      await expect(service.submit('prop-1')).resolves.toMatchObject({
+        status: PropertyStatus.pending_review,
+      });
+      jest.useRealTimers();
+    });
+
+    it('rejects an llp entity missing its entity documents', async () => {
+      repo.findById.mockResolvedValue(
+        buildProperty({
+          draftData: fullDraftData({
+            step1: { ...step1Hourly, businessEntity: BusinessEntity.llp },
+          }),
+        }),
+      );
+      // GSTIN present so only the entity-document errors surface.
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+
+      await expect(service.submit('prop-1')).rejects.toMatchObject({
+        response: expect.objectContaining({
+          step: 5,
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              constraints: ['LLP agreement is required for llp entities'],
+            }),
+            expect.objectContaining({
+              constraints: ['Certificate of incorporation is required for llp entities'],
+            }),
+          ]),
         }),
       });
     });
@@ -409,6 +481,7 @@ describe(PropertiesService.name, () => {
           submissionRef: 'PPH-2026-00001',
           draftStep: null,
           name: step1Hourly.propertyName,
+          businessEntity: BusinessEntity.individual,
           minBookingHours: 2,
           defaultCheckinTime: '12:00',
           defaultCheckoutTime: '11:00',

@@ -7,7 +7,7 @@ import {
   IsIn,
   IsInt,
   IsOptional,
-  IsString,
+  IsUrl,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -37,8 +37,11 @@ export class PhotoWizardDto {
   @IsIn(PHOTO_CATEGORIES)
   category: PhotoCategory;
 
+  // Only http/https URLs (require_tld:false so the local uploads host such as
+  // http://localhost:3000/uploads/... is accepted); this rejects dangerous
+  // schemes like javascript: / data:.
   @ApiProperty()
-  @IsString()
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true, require_tld: false })
   url: string;
 
   @ApiProperty({ required: false })

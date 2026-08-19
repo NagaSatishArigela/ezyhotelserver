@@ -123,6 +123,29 @@ describe('Bookings (e2e)', () => {
     };
   }
 
+  // Drive the real Layer-C payment flow: order → sandbox checkout → verify.
+  // Returns the confirmed booking response body.
+  async function payAndConfirm(bookingId: string, token: string) {
+    const orderRes = await request(app.getHttpServer())
+      .post(`/bookings/${bookingId}/payment/order`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(201);
+    const { orderId } = orderRes.body;
+
+    const simRes = await request(app.getHttpServer())
+      .post(`/bookings/${bookingId}/payment/simulate`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ orderId })
+      .expect(201);
+    const { paymentId, signature } = simRes.body;
+
+    return request(app.getHttpServer())
+      .post(`/bookings/${bookingId}/payment/verify`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ orderId, paymentId, signature })
+      .expect(201);
+  }
+
   describe('POST /bookings', () => {
     it('returns 401 without an access token', async () => {
       await request(app.getHttpServer())
@@ -264,22 +287,17 @@ describe('Bookings (e2e)', () => {
       expect(booking.gstAmountPaise).toBe(Math.round(booking.baseAmountPaise * 0.18));
       expect(booking.totalAmountPaise).toBe(booking.baseAmountPaise + booking.gstAmountPaise);
 
-      // Pay
-      const payRes = await request(app.getHttpServer())
-        .post(`/bookings/${booking.id}/payment/confirm`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ success: true })
-        .expect(201);
+      // Pay (order → checkout → verify)
+      const payRes = await payAndConfirm(booking.id, token);
 
       expect(payRes.body.status).toBe(BookingStatus.confirmed);
       expect(payRes.body.paymentStatus).toBe('success');
       expect(payRes.body.qrCode).toEqual(expect.any(String));
 
-      // Re-confirming an already-confirmed booking is a conflict
+      // Re-ordering payment for an already-confirmed booking is a conflict
       await request(app.getHttpServer())
-        .post(`/bookings/${booking.id}/payment/confirm`)
+        .post(`/bookings/${booking.id}/payment/order`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ success: true })
         .expect(409);
 
       // Get
@@ -320,7 +338,7 @@ describe('Bookings (e2e)', () => {
       expect(listRes.body.items[0].id).toBe(booking.id);
     });
 
-    it('records a failed payment without confirming the booking', async () => {
+    it('rejects a forged payment signature and leaves the booking pending', async () => {
       const owner = await createUser();
       const guest = await createUser();
       const token = await tokenFor(guest);
@@ -333,14 +351,25 @@ describe('Bookings (e2e)', () => {
         .send(createBookingPayload({ propertyId: property.id, roomTypeId: roomType.id }))
         .expect(201);
 
-      const payRes = await request(app.getHttpServer())
-        .post(`/bookings/${createRes.body.id}/payment/confirm`)
+      const orderRes = await request(app.getHttpServer())
+        .post(`/bookings/${createRes.body.id}/payment/order`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ success: false, paymentRef: 'mock_failed_txn' })
         .expect(201);
 
-      expect(payRes.body.status).toBe(BookingStatus.pending_payment);
-      expect(payRes.body.paymentStatus).toBe('failed');
+      // A forged {paymentId, signature} must NOT pass verification.
+      await request(app.getHttpServer())
+        .post(`/bookings/${createRes.body.id}/payment/verify`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ orderId: orderRes.body.orderId, paymentId: 'pay_forged', signature: 'deadbeef' })
+        .expect(400);
+
+      // Booking is still awaiting payment — not confirmed by a forged signature.
+      const getRes = await request(app.getHttpServer())
+        .get(`/bookings/${createRes.body.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      expect(getRes.body.status).toBe(BookingStatus.pending_payment);
+      expect(getRes.body.paymentStatus).toBe('pending');
     });
   });
 
@@ -365,11 +394,7 @@ describe('Bookings (e2e)', () => {
         )
         .expect(201);
 
-      await request(app.getHttpServer())
-        .post(`/bookings/${createRes.body.id}/payment/confirm`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ success: true })
-        .expect(201);
+      await payAndConfirm(createRes.body.id, token);
 
       const cancelRes = await request(app.getHttpServer())
         .post(`/bookings/${createRes.body.id}/cancel`)
@@ -401,11 +426,7 @@ describe('Bookings (e2e)', () => {
         )
         .expect(201);
 
-      await request(app.getHttpServer())
-        .post(`/bookings/${createRes.body.id}/payment/confirm`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ success: true })
-        .expect(201);
+      await payAndConfirm(createRes.body.id, token);
 
       const cancelRes = await request(app.getHttpServer())
         .post(`/bookings/${createRes.body.id}/cancel`)
@@ -553,11 +574,7 @@ describe('Bookings (e2e)', () => {
         .send(createBookingPayload({ propertyId: property.id, roomTypeId: roomType.id }))
         .expect(201);
 
-      await request(app.getHttpServer())
-        .post(`/bookings/${createRes.body.id}/payment/confirm`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ success: true })
-        .expect(201);
+      await payAndConfirm(createRes.body.id, token);
 
       // Push the check-in time an hour into the past so it's well past the
       // 30-minute no-show grace window.
@@ -616,11 +633,7 @@ describe('Bookings (e2e)', () => {
         .send(createBookingPayload({ propertyId: property.id, roomTypeId: roomType.id }))
         .expect(201);
 
-      const payRes = await request(app.getHttpServer())
-        .post(`/bookings/${createRes.body.id}/payment/confirm`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ success: true })
-        .expect(201);
+      const payRes = await payAndConfirm(createRes.body.id, token);
 
       await request(app.getHttpServer())
         .post(`/bookings/${createRes.body.id}/check-in`)

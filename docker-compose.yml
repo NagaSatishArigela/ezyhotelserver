@@ -1,0 +1,41 @@
+# Local dev dependencies for quicknestserver: Postgres + Redis.
+# Brings up exactly what .env expects: Postgres on host port 5433 (user
+# postgres / password "password", db "quicknest"), plus the "quicknest_test"
+# database for e2e/integration tests, and Redis on 6379.
+#
+#   docker compose up -d      # start
+#   docker compose down       # stop (keeps data)
+#   docker compose down -v     # stop + wipe data
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-quicknest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: quicknest
+    ports:
+      - "5433:5432"
+    volumes:
+      - quicknest-pgdata:/var/lib/postgresql/data
+      # Runs once on first init (empty data dir) — creates quicknest_test.
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d quicknest"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-quicknest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - quicknest-redisdata:/data
+
+volumes:
+  quicknest-pgdata:
+  quicknest-redisdata:

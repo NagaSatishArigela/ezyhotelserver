@@ -1,7 +1,17 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { PayoutBatch, PayoutBatchStatus, PayoutItem, PayoutItemStatus } from '@prisma/client';
+import {
+  LedgerAccount,
+  LedgerDirection,
+  PayoutBatch,
+  PayoutBatchStatus,
+  PayoutItem,
+  PayoutItemStatus,
+} from '@prisma/client';
 import { DOMAIN_EVENTS } from '../../common/events/domain-events';
 import { TypedEventEmitter } from '../../common/events/typed-event-emitter.service';
+import { PrismaService } from '../database/prisma.service';
+import { LedgerLeg, LedgerService } from '../finance/ledger.service';
+import { PlatformConfigService } from '../platform/platform-config.service';
 import { GenerateBatchDto } from './dto/generate-batch.dto';
 import { ListAdminPayoutsQueryDto, ListPayoutsQueryDto } from './dto/list-payouts-query.dto';
 import { CompletedBookingRow, OwnerItemRow, PayoutBatchWithItems, PayoutsRepository } from './payouts.repository';
@@ -41,8 +51,8 @@ function ownerGrossForBooking(row: CompletedBookingRow): number {
   return gross;
 }
 
-function computeTds(ownerGross: number): number {
-  return Math.round(ownerGross * 0.01);
+function computeTds(ownerGross: number, tdsPct: number): number {
+  return Math.round((ownerGross * tdsPct) / 100);
 }
 
 function makeBatchRef(cycleEnd: Date): string {
@@ -57,12 +67,17 @@ export class PayoutsService {
   constructor(
     private readonly repo: PayoutsRepository,
     private readonly events: TypedEventEmitter,
+    private readonly platformConfig: PlatformConfigService,
+    private readonly prisma: PrismaService,
+    private readonly ledger: LedgerService,
   ) {}
 
   async generateBatch(dto: GenerateBatchDto): Promise<{ batchId: string; batchRef: string; itemCount: number; totalNetPaise: number }> {
     const cycleStart = new Date(dto.cycleStartAt);
     const cycleEnd = new Date(dto.cycleEndAt);
     const batchRef = makeBatchRef(cycleEnd);
+
+    const { tdsPct } = await this.platformConfig.getMoneyConfig();
 
     // Read completed bookings outside the transaction — no write needed here.
     const bookingRows = await this.repo.getCompletedBookingsForCycle(cycleStart, cycleEnd);
@@ -75,7 +90,7 @@ export class PayoutsService {
     for (const row of bookingRows) {
       const ownerGross = ownerGrossForBooking(row);
       if (ownerGross <= 0) continue;
-      const tds = computeTds(ownerGross);
+      const tds = computeTds(ownerGross, tdsPct);
 
       let entry = propertyMap.get(row.property_id);
       if (!entry) {
@@ -156,16 +171,32 @@ export class PayoutsService {
     item: PayoutItem & { bookings?: unknown[] },
     batchRef: string,
   ): Promise<PayoutItem> {
-    // TODO: Replace with real payment gateway call. Production flow should:
-    // (1) set status to processing, (2) call bank API asynchronously,
-    // (3) update to released or failed via webhook/callback.
+    // TODO: Replace the bankRef stub with a real bank/payout gateway call
+    // (set processing → call bank API → released/failed via webhook). The
+    // ledger posting below is real and stays.
     try {
       const bankRef = `MOCK-${Date.now()}-${item.id.slice(0, 8)}`;
-      const updated = await this.repo.updateItem(item.id, {
-        status: PayoutItemStatus.released,
-        releasedAt: new Date(),
-        bankRef,
-        holdReason: null,
+
+      // Draining the owner_payable that capture credited: debit owner_payable
+      // by the gross, credit the withheld TDS and the net actually settled to
+      // the bank. Balances to zero. Drop zero legs (e.g. no TDS).
+      const legs: LedgerLeg[] = [
+        { account: LedgerAccount.owner_payable, direction: LedgerDirection.debit, amountPaise: item.grossAmountPaise, memo: 'Owner payout released' },
+        { account: LedgerAccount.tds_payable, direction: LedgerDirection.credit, amountPaise: item.tdsPaise, memo: 'TDS withheld on payout' },
+        { account: LedgerAccount.bank_settlement, direction: LedgerDirection.credit, amountPaise: item.netAmountPaise, memo: 'Net settled to owner bank' },
+      ].filter((l) => l.amountPaise > 0);
+
+      const updated = await this.prisma.$transaction(async (tx) => {
+        const u = await this.repo.updateItem(
+          item.id,
+          { status: PayoutItemStatus.released, releasedAt: new Date(), bankRef, holdReason: null },
+          tx,
+        );
+        await this.ledger.post(
+          { txnRef: `PAYOUT-${batchRef}-${item.id.slice(0, 8)}`, refType: 'payout_item', refId: item.id, legs },
+          tx,
+        );
+        return u;
       });
 
       this.events.emit(DOMAIN_EVENTS.PAYOUT_RELEASED, {

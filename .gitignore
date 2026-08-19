@@ -6,6 +6,9 @@ node_modules
 dist
 coverage
 
+# Locally-stored uploads (dev disk storage; prod uses object storage)
+uploads/
+
 # Runtime logs
 *.log
 

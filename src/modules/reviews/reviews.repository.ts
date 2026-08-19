@@ -87,6 +87,18 @@ export class ReviewsRepository {
     });
   }
 
+  findGuestFlagForReview(reviewId: string, guestId: string): Promise<ReviewFlag | null> {
+    return this.prisma.reviewFlag.findFirst({
+      where: { reviewId, flaggedBy: guestId, flagRole: 'guest' },
+    });
+  }
+
+  countGuestFlagsForReview(reviewId: string): Promise<number> {
+    return this.prisma.reviewFlag.count({
+      where: { reviewId, flagRole: 'guest' },
+    });
+  }
+
   getAuditLog(reviewId: string): Promise<ReviewAuditLog[]> {
     return this.prisma.reviewAuditLog.findMany({
       where: { reviewId },
@@ -193,6 +205,45 @@ export class ReviewsRepository {
       `,
       this.prisma.$queryRaw<[{ count: bigint }]>`
         SELECT COUNT(*) FROM reviews.reviews r ${where}
+      `,
+    ]);
+
+    return { items, total: Number(countResult[0].count) };
+  }
+
+  // A guest's own submitted reviews, filtered at the DB by guest_id with
+  // proper pagination (never a platform-wide slice filtered in memory).
+  async listByGuest(
+    guestId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ items: ReviewListRow[]; total: number }> {
+    const offset = (page - 1) * limit;
+    const [items, countResult] = await Promise.all([
+      this.prisma.$queryRaw<ReviewListRow[]>`
+        SELECT r.id, r.booking_id, r.property_id, r.guest_id, r.owner_id,
+               r.score_overall, r.score_cleanliness, r.score_amenities,
+               r.score_accuracy, r.score_value, r.score_checkin,
+               r.display_score::text, r.review_text, r.photo_urls, r.status,
+               r.owner_reply, r.owner_replied_at, r.reply_window_end,
+               r.window_opens_at, r.expires_at, r.submitted_at, r.published_at,
+               r.created_at,
+               b.booking_ref,
+               p.name AS property_name,
+               u.name AS guest_name
+        FROM reviews.reviews r
+        LEFT JOIN bookings.bookings b ON b.id = r.booking_id
+        LEFT JOIN properties.properties p ON p.id = r.property_id
+        LEFT JOIN auth.users u ON u.id = r.guest_id
+        WHERE r.guest_id = ${guestId}::uuid
+          AND r.submitted_at IS NOT NULL
+        ORDER BY r.submitted_at DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `,
+      this.prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*) FROM reviews.reviews r
+        WHERE r.guest_id = ${guestId}::uuid
+          AND r.submitted_at IS NOT NULL
       `,
     ]);
 

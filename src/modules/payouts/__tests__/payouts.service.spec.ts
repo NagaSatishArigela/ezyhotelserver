@@ -6,6 +6,9 @@ import { TypedEventEmitter } from '../../../common/events/typed-event-emitter.se
 import { GenerateBatchDto } from '../dto/generate-batch.dto';
 import { CompletedBookingRow, PayoutsRepository } from '../payouts.repository';
 import { PayoutsService } from '../payouts.service';
+import { PlatformConfigService } from '../../platform/platform-config.service';
+import { PrismaService } from '../../database/prisma.service';
+import { LedgerService } from '../../finance/ledger.service';
 
 function makeBatch(overrides: Partial<PayoutBatch> = {}): PayoutBatch {
   return {
@@ -60,6 +63,7 @@ describe('PayoutsService', () => {
   let service: PayoutsService;
   let repo: jest.Mocked<PayoutsRepository>;
   let emitter: jest.Mocked<TypedEventEmitter>;
+  let ledger: jest.Mocked<LedgerService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -87,12 +91,33 @@ describe('PayoutsService', () => {
           provide: TypedEventEmitter,
           useValue: { emit: jest.fn() },
         },
+        {
+          provide: PlatformConfigService,
+          useValue: {
+            getMoneyConfig: jest.fn().mockResolvedValue({
+              commissionPct: 15,
+              tdsPct: 1,
+              payoutDayOfWeek: 1,
+              cancellationWindowHours: 24,
+            }),
+          },
+        },
+        {
+          provide: PrismaService,
+          // $transaction just runs the callback with a stub tx client.
+          useValue: { $transaction: jest.fn(async (cb: (tx: unknown) => unknown) => cb({})) },
+        },
+        {
+          provide: LedgerService,
+          useValue: { post: jest.fn() },
+        },
       ],
     }).compile();
 
     service = module.get(PayoutsService);
     repo = module.get(PayoutsRepository);
     emitter = module.get(TypedEventEmitter);
+    ledger = module.get(LedgerService);
   });
 
   describe('generateBatch', () => {
@@ -197,10 +222,24 @@ describe('PayoutsService', () => {
 
       await service.releaseItem('item-1');
 
-      expect(repo.updateItem).toHaveBeenCalledWith('item-1', expect.objectContaining({
-        status: PayoutItemStatus.released,
-        holdReason: null,
-      }));
+      expect(repo.updateItem).toHaveBeenCalledWith(
+        'item-1',
+        expect.objectContaining({ status: PayoutItemStatus.released, holdReason: null }),
+        expect.anything(), // transaction client
+      );
+      // Posts a balanced payout ledger transaction: debit owner_payable = gross,
+      // credit tds_payable + bank_settlement.
+      expect(ledger.post).toHaveBeenCalledWith(
+        expect.objectContaining({
+          refType: 'payout_item',
+          refId: 'item-1',
+          legs: expect.arrayContaining([
+            expect.objectContaining({ account: 'owner_payable', direction: 'debit' }),
+            expect.objectContaining({ account: 'bank_settlement', direction: 'credit' }),
+          ]),
+        }),
+        expect.anything(),
+      );
       expect(emitter.emit).toHaveBeenCalledWith(
         DOMAIN_EVENTS.PAYOUT_RELEASED,
         expect.objectContaining({ payoutItemId: 'item-1', ownerId: 'owner-1', batchRef: 'PAY-20260615' }),

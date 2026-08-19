@@ -130,6 +130,21 @@ describe(ComplianceService.name, () => {
       expect(summary?.legalBusinessName).toBe('Sunrise Hospitality');
     });
 
+    it('stores NULL GSTIN columns and skips dedup when no GSTIN is provided', async () => {
+      repo.findComplianceDocByProperty.mockResolvedValue(buildComplianceDoc({ gstinEncrypted: null }));
+      repo.findDocumentsByProperty.mockResolvedValue([documentRow]);
+
+      const { gstin: _gstin, ...noGstin } = step5Dto;
+      const summary = await service.saveStep5('prop-1', noGstin as Step5LegalDto);
+
+      expect(repo.findComplianceDocByGstinHash).not.toHaveBeenCalled();
+      expect(repo.upsertComplianceDoc).toHaveBeenCalledWith(
+        'prop-1',
+        expect.objectContaining({ gstinEncrypted: null, gstinHash: null }),
+      );
+      expect(summary.gstinMasked).toBeNull();
+    });
+
     it('parses document expiresAt into a Date when provided', async () => {
       repo.findComplianceDocByGstinHash.mockResolvedValue(null);
       repo.findComplianceDocByProperty.mockResolvedValue(buildComplianceDoc());

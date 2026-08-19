@@ -67,7 +67,19 @@ export class PropertiesRepository {
   }
 
   findRoomTypes(propertyId: string): Promise<RoomType[]> {
-    return this.prisma.roomType.findMany({ where: { propertyId } });
+    return this.prisma.roomType.findMany({ where: { propertyId }, orderBy: { type: 'asc' } });
+  }
+
+  // Update a room only if it belongs to the given property (ownership scoping);
+  // returns null when the room/property don't match so the service can 404.
+  async updateRoomType(
+    roomId: string,
+    propertyId: string,
+    data: Prisma.RoomTypeUpdateInput,
+  ): Promise<RoomType | null> {
+    const res = await this.prisma.roomType.updateMany({ where: { id: roomId, propertyId }, data });
+    if (res.count === 0) return null;
+    return this.prisma.roomType.findUnique({ where: { id: roomId } });
   }
 
   findPhotos(propertyId: string): Promise<PropertyPhoto[]> {

@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PropertyRoleGuard } from '../auth/guards/property-role.guard';
 import { BookingsService } from './bookings.service';
 import { ListBookingsQueryDto } from './dto/list-bookings-query.dto';
+import { OwnerAnalyticsQueryDto } from './dto/owner-analytics-query.dto';
 
 @ApiTags('Bookings')
 @ApiBearerAuth()
@@ -19,5 +20,22 @@ export class OwnerBookingsController {
   @Get(':propertyId/bookings')
   list(@Param('propertyId', ParseUUIDPipe) propertyId: string, @Query() query: ListBookingsQueryDto) {
     return this.bookings.listPropertyBookings(propertyId, query.page, query.limit);
+  }
+
+  @ApiOperation({ summary: "Owner dashboard headline stats for a property" })
+  @PropertyRoles(PropertyRole.OWNER)
+  @Get(':propertyId/dashboard')
+  dashboard(@Param('propertyId', ParseUUIDPipe) propertyId: string) {
+    return this.bookings.getOwnerDashboard(propertyId);
+  }
+
+  @ApiOperation({ summary: "Owner analytics (revenue/mix) over a look-back window" })
+  @PropertyRoles(PropertyRole.OWNER)
+  @Get(':propertyId/analytics')
+  analytics(
+    @Param('propertyId', ParseUUIDPipe) propertyId: string,
+    @Query() query: OwnerAnalyticsQueryDto,
+  ) {
+    return this.bookings.getOwnerAnalytics(propertyId, query.days);
   }
 }

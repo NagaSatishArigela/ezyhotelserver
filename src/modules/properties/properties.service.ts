@@ -6,11 +6,13 @@ import {
 } from '@nestjs/common';
 import {
   BookingPolicy,
+  BusinessEntity,
   DocumentType,
   Prisma,
   Property,
   PropertyStatus,
   PropertyType,
+  RoomType,
 } from '@prisma/client';
 import { DOMAIN_EVENTS } from '../../common/events/domain-events';
 import { TypedEventEmitter } from '../../common/events/typed-event-emitter.service';
@@ -28,9 +30,44 @@ import {
   Step4PhotosDto,
 } from './dto/step.dto';
 import { Step5LegalDto } from './dto/step5-legal.dto';
+import { UpdateOwnerSettingsDto } from './dto/owner-settings.dto';
+import { UpdateRoomDto } from './dto/update-room.dto';
 import { validateStepPayload } from './utils/validate-step';
 
 const MAX_PHOTOS_PER_CATEGORY = 10;
+
+// businessEntity values for which a GSTIN is NOT required at submit time.
+const GSTIN_EXEMPT_ENTITIES: BusinessEntity[] = [
+  BusinessEntity.individual,
+  BusinessEntity.sole_proprietor,
+];
+
+// Entity -> extra compliance documents required at submit time (in addition
+// to the always-required fire_safety_cert and food-gated fssai_license).
+// individual / sole_proprietor require no extra entity documents.
+const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>> = {
+  [BusinessEntity.partnership]: [DocumentType.partnership_deed],
+  [BusinessEntity.llp]: [
+    DocumentType.llp_agreement,
+    DocumentType.incorporation_certificate,
+  ],
+  [BusinessEntity.private_limited]: [
+    DocumentType.incorporation_certificate,
+    DocumentType.board_resolution,
+  ],
+  [BusinessEntity.public_limited]: [
+    DocumentType.incorporation_certificate,
+    DocumentType.board_resolution,
+  ],
+};
+
+// Human-readable labels for entity-document errors.
+const DOCUMENT_LABELS: Record<string, string> = {
+  [DocumentType.partnership_deed]: 'Partnership deed',
+  [DocumentType.llp_agreement]: 'LLP agreement',
+  [DocumentType.incorporation_certificate]: 'Certificate of incorporation',
+  [DocumentType.board_resolution]: 'Board resolution',
+};
 
 const NON_EDITABLE_STATUSES: PropertyStatus[] = [
   PropertyStatus.pending_review,
@@ -82,6 +119,14 @@ export interface StatusView {
   revisionCount: number;
   revisionNotes: unknown;
   timeline: TimelineEntry[];
+}
+
+export interface OwnerSettingsView {
+  defaultCheckinTime: string | null;
+  defaultCheckoutTime: string | null;
+  minBookingHours: number | null;
+  isActive: boolean;
+  houseRules: unknown;
 }
 
 interface MaterializedSubmission {
@@ -298,6 +343,49 @@ export class PropertiesService {
     };
   }
 
+  /** GET /owner/.../settings — owner-editable operational settings. */
+  async getSettings(propertyId: string): Promise<OwnerSettingsView> {
+    const p = await this.findPropertyOrThrow(propertyId);
+    return {
+      defaultCheckinTime: p.defaultCheckinTime,
+      defaultCheckoutTime: p.defaultCheckoutTime,
+      minBookingHours: p.minBookingHours,
+      isActive: p.isActive,
+      houseRules: p.houseRules,
+    };
+  }
+
+  /** PATCH /owner/.../settings — narrow, safe operational edits on a live property. */
+  async updateSettings(propertyId: string, dto: UpdateOwnerSettingsDto): Promise<OwnerSettingsView> {
+    await this.findPropertyOrThrow(propertyId);
+    const data: Prisma.PropertyUpdateInput = {};
+    if (dto.defaultCheckinTime !== undefined) data.defaultCheckinTime = dto.defaultCheckinTime;
+    if (dto.defaultCheckoutTime !== undefined) data.defaultCheckoutTime = dto.defaultCheckoutTime;
+    if (dto.minBookingHours !== undefined) data.minBookingHours = dto.minBookingHours;
+    if (dto.isActive !== undefined) data.isActive = dto.isActive;
+    const updated = await this.repo.update(propertyId, data);
+    return this.getSettings(updated.id);
+  }
+
+  /** GET /owner/.../rooms — the property's room types. */
+  async getRooms(propertyId: string): Promise<RoomType[]> {
+    await this.findPropertyOrThrow(propertyId);
+    return this.repo.findRoomTypes(propertyId);
+  }
+
+  /** PATCH /owner/.../rooms/:roomId — edit count/rates/occupancy (rupees → paise). */
+  async updateRoom(propertyId: string, roomId: string, dto: UpdateRoomDto): Promise<RoomType> {
+    await this.findPropertyOrThrow(propertyId);
+    const data: Prisma.RoomTypeUpdateInput = {};
+    if (dto.count !== undefined) data.count = dto.count;
+    if (dto.maxOccupancy !== undefined) data.maxOccupancy = dto.maxOccupancy;
+    if (dto.hourlyRate !== undefined) data.hourlyRatePaise = dto.hourlyRate * 100;
+    if (dto.fulldayRate !== undefined) data.fulldayRatePaise = dto.fulldayRate * 100;
+    const updated = await this.repo.updateRoomType(roomId, propertyId, data);
+    if (!updated) throw new NotFoundException('Room not found for this property');
+    return updated;
+  }
+
   private emitSubmitted(property: Property, submissionRef: string): void {
     this.events.emit(DOMAIN_EVENTS.HOTEL_ONBOARDING_SUBMITTED, {
       hotelId: property.id,
@@ -370,6 +458,7 @@ export class PropertiesService {
       name: step1.propertyName,
       propertyType: step1.propertyType,
       bookingPolicy: step1.bookingPolicy,
+      businessEntity: step1.businessEntity,
       ownerFirstName: step1.ownerFirstName,
       ownerMiddleName: step1.ownerMiddleName ?? null,
       ownerLastName: step1.ownerLastName,
@@ -466,6 +555,15 @@ export class PropertiesService {
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
 
+    // GSTIN is entity-only: required unless the entity is individual /
+    // sole_proprietor. compliance.gstinMasked is null when no GSTIN was stored.
+    if (!GSTIN_EXEMPT_ENTITIES.includes(step1.businessEntity) && !compliance.gstinMasked) {
+      step5Errors.push({
+        field: 'gstin',
+        constraints: [`GSTIN is required for ${step1.businessEntity} entities`],
+      });
+    }
+
     if (!documentTypes.has(DocumentType.fire_safety_cert)) {
       step5Errors.push({
         field: 'documents',
@@ -473,12 +571,25 @@ export class PropertiesService {
       });
     }
 
-    const requiresFssai = step3.amenities.some((amenity) => REQUIRES_FSSAI.includes(amenity));
+    const fssaiIds = REQUIRES_FSSAI as readonly string[];
+    const requiresFssai = step3.amenities.some((amenity) => fssaiIds.includes(amenity));
     if (requiresFssai && !documentTypes.has(DocumentType.fssai_license)) {
       step5Errors.push({
         field: 'documents',
         constraints: ['FSSAI license is required for the selected amenities'],
       });
+    }
+
+    // Entity -> required documents matrix.
+    const requiredEntityDocs = ENTITY_REQUIRED_DOCUMENTS[step1.businessEntity] ?? [];
+    for (const docType of requiredEntityDocs) {
+      if (!documentTypes.has(docType)) {
+        const label = DOCUMENT_LABELS[docType] ?? docType;
+        step5Errors.push({
+          field: 'documents',
+          constraints: [`${label} is required for ${step1.businessEntity} entities`],
+        });
+      }
     }
 
     if (step5Errors.length > 0) {

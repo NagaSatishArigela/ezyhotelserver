@@ -1,6 +1,8 @@
+import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -9,7 +11,7 @@ import { RequestLoggingInterceptor } from './common/interceptors/request-logging
 import { CacheControlInterceptor } from './common/interceptors/cache-control.interceptor';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
   const isProduction = config.get<string>('NODE_ENV') === 'production';
 
@@ -50,6 +52,18 @@ async function bootstrap(): Promise<void> {
     },
     credentials: true,
   });
+  // Serve locally-stored uploads (photos/documents) at /uploads. Marked
+  // Cross-Origin-Resource-Policy: cross-origin so the portal (3000) and
+  // storefront (3001) can load these assets across origins despite helmet's
+  // default same-site CORP. Storage lives on local disk in dev; swap the
+  // StorageService for S3 in prod (files would then be served from the bucket).
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+    setHeaders: (res) => {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  });
+
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new RequestLoggingInterceptor(), new CacheControlInterceptor());
   app.useGlobalPipes(

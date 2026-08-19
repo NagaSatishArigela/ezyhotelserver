@@ -29,8 +29,20 @@ export class BookingsRepository {
     return this.prisma.booking.findUnique({ where: { id } });
   }
 
-  generateBookingRef(): Promise<string> {
-    return Promise.resolve(`PPH-B-${randomBytes(4).toString('hex').toUpperCase()}`);
+  // bookingRef is a UNIQUE column. Generate a candidate with wide entropy and
+  // pre-check it against the DB, retrying on the (rare) collision so a clash
+  // never surfaces as an unhandled P2002 500 at insert time.
+  async generateBookingRef(): Promise<string> {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const ref = `PPH-B-${randomBytes(5).toString('hex').toUpperCase()}`;
+      const existing = await this.prisma.booking.findUnique({
+        where: { bookingRef: ref },
+        select: { id: true },
+      });
+      if (!existing) return ref;
+    }
+    // Astronomically unlikely to reach here; fall back to maximum entropy.
+    return `PPH-B-${randomBytes(8).toString('hex').toUpperCase()}`;
   }
 
   // Used by admin "extend" (M5 spec §3.5): does any other active booking for
@@ -131,6 +143,48 @@ export class BookingsRepository {
       this.prisma.booking.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take }),
       this.prisma.booking.count({ where }),
     ]);
+  }
+
+  // Owner dashboard aggregates for a single property.
+  async dashboardStats(
+    propertyId: string,
+    todayStart: Date,
+    todayEnd: Date,
+    weekAgo: Date,
+    now: Date,
+  ): Promise<{ total: number; today: number; upcoming: number; completed: number; revenuePaise: number }> {
+    const earning: BookingStatus[] = [
+      BookingStatus.confirmed,
+      BookingStatus.checked_in,
+      BookingStatus.completed,
+    ];
+    const [total, today, upcoming, completed, revenue] = await this.prisma.$transaction([
+      this.prisma.booking.count({ where: { propertyId } }),
+      this.prisma.booking.count({
+        where: { propertyId, checkInAt: { gte: todayStart, lte: todayEnd }, status: { in: earning } },
+      }),
+      this.prisma.booking.count({
+        where: { propertyId, checkInAt: { gt: now }, status: BookingStatus.confirmed },
+      }),
+      this.prisma.booking.count({ where: { propertyId, status: BookingStatus.completed } }),
+      this.prisma.booking.aggregate({
+        _sum: { totalAmountPaise: true },
+        where: { propertyId, status: { in: earning }, createdAt: { gte: weekAgo } },
+      }),
+    ]);
+    return { total, today, upcoming, completed, revenuePaise: revenue._sum.totalAmountPaise ?? 0 };
+  }
+
+  // Minimal projection for owner analytics aggregation (grouped in the service).
+  findForAnalytics(
+    propertyId: string,
+    since: Date,
+  ): Promise<Array<Pick<Booking, 'createdAt' | 'totalAmountPaise' | 'status' | 'bookingType'>>> {
+    return this.prisma.booking.findMany({
+      where: { propertyId, createdAt: { gte: since } },
+      select: { createdAt: true, totalAmountPaise: true, status: true, bookingType: true },
+      orderBy: { createdAt: 'asc' },
+    });
   }
 
   // --- Scheduled lifecycle jobs (M3 spec §5) ---

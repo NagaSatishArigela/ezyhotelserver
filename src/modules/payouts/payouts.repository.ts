@@ -57,8 +57,8 @@ export class PayoutsRepository {
     return this.prisma.payoutBatch.update({ where: { id }, data });
   }
 
-  updateItem(id: string, data: Prisma.PayoutItemUpdateInput): Promise<PayoutItem> {
-    return this.prisma.payoutItem.update({ where: { id }, data });
+  updateItem(id: string, data: Prisma.PayoutItemUpdateInput, tx?: Prisma.TransactionClient): Promise<PayoutItem> {
+    return (tx ?? this.prisma).payoutItem.update({ where: { id }, data });
   }
 
   listBatchesAdmin(status: PayoutBatchStatus | undefined, page: number, limit: number): Promise<[PayoutBatch[], number]> {

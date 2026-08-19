@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { TestAwareThrottlerGuard } from './common/guards/test-aware-throttler.guard';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
@@ -16,6 +17,10 @@ import { DisputesModule } from './modules/disputes/disputes.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { PayoutsModule } from './modules/payouts/payouts.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
+import { SupportModule } from './modules/support/support.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
+import { PlatformModule } from './modules/platform/platform.module';
+import { FinanceModule } from './modules/finance/finance.module';
 
 @Module({
   imports: [
@@ -53,6 +58,8 @@ import { SuperAdminModule } from './modules/super-admin/super-admin.module';
     CryptoModule,
     DatabaseModule,
     RedisModule,
+    PlatformModule,
+    FinanceModule,
     AuthModule,
     PropertiesModule,
     NotificationsModule,
@@ -61,11 +68,13 @@ import { SuperAdminModule } from './modules/super-admin/super-admin.module';
     ReviewsModule,
     PayoutsModule,
     SuperAdminModule,
+    SupportModule,
+    UploadsModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: TestAwareThrottlerGuard,
     },
   ],
 })

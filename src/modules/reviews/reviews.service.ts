@@ -24,6 +24,10 @@ const HOUR_MS = 60 * 60 * 1000;
 const REPLY_WINDOW_MS = 96 * HOUR_MS;
 const OWNER_FLAG_WEEKLY_LIMIT = 3;
 const MIN_REVIEWS_FOR_DISPLAY = 5;
+// A single guest report must NOT unpublish a review (trivial griefing). We
+// record every report but only hide the review from public once this many
+// distinct guest reports accumulate (admin action can also hide it sooner).
+const GUEST_REPORT_HIDE_THRESHOLD = 3;
 
 const PII_PATTERNS = [
   /\+?91?\s*[6-9]\d{9}/,
@@ -240,10 +244,9 @@ export class ReviewsService {
 
   // ─── Guest: My reviews ────────────────────────────────────────────────────
 
-  async getMyReviews(guestId: string): Promise<ReviewListResult> {
-    const { items } = await this.repo.listForAdmin(1, 50, undefined, undefined, undefined, undefined);
-    const mine = items.filter((r) => r.guest_id === guestId);
-    return { items: mine, total: mine.length, page: 1, limit: 50 };
+  async getMyReviews(guestId: string, page = 1, limit = 50): Promise<ReviewListResult> {
+    const { items, total } = await this.repo.listByGuest(guestId, page, limit);
+    return { items, total, page, limit };
   }
 
   // ─── Guest: Report a published review ────────────────────────────────────
@@ -254,23 +257,54 @@ export class ReviewsService {
       throw new ForbiddenException('Review is not published');
     }
 
+    // One report per guest per review — stops a single actor from inflating
+    // the count (and from spamming the flag/audit tables).
+    const alreadyReported = await this.repo.findGuestFlagForReview(reviewId, guestId);
+    if (alreadyReported) {
+      throw new ConflictException('ALREADY_REPORTED');
+    }
+
+    // Always record the report + an audit trail, but leave the review PUBLISHED
+    // (a lone report no longer removes it from public view).
     await this.repo.createFlag({
       review: { connect: { id: reviewId } },
       flaggedBy: guestId,
       flagRole: 'guest',
       reason: reason ?? null,
     });
-
-    await this.repo.update(reviewId, { status: ReviewStatus.flagged });
     await this.repo.createAuditEntry({
       review: { connect: { id: reviewId } },
       actor: guestId,
       actorRole: 'guest',
       action: 'flag_added',
       fromStatus: ReviewStatus.published,
-      toStatus: ReviewStatus.flagged,
+      toStatus: ReviewStatus.published,
       reason,
     });
+
+    // Only hide it once enough distinct guests have reported it. When it does
+    // get hidden, recalc the property rating (published reviews changed) and
+    // surface it to admins.
+    const reportCount = await this.repo.countGuestFlagsForReview(reviewId);
+    if (reportCount >= GUEST_REPORT_HIDE_THRESHOLD) {
+      await this.repo.update(reviewId, { status: ReviewStatus.flagged });
+      await this.repo.createAuditEntry({
+        review: { connect: { id: reviewId } },
+        actor: 'system',
+        actorRole: 'system',
+        action: 'flagged',
+        fromStatus: ReviewStatus.published,
+        toStatus: ReviewStatus.flagged,
+        reason: `Guest report threshold reached (${reportCount})`,
+      });
+      await this.recalculatePropertyRating(review.propertyId);
+      this.events.emit(DOMAIN_EVENTS.REVIEW_FLAGGED_ADMIN, {
+        reviewId,
+        propertyId: review.propertyId,
+        flagRole: 'guest',
+        reason: reason ?? 'Guest report threshold reached',
+      });
+    }
   }
 
   // ─── Public: Property reviews ─────────────────────────────────────────────

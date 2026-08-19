@@ -4,16 +4,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Booking, BookingPolicy, BookingStatus, BookingType, GlobalRole, PaymentStatus, PropertyStatus } from '@prisma/client';
-import { randomBytes } from 'crypto';
+import { Booking, BookingPolicy, BookingStatus, BookingType, GlobalRole, PropertyStatus } from '@prisma/client';
 import { DOMAIN_EVENTS } from '../../common/events/domain-events';
 import { TypedEventEmitter } from '../../common/events/typed-event-emitter.service';
+import { PlatformConfigService } from '../platform/platform-config.service';
 import { BookingsRepository, SlotUnavailableError } from './bookings.repository';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
 import { CheckInDto } from './dto/check-in.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { PaymentConfirmDto } from './dto/payment-confirm.dto';
 
 const GST_RATE = 0.18;
 const NO_SHOW_GRACE_MINUTES = 30;
@@ -21,6 +19,11 @@ const CHECK_IN_EARLY_WINDOW_MINUTES = 15;
 const PAYMENT_TIMEOUT_MINUTES = 30;
 const DEFAULT_MIN_BOOKING_HOURS = 3;
 const FULLDAY_DURATION_HOURS = 24;
+// A booking's check-in must be roughly "now or later" (a small grace absorbs
+// client/server clock skew and in-flight requests) and no further out than a
+// sane horizon — reject stale dates (yesterday) and absurd ones (year 2100).
+const BOOKING_PAST_GRACE_MINUTES = 10;
+const BOOKING_HORIZON_DAYS = 90;
 
 // Shared with AdminBookingsService (admin-initiated cancellation, M5 spec §3.5).
 export function calculateBookingRefund(booking: Booking): number {
@@ -38,7 +41,7 @@ export class BookingsService {
   constructor(
     private readonly repo: BookingsRepository,
     private readonly events: TypedEventEmitter,
-    private readonly config: ConfigService,
+    private readonly platformConfig: PlatformConfigService,
   ) {}
 
   async getAvailability(propertyId: string, roomTypeId: string, date: string) {
@@ -81,6 +84,14 @@ export class BookingsService {
       throw new BadRequestException('Invalid checkInAt');
     }
 
+    const nowMs = Date.now();
+    if (checkInAt.getTime() < nowMs - BOOKING_PAST_GRACE_MINUTES * 60 * 1000) {
+      throw new BadRequestException('checkInAt cannot be in the past.');
+    }
+    if (checkInAt.getTime() > nowMs + BOOKING_HORIZON_DAYS * 24 * 60 * 60 * 1000) {
+      throw new BadRequestException(`checkInAt cannot be more than ${BOOKING_HORIZON_DAYS} days in the future.`);
+    }
+
     let durationHours: number;
     let checkOutAt: Date;
     if (dto.bookingType === BookingType.hourly) {
@@ -108,8 +119,13 @@ export class BookingsService {
 
     const baseAmountPaise = dto.bookingType === BookingType.hourly ? ratePaise * durationHours : ratePaise;
     const gstAmountPaise = Math.round(baseAmountPaise * GST_RATE);
-    const platformFeePaise = Number(this.config.get('BOOKING_PLATFORM_FEE_PAISE') ?? 0);
-    const totalAmountPaise = baseAmountPaise + gstAmountPaise + platformFeePaise;
+    // Platform commission = commissionPct of the base tariff (from PlatformSettings).
+    // It is the platform's cut, DEDUCTED from the owner's payout downstream
+    // (payouts: ownerGross = base − platformFee − refund) — NOT added on top of
+    // what the guest pays. The guest is charged base + GST only.
+    const { commissionPct } = await this.platformConfig.getMoneyConfig();
+    const platformFeePaise = this.platformConfig.commissionPaise(baseAmountPaise, commissionPct);
+    const totalAmountPaise = baseAmountPaise + gstAmountPaise;
 
     const bookingRef = await this.repo.generateBookingRef();
 
@@ -127,6 +143,10 @@ export class BookingsService {
           checkOutAt,
           durationHours,
           guestCount: dto.guestCount,
+          guestName: dto.guestName ?? null,
+          guestPhone: dto.guestPhone ?? null,
+          guestEmail: dto.guestEmail ?? null,
+          specialRequests: dto.specialRequests ?? null,
           baseAmountPaise,
           gstAmountPaise,
           platformFeePaise,
@@ -160,61 +180,6 @@ export class BookingsService {
     return booking;
   }
 
-  async confirmPayment(bookingId: string, guestId: string, dto: PaymentConfirmDto): Promise<Booking> {
-    const booking = await this.getOwnedByGuest(bookingId, guestId);
-    if (booking.status !== BookingStatus.pending_payment) {
-      throw new ConflictException('This booking is not awaiting payment.');
-    }
-
-    if (!dto.success) {
-      const updated = await this.repo.updateIfStatus(booking.id, [BookingStatus.pending_payment], {
-        paymentStatus: PaymentStatus.failed,
-        paymentRef: dto.paymentRef ?? null,
-      });
-      if (!updated) {
-        throw new ConflictException('This booking is no longer awaiting payment.');
-      }
-      this.events.emit(DOMAIN_EVENTS.PAYMENT_FAILED, {
-        bookingId: updated.id,
-        paymentId: dto.paymentRef ?? 'unknown',
-        reason: 'Payment gateway reported failure',
-      });
-      return updated;
-    }
-
-    const qrCode = randomBytes(16).toString('hex');
-    const updated = await this.repo.updateIfStatus(booking.id, [BookingStatus.pending_payment], {
-      paymentStatus: PaymentStatus.success,
-      paymentRef: dto.paymentRef ?? `mock_${booking.bookingRef}`,
-      status: BookingStatus.confirmed,
-      qrCode,
-    });
-    if (!updated) {
-      throw new ConflictException('This booking is no longer awaiting payment.');
-    }
-
-    this.events.emit(DOMAIN_EVENTS.PAYMENT_CAPTURED, {
-      bookingId: updated.id,
-      paymentId: updated.paymentRef ?? '',
-      amountPaise: updated.totalAmountPaise,
-    });
-
-    this.events.emit(DOMAIN_EVENTS.BOOKING_CONFIRMED, {
-      bookingId: updated.id,
-      bookingRef: updated.bookingRef,
-      hotelId: updated.propertyId,
-      ownerId: updated.ownerId,
-      roomId: updated.roomTypeId,
-      guestUserId: updated.guestId,
-      bookingType: updated.bookingType,
-      checkIn: updated.checkInAt.toISOString(),
-      checkOut: updated.checkOutAt.toISOString(),
-      amountPaise: updated.totalAmountPaise,
-    });
-
-    return updated;
-  }
-
   async getBooking(bookingId: string, user: { id: string; globalRole: GlobalRole }): Promise<Booking> {
     const booking = await this.repo.findById(bookingId);
     if (!booking) throw new NotFoundException('Booking not found');
@@ -236,7 +201,66 @@ export class BookingsService {
     return { items, total, page, limit };
   }
 
+  // Owner dashboard: headline counts + this-week revenue + 5 most-recent bookings.
+  async getOwnerDashboard(propertyId: string) {
+    const now = new Date();
+    const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const stats = await this.repo.dashboardStats(propertyId, todayStart, todayEnd, weekAgo, now);
+    const [recent] = await this.repo.findManyByProperty(propertyId, 0, 5);
+    return { ...stats, recent };
+  }
+
+  // Owner analytics over a look-back window: daily revenue, mix by type/status,
+  // and headline totals. Aggregated in-memory (demo/pilot scale).
+  async getOwnerAnalytics(propertyId: string, days: number) {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const rows = await this.repo.findForAnalytics(propertyId, since);
+
+    const earning = new Set<BookingStatus>([
+      BookingStatus.confirmed,
+      BookingStatus.checked_in,
+      BookingStatus.completed,
+    ]);
+    const revenueByDayMap = new Map<string, number>();
+    const byType: Record<string, number> = { hourly: 0, fullday: 0 };
+    const byStatus: Record<string, number> = {};
+    let revenuePaise = 0;
+    let earningCount = 0;
+
+    for (const r of rows) {
+      byStatus[r.status] = (byStatus[r.status] ?? 0) + 1;
+      byType[r.bookingType] = (byType[r.bookingType] ?? 0) + 1;
+      if (earning.has(r.status)) {
+        revenuePaise += r.totalAmountPaise;
+        earningCount += 1;
+        const day = r.createdAt.toISOString().slice(0, 10);
+        revenueByDayMap.set(day, (revenueByDayMap.get(day) ?? 0) + r.totalAmountPaise);
+      }
+    }
+
+    return {
+      days,
+      totals: {
+        bookings: rows.length,
+        revenuePaise,
+        avgBookingValuePaise: earningCount > 0 ? Math.round(revenuePaise / earningCount) : 0,
+      },
+      byType,
+      byStatus,
+      revenueByDay: [...revenueByDayMap.entries()].map(([date, paise]) => ({ date, revenuePaise: paise })),
+    };
+  }
+
   async checkIn(bookingId: string, dto: CheckInDto, userId: string): Promise<Booking> {
+    // FLAG (Layer-C follow-up, not fixed here): check-in is gated on
+    // booking.guestId === userId, so the guest scans/enters the QR that was
+    // returned to them and self-marks the booking checked_in. Physical
+    // check-in should instead be owner/staff-scoped (the property verifies the
+    // guest's QR), i.e. authorize userId against the property's owner/staff
+    // roles rather than the guest. Same concern in checkOut() below.
     const booking = await this.repo.findById(bookingId);
     if (!booking || booking.guestId !== userId) throw new NotFoundException('Booking not found');
     if (booking.status !== BookingStatus.confirmed) {

@@ -6,13 +6,14 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  schemas    = ["auth", "properties", "bookings", "finance", "notifications", "reviews", "compliance", "wallet", "payouts", "platform"]
+  schemas    = ["auth", "properties", "bookings", "finance", "notifications", "reviews", "compliance", "wallet", "payouts", "platform", "support"]
   extensions = [pg_trgm]
 }
 
 enum GlobalRole {
   SUPER_ADMIN
   ADMIN
+  SUPPORT
   USER
 
   @@schema("auth")
@@ -132,6 +133,20 @@ enum BookingPolicy {
   @@schema("properties")
 }
 
+// Legal business structure captured in Step 1. Drives the GSTIN-conditional
+// rule (optional for individual/sole_proprietor, required for entities) and
+// the entity->required-documents matrix enforced at submit time.
+enum BusinessEntity {
+  individual
+  sole_proprietor
+  partnership
+  llp
+  private_limited
+  public_limited
+
+  @@schema("properties")
+}
+
 enum PropertyCategory {
   budget
   mid
@@ -184,6 +199,7 @@ model Property {
   propertyType    PropertyType?     @map("property_type")
   bookingPolicy   BookingPolicy?    @map("booking_policy")
   category        PropertyCategory?
+  businessEntity  BusinessEntity?   @map("business_entity")
   description     String?           @db.VarChar(200)
   ownerFirstName  String?           @map("owner_first_name")
   ownerMiddleName String?           @map("owner_middle_name")
@@ -307,8 +323,11 @@ model PropertyComplianceDoc {
   id                         String   @id @default(uuid()) @db.Uuid
   propertyId                 String   @unique @map("property_id") @db.Uuid
   legalBusinessName          String   @map("legal_business_name")
-  gstinEncrypted             String   @map("gstin_encrypted")
-  gstinHash                  String   @unique @map("gstin_hash")
+  // Nullable so "no GSTIN" (individual / sole_proprietor) is representable.
+  // gstinHash stays @unique - a partial/nullable unique is fine in Postgres
+  // (NULLs never collide), so multiple GSTIN-less docs coexist.
+  gstinEncrypted             String?  @map("gstin_encrypted")
+  gstinHash                  String?  @unique @map("gstin_hash")
   panEncrypted               String   @map("pan_encrypted")
   panHash                    String   @map("pan_hash")
   bankAccountNumberEncrypted String   @map("bank_account_number_encrypted")
@@ -334,6 +353,11 @@ enum DocumentType {
   fire_safety_cert
   fssai_license
   trade_license
+  partnership_deed
+  incorporation_certificate
+  board_resolution
+  llp_agreement
+  cancelled_cheque
   other
 
   @@schema("compliance")
@@ -466,6 +490,12 @@ model Booking {
   checkOutAt    DateTime    @map("check_out_at")
   durationHours Int         @map("duration_hours")
   guestCount    Int         @map("guest_count")
+
+  // Lead-guest contact captured at booking time (shown to the property at check-in)
+  guestName       String? @map("guest_name")
+  guestPhone      String? @map("guest_phone")
+  guestEmail      String? @map("guest_email")
+  specialRequests String? @map("special_requests")
 
   baseAmountPaise  Int @map("base_amount_paise")
   gstAmountPaise   Int @map("gst_amount_paise")
@@ -665,6 +695,84 @@ model Dispute {
   @@index([propertyId, status])
   @@map("disputes")
   @@schema("bookings")
+}
+
+// ── finance schema (Layer C: payments + double-entry ledger) ──────────────────
+// Cross-schema references (bookingId → bookings.Booking.id, payoutItemId →
+// payouts.PayoutItem.id) carry NO Prisma relation/FK, per the modular-monolith
+// isolation rule.
+
+enum PaymentGatewayStatus {
+  created // gateway order created, awaiting guest payment
+  captured // signature-verified, funds captured
+  failed // gateway reported failure
+  refunded // fully/partially refunded
+
+  @@schema("finance")
+}
+
+// One gateway order/transaction per payment attempt on a booking. The provider
+// column records which PaymentGateway adapter (sandbox | razorpay) minted it so
+// verification routes to the same adapter.
+model Payment {
+  id               String               @id @default(uuid()) @db.Uuid
+  bookingId        String               @map("booking_id") @db.Uuid
+  provider         String // "sandbox" | "razorpay" | …
+  gatewayOrderId   String               @unique @map("gateway_order_id")
+  gatewayPaymentId String?              @unique @map("gateway_payment_id")
+  amountPaise      Int                  @map("amount_paise")
+  status           PaymentGatewayStatus @default(created)
+  signature        String? // captured HMAC/signature for audit
+  failureReason    String?              @map("failure_reason")
+  capturedAt       DateTime?            @map("captured_at")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  @@index([bookingId])
+  @@index([status])
+  @@map("payments")
+  @@schema("finance")
+}
+
+// Double-entry accounts. Every posted transaction must net to zero across its
+// entries (enforced in LedgerService.post).
+enum LedgerAccount {
+  guest_clearing // money received from the guest (asset/clearing)
+  owner_payable // amount owed to the property owner (liability)
+  platform_commission // platform revenue (income)
+  gst_payable // GST collected, owed to govt (liability, pass-through)
+  tds_payable // TDS withheld on payout, owed to govt (liability)
+  bank_settlement // funds sent out to owner bank (asset/clearing)
+
+  @@schema("finance")
+}
+
+enum LedgerDirection {
+  debit
+  credit
+
+  @@schema("finance")
+}
+
+// Append-only double-entry ledger. Entries are grouped by txnRef (all entries
+// posted in one balanced transaction share a txnRef). refType/refId point at the
+// originating domain object (booking, payout_item) without a FK.
+model LedgerEntry {
+  id          String          @id @default(uuid()) @db.Uuid
+  txnRef      String          @map("txn_ref") // groups a balanced set of entries
+  account     LedgerAccount
+  direction   LedgerDirection
+  amountPaise Int             @map("amount_paise")
+  refType     String          @map("ref_type") // "booking" | "payout_item"
+  refId       String          @map("ref_id") @db.Uuid
+  memo        String?
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@index([txnRef])
+  @@index([account])
+  @@index([refType, refId])
+  @@map("ledger_entries")
+  @@schema("finance")
 }
 
 // --- wallet schema (M6: minimal append-only wallet credit ledger) ---
@@ -886,4 +994,45 @@ model PlatformSettings {
 
   @@map("platform_settings")
   @@schema("platform")
+}
+
+// ── Support schema ───────────────────────────────────────────────────────────
+// Cross-schema references (raisedByUserId, assignedToUserId) point at auth.User
+// but carry NO Prisma relation/FK — resolved via application-level lookups.
+
+enum SupportTicketStatus {
+  open
+  in_progress
+  resolved
+  escalated
+
+  @@schema("support")
+}
+
+enum SupportTicketPriority {
+  low
+  medium
+  high
+
+  @@schema("support")
+}
+
+model SupportTicket {
+  id               String                @id @default(uuid()) @db.Uuid
+  subject          String                @db.VarChar(200)
+  description      String
+  status           SupportTicketStatus   @default(open)
+  priority         SupportTicketPriority @default(medium)
+  category         String?               @db.VarChar(60)
+  raisedByUserId   String                @map("raised_by_user_id") @db.Uuid
+  assignedToUserId String?               @map("assigned_to_user_id") @db.Uuid
+  resolutionNote   String?               @map("resolution_note")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  resolvedAt       DateTime?             @map("resolved_at")
+
+  @@index([status])
+  @@index([raisedByUserId])
+  @@map("support_tickets")
+  @@schema("support")
 }

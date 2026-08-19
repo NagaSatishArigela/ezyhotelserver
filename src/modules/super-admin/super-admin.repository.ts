@@ -2,8 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { GlobalRole, Prisma, PlatformSettings, User, UserStatus } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 
+// Admin list rows are returned straight to the HTTP response, so they must
+// never carry the bcrypt passwordHash. This projection selects every User
+// column EXCEPT passwordHash.
+const ADMIN_LIST_SELECT = {
+  id: true,
+  name: true,
+  phone: true,
+  email: true,
+  globalRole: true,
+  status: true,
+  isPhoneVerified: true,
+  isEmailVerified: true,
+  createdAt: true,
+  updatedAt: true,
+} satisfies Prisma.UserSelect;
+
+export type AdminListItem = Omit<User, 'passwordHash'>;
+
 export interface AdminListResult {
-  items: User[];
+  items: AdminListItem[];
   total: number;
   page: number;
   limit: number;
@@ -41,7 +59,7 @@ export class SuperAdminRepository {
       this.prisma.$queryRaw<{ total: bigint; active: bigint }[]>`
         SELECT
           COUNT(*)                                        AS total,
-          COUNT(*) FILTER (WHERE status = 'active')      AS active
+          COUNT(*) FILTER (WHERE is_active = true)        AS active
         FROM properties.properties
       `,
       this.prisma.$queryRaw<{
@@ -97,7 +115,13 @@ export class SuperAdminRepository {
       globalRole: { in: [GlobalRole.ADMIN, GlobalRole.SUPER_ADMIN] },
     };
     const [items, total] = await this.prisma.$transaction([
-      this.prisma.user.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: ADMIN_LIST_SELECT,
+      }),
       this.prisma.user.count({ where }),
     ]);
     return { items, total, page, limit };
