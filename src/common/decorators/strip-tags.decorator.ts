@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import sanitizeHtml = require('sanitize-html');
+import sanitizeHtml from 'sanitize-html';
 
 /**
  * Strips all HTML/script tags from a string field before validation.
