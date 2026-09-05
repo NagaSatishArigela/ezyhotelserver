@@ -9,6 +9,10 @@ coverage
 # Locally-stored uploads (dev disk storage; prod uses object storage)
 uploads/
 
+# Keep the S3-backed upload module in source control.
+!src/modules/uploads/
+!src/modules/uploads/**
+
 # Runtime logs
 *.log
 
