@@ -3,8 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
-import { extname } from 'path';
 import { PresignUploadDto } from './dto/presign-upload.dto';
+
+const EXT_MAP: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'application/pdf': '.pdf',
+};
 
 export interface PresignedUpload {
   key: string;
@@ -48,7 +54,7 @@ export class StorageService {
       throw new ServiceUnavailableException('Object storage is not configured');
     }
 
-    const extension = extname(dto.fileName).toLowerCase();
+    const extension = EXT_MAP[dto.contentType];
     const key = `properties/${dto.propertyId}/${dto.kind}/${randomUUID()}${extension}`;
     const command = new PutObjectCommand({
       Bucket: this.bucket,
