@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, unit tests, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npm run lint
+      - run: npm test -- --runInBand
+      - run: npm run build
+
+  e2e:
+    name: PostgreSQL and Redis E2E tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ezyhotels_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ezyhotels_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      # Test configuration is generated from the public template so no
+      # development or production secret is ever required by CI.
+      - name: Create isolated test environment
+        run: |
+          cp .env.example .env.test
+          sed -i 's/NODE_ENV=development/NODE_ENV=test/' .env.test
+          sed -i 's|DATABASE_URL=postgresql://postgres:password@localhost:5433/ezyhotels|DATABASE_URL=postgresql://postgres:password@localhost:5433/ezyhotels_test|' .env.test
+      - run: npm run prisma:migrate:test
+      - run: npm run test:e2e

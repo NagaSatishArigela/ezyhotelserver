@@ -31,6 +31,39 @@ From `quicknestserver`:
 npm test
 ```
 
+## CI/CD
+
+GitHub Actions runs linting, unit tests, a production build, and E2E tests
+against disposable PostgreSQL and Redis services for every push and pull
+request. Deployments use Railway and occur only after CI succeeds:
+
+| Branch | Railway environment | Purpose |
+| --- | --- | --- |
+| Feature branch / pull request | None | CI validation only |
+| `develop` | `staging` | Shared integration and QA environment |
+| `main` | `production` | Customer-facing release |
+
+### Railway setup
+
+1. Create a Railway project with `staging` and `production` environments. Add
+   a Postgres and Redis service in **each** environment; do not share staging
+   data with production.
+2. Create an API service named `ezyhotels-api` in each environment. Railway
+   will build the repository Dockerfile. Set its variables in the Railway
+   dashboard, including `DATABASE_URL=${{Postgres.DATABASE_URL}}`,
+   `REDIS_URL=${{Redis.REDIS_URL}}`, `NODE_ENV=production`, and the real
+   values for every secret in `.env.example`.
+3. Configure the public domain and set `ALLOWED_ORIGINS` to the corresponding
+   portal URL. Railway supplies `PORT` automatically.
+   In each API service's Deploy settings, set the **Pre-deploy command** to
+   `npx prisma migrate deploy` and allow at least 300 seconds for it.
+4. In GitHub, create protected `staging` and `production` environments. Add a
+   `RAILWAY_TOKEN` secret to each one using a Railway **project token scoped to
+   that environment**. Require approval for `production`.
+
+Railway runs the pre-deploy migration with private-network access to the target
+database; if it fails, the new API version is not started.
+
 Targeted auth tests can be run with:
 
 ```bash
