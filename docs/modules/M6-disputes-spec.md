@@ -16,8 +16,8 @@ scheduler pattern, `PPH-B-NNNNN` ref convention).
 guest-initiated complaint flow with a 7-day resolution SLA, a 48-hour
 hotel-response window, and 5 resolution actions (full refund, partial refund,
 no refund, wallet credit, escalate). Two cross-portal surfaces are implied:
-**admin** (review/resolve, in `quicknestportal`'s Admin shell) and **hotel
-owner** (respond to disputes against their property, in `quicknestportal`'s
+**admin** (review/resolve, in `ezyhotelsportal`'s Admin shell) and **hotel
+owner** (respond to disputes against their property, in `ezyhotelsportal`'s
 Owner shell — this is new owner-portal surface area, M1-M5B were admin-only
 additions).
 
@@ -333,7 +333,7 @@ in M5B's existing rule-engine sweep (`bookings` schema, `Anomaly` table,
   sampleDisputeIds } }` if not already an unresolved ANO-011 for that
   property (same dedup precedent as ANO-001/ANO-002).
 
-## 6. Frontend (`quicknestportal`)
+## 6. Frontend (`ezyhotelsportal`)
 
 ### 6.1 Admin — Disputes tab (`AdminDisputesView.tsx`)
 

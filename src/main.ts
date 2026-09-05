@@ -52,11 +52,9 @@ async function bootstrap(): Promise<void> {
     },
     credentials: true,
   });
-  // Serve locally-stored uploads (photos/documents) at /uploads. Marked
-  // Cross-Origin-Resource-Policy: cross-origin so the portal (3000) and
-  // storefront (3001) can load these assets across origins despite helmet's
-  // default same-site CORP. Storage lives on local disk in dev; swap the
-  // StorageService for S3 in prod (files would then be served from the bucket).
+  // Keep the local uploads directory available for existing development files.
+  // New hotel media is uploaded directly to S3-compatible object storage via
+  // the presigned endpoint in UploadsModule.
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
     setHeaders: (res) => {
@@ -77,8 +75,8 @@ async function bootstrap(): Promise<void> {
 
   if (!isProduction) {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('QuickNest API')
-      .setDescription('Backend APIs for QuickNest hotel booking platform')
+      .setTitle('EzyHotels API')
+      .setDescription('Backend APIs for EzyHotels hotel booking platform')
       .setVersion('0.1.0')
       .addBearerAuth()
       .build();

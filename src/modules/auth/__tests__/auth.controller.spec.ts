@@ -62,7 +62,7 @@ describe(AuthController.name, () => {
       .post('/auth/register')
       .send({
         phone: '9876543210',
-        email: 'guest@quicknest.in',
+        email: 'guest@ezyhotels.in',
         password: 'weakpass',
       })
       .expect(400);

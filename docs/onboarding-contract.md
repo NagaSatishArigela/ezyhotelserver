@@ -1,4 +1,4 @@
-# QuickNest Onboarding — Frozen Server Contract (Phase 2A)
+# EzyHotels Onboarding — Frozen Server Contract (Phase 2A)
 
 **Status: FROZEN.** This is the source of truth the portal and uploads lanes
 build against. Do not diverge without a contract revision. Migration:

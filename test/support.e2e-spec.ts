@@ -33,7 +33,7 @@ describe('Support (e2e)', () => {
     phone += 1;
     return prisma.user.create({
       data: {
-        phone: String(phone), email: `u${phone}@quicknest.test`, passwordHash: 'x',
+        phone: String(phone), email: `u${phone}@ezyhotels.test`, passwordHash: 'x',
         globalRole: role, status: UserStatus.active, isPhoneVerified: true, isEmailVerified: true,
       },
     });

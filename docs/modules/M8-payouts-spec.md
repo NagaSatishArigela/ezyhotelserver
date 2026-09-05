@@ -193,13 +193,13 @@ Add `payout_released` to the `NotificationType` enum in the notifications schema
 
 ## 11. Test Strategy
 
-**Unit tests (Jest, quicknestserver):**
+**Unit tests (Jest, ezyhotelsserver):**
 - `generateBatch`: correct amount calculations, excludes refunded bookings, deduplicates (ON CONFLICT DO NOTHING on bookingId)
 - `releaseItem`: status transitions, bankRef set
 - `holdItem`: requires reason, sets on_hold
 - Amount math: ownerGross, TDS rounding
 
-**E2E (Playwright, quicknestportal):**
+**E2E (Playwright, ezyhotelsportal):**
 - Owner: list shows payout history, detail drawer shows breakdown
 - Admin: batch list, hold flow, release flow
 - Admin sidebar badge count (on-hold items)

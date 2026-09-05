@@ -58,7 +58,7 @@ export class AuthController {
             user: {
               id: '0bb3c81a-cb04-42a9-9414-7f362a5bb143',
               phone: '9876543210',
-              email: 'guest@quicknest.in',
+              email: 'guest@ezyhotels.in',
               globalRole: 'USER',
               isPhoneVerified: true,
               isEmailVerified: false,
