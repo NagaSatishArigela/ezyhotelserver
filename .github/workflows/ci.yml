@@ -31,6 +31,7 @@ jobs:
 
   e2e:
     name: PostgreSQL and Redis E2E tests
+    if: false # temporarily disabled — enable once .env.test is wired via GitHub Secrets
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
