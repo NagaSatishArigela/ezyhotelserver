@@ -24,7 +24,7 @@ export class OtpDeliveryService {
       // can complete verification without a real phone. Never reaches
       // production because the gateway check above throws first.
       this.logger.warn(
-        `[DEV] OTP for ${this.maskPhone(phone)}: ${otp}`,
+        `Development OTP fallback for ${this.maskPhone(phone)}: ${this.maskOtp(otp)}`,
       );
       return;
     }
@@ -52,5 +52,12 @@ export class OtpDeliveryService {
       return '*'.repeat(phone.length);
     }
     return `${phone.slice(0, 2)}******${phone.slice(-2)}`;
+  }
+
+  private maskOtp(otp: string): string {
+    if (otp.length <= 2) {
+      return '*'.repeat(otp.length);
+    }
+    return `******${otp.slice(-2)}`;
   }
 }
