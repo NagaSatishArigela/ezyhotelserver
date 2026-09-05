@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Converts docs/openapi.json (see generate-openapi.ts) into a Postman
- * collection at docs/postman/quicknestserver.postman_collection.json.
+ * collection at docs/postman/ezyhotelsserver.postman_collection.json.
  *
  * Run via `npm run postman:generate` (after `npm run openapi:generate`).
  */
@@ -11,7 +11,7 @@ const converter = require('openapi-to-postmanv2');
 
 const openapiPath = path.join(__dirname, '..', 'docs', 'openapi.json');
 const outDir = path.join(__dirname, '..', 'docs', 'postman');
-const outPath = path.join(outDir, 'quicknestserver.postman_collection.json');
+const outPath = path.join(outDir, 'ezyhotelsserver.postman_collection.json');
 
 if (!fs.existsSync(openapiPath)) {
   console.error(`Missing ${openapiPath} - run "npm run openapi:generate" first.`);

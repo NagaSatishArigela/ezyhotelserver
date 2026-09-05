@@ -14,7 +14,7 @@ const now = new Date('2026-04-26T00:00:00.000Z');
 const activeUser: User = {
   id: '0bb3c81a-cb04-42a9-9414-7f362a5bb143',
   phone: '9876543210',
-  email: 'guest@quicknest.in',
+  email: 'guest@ezyhotels.in',
   name: null,
   passwordHash: '$2b$12$password',
   globalRole: GlobalRole.USER,
@@ -125,15 +125,15 @@ describe(AuthService.name, () => {
 
     const result = await service.register({
       verificationToken: 'token-123',
-      email: 'guest@quicknest.in',
-      password: 'QuickNest@123',
+      email: 'guest@ezyhotels.in',
+      password: 'EzyHotels@123',
     });
 
     expect(otp.consumeVerificationToken).toHaveBeenCalledWith('token-123');
     expect(users.create).toHaveBeenCalledWith(
       expect.objectContaining({
         phone: '9876543210',
-        email: 'guest@quicknest.in',
+        email: 'guest@ezyhotels.in',
         passwordHash: 'password-hash',
         globalRole: GlobalRole.USER,
       }),
@@ -156,8 +156,8 @@ describe(AuthService.name, () => {
     await expect(
       service.register({
         verificationToken: 'token-123',
-        email: 'guest@quicknest.in',
-        password: 'QuickNest@123',
+        email: 'guest@ezyhotels.in',
+        password: 'EzyHotels@123',
       }),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(otp.consumeVerificationToken).toHaveBeenCalledWith('token-123');
@@ -171,8 +171,8 @@ describe(AuthService.name, () => {
     await expect(
       service.register({
         verificationToken: 'token-123',
-        email: 'guest@quicknest.in',
-        password: 'QuickNest@123',
+        email: 'guest@ezyhotels.in',
+        password: 'EzyHotels@123',
       }),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(otp.consumeVerificationToken).toHaveBeenCalledWith('token-123');
@@ -216,7 +216,7 @@ describe(AuthService.name, () => {
   it('returns registration required for new Firebase phone auth', async () => {
     firebase.verifyIdToken.mockResolvedValue({
       phone_number: '9876543210',
-      email: 'guest@quicknest.in',
+      email: 'guest@ezyhotels.in',
     });
     users.findByPhone.mockResolvedValue(null);
     otp.createVerificationToken.mockResolvedValue('firebase-token-123');
@@ -323,11 +323,11 @@ describe(AuthService.name, () => {
       .mockResolvedValueOnce(secondSession);
 
     await service.login(
-      { email: activeUser.email, password: 'QuickNest@123' },
+      { email: activeUser.email, password: 'EzyHotels@123' },
       { device: 'device-a', ip: '127.0.0.1' },
     );
     await service.login(
-      { email: activeUser.email, password: 'QuickNest@123' },
+      { email: activeUser.email, password: 'EzyHotels@123' },
       { device: 'device-b', ip: '127.0.0.2' },
     );
 
@@ -353,7 +353,7 @@ describe(AuthService.name, () => {
     users.findByEmail.mockResolvedValue(activeUser);
     redisClient.get.mockResolvedValue('2'); // 2 previous failures, not yet locked
 
-    await service.login({ email: activeUser.email, password: 'QuickNest@123' });
+    await service.login({ email: activeUser.email, password: 'EzyHotels@123' });
 
     expect(redisClient.del).toHaveBeenCalledWith(`login:fail:${activeUser.id}`);
   });

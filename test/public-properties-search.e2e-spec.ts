@@ -41,7 +41,7 @@ describe('GET /properties/public (M4 search/filter/sort)', () => {
     return prisma.user.create({
       data: {
         phone: String(phoneCounter),
-        email: `owner${phoneCounter}@quicknest.test`,
+        email: `owner${phoneCounter}@ezyhotels.test`,
         passwordHash: 'not-used-in-e2e',
         globalRole: GlobalRole.USER,
         status: UserStatus.active,

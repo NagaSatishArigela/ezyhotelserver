@@ -47,7 +47,7 @@ describe('Onboarding reconciliation (e2e)', () => {
     return prisma.user.create({
       data: {
         phone: String(phoneCounter),
-        email: `u${phoneCounter}@quicknest.test`,
+        email: `u${phoneCounter}@ezyhotels.test`,
         passwordHash: 'not-used-in-e2e',
         globalRole: role,
         status: UserStatus.active,

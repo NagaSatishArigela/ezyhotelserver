@@ -40,7 +40,7 @@ describe(OtpDeliveryService.name, () => {
       },
       body: JSON.stringify({
         to: '+919876543210',
-        message: 'Your QuickNest verification OTP is 123456. It expires in 5 minutes.',
+        message: 'Your EzyHotels verification OTP is 123456. It expires in 5 minutes.',
       }),
     });
   });

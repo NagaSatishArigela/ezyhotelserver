@@ -37,7 +37,7 @@ export class OtpDeliveryService {
       },
       body: JSON.stringify({
         to: `+91${phone}`,
-        message: `Your QuickNest verification OTP is ${otp}. It expires in 5 minutes.`,
+        message: `Your EzyHotels verification OTP is ${otp}. It expires in 5 minutes.`,
       }),
     });
 

@@ -1,5 +1,5 @@
 /**
- * Frozen amenity vocabulary for QuickNest onboarding (Phase 2A contract).
+ * Frozen amenity vocabulary for EzyHotels onboarding (Phase 2A contract).
  *
  * Amenities are ID-BASED: Step 3 `amenities: string[]` carries these stable
  * ids, and the compliance gates below match on ids (not display phrases).

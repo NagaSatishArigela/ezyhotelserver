@@ -15,7 +15,7 @@ if (process.env.NODE_ENV !== 'test') {
   );
 }
 
-if (!dbUrl.includes('quicknest_test')) {
+if (!dbUrl.includes('ezyhotels_test')) {
   throw new Error(
     'Refusing to run e2e tests: DATABASE_URL does not look like the test ' +
       `database (got "${dbUrl}"). Check .env.test.`,

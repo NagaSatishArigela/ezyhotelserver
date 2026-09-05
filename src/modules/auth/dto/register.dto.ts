@@ -22,14 +22,14 @@ export class RegisterDto {
   @IsUUID('4', { message: 'verificationToken must be a valid token' })
   verificationToken: string;
 
-  @ApiProperty({ example: 'guest@quicknest.in', maxLength: 254 })
+  @ApiProperty({ example: 'guest@ezyhotels.in', maxLength: 254 })
   @Transform(({ value }) => String(value).trim().toLowerCase())
   @IsEmail()
   @MaxLength(254)
   email: string;
 
   @ApiProperty({
-    example: 'QuickNest@123',
+    example: 'EzyHotels@123',
     minLength: 8,
     maxLength: 128,
     description: 'Must include uppercase, lowercase, number, and special character',
