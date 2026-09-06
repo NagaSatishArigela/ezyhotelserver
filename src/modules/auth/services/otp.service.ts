@@ -83,7 +83,7 @@ export class OtpService {
     private readonly delivery: OtpDeliveryService,
   ) {}
 
-  async send(phone: string): Promise<{ expiresIn: number; resendAfter: number }> {
+  async send(phone: string): Promise<{ expiresIn: number; resendAfter: number; otp?: string }> {
     const redis = this.redisService.client;
     const cooldownKey = this.cooldownKey(phone);
     const rateKey = this.rateKey(phone);
@@ -163,10 +163,19 @@ export class OtpService {
     await this.delivery.send(phone, otp);
     this.logger.log({ event: 'otp.send.success', phone: this.maskPhone(phone) });
 
-    return {
+    const response: { expiresIn: number; resendAfter: number; otp?: string } = {
       expiresIn: OTP_TTL_SECONDS,
       resendAfter: OTP_RESEND_COOLDOWN_SECONDS,
     };
+
+    if (
+      this.config.get<string>('NODE_ENV') !== 'production' &&
+      this.config.get<string>('OTP_EXPOSE_IN_RESPONSE') === 'true'
+    ) {
+      response.otp = otp;
+    }
+
+    return response;
   }
 
   async verify(phone: string, otp: string): Promise<{ verificationToken: string }> {
