@@ -42,6 +42,7 @@ export class StorageService {
       endpoint: endpoint.origin,
       region: this.config.get<string>('S3_REGION', 'auto'),
       forcePathStyle: true,
+      requestChecksumCalculation: 'WHEN_REQUIRED',
       credentials: {
         accessKeyId: this.config.getOrThrow<string>('S3_ACCESS_KEY_ID'),
         secretAccessKey: this.config.getOrThrow<string>('S3_SECRET_ACCESS_KEY'),
