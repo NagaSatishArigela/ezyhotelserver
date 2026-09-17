@@ -1,8 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PropertyRole } from '@prisma/client';
+import { ApplicationAccess } from '../auth/property-permissions';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { PropertyRoles } from '../auth/decorators/property-roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PropertyRoleGuard } from '../auth/guards/property-role.guard';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
@@ -13,7 +12,7 @@ import { PresignedUpload, StorageService } from './storage.service';
 @ApiBearerAuth()
 @Controller('uploads')
 @UseGuards(JwtAuthGuard, PropertyRoleGuard)
-@PropertyRoles(PropertyRole.OWNER)
+@ApplicationAccess()
 export class UploadsController {
   constructor(private readonly storage: StorageService) {}
 

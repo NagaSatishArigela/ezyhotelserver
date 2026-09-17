@@ -1,3 +1,4 @@
+import { ApplicationAccess, PropertyPermission } from '../auth/property-permissions';
 import {
   Body,
   Controller,
@@ -11,9 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
-import { PropertyRole } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { PropertyRoles } from '../auth/decorators/property-roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PropertyRoleGuard } from '../auth/guards/property-role.guard';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
@@ -47,7 +46,7 @@ export class PropertiesController {
   // it from the strict per-IP tier (the 200/min default still caps abuse).
   @SkipThrottle({ strict: true })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @ApplicationAccess()
   @Patch(':propertyId/step/:stepNum')
   saveStep(
     @Param('propertyId', ParseUUIDPipe) propertyId: string,
@@ -59,7 +58,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Get the current onboarding draft state' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @ApplicationAccess()
   @Get(':propertyId/draft')
   getDraft(@Param('propertyId', ParseUUIDPipe) propertyId: string): Promise<DraftView> {
     return this.propertiesService.getDraft(propertyId);
@@ -67,7 +66,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Submit a draft property for review' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @ApplicationAccess()
   @Post(':propertyId/submit')
   submit(@Param('propertyId', ParseUUIDPipe) propertyId: string): Promise<SubmitResult> {
     return this.propertiesService.submit(propertyId);
@@ -75,7 +74,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Get the submission status and review timeline' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @ApplicationAccess()
   @Get(':propertyId/status')
   getStatus(@Param('propertyId', ParseUUIDPipe) propertyId: string): Promise<StatusView> {
     return this.propertiesService.getStatus(propertyId);
@@ -83,7 +82,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Resubmit a property after a requested revision' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @ApplicationAccess()
   @Patch(':propertyId/revise')
   revise(@Param('propertyId', ParseUUIDPipe) propertyId: string): Promise<SubmitResult> {
     return this.propertiesService.revise(propertyId);
@@ -91,7 +90,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Get owner-editable operational settings' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @PropertyPermission('manage_settings')
   @Get(':propertyId/settings')
   getSettings(@Param('propertyId', ParseUUIDPipe) propertyId: string): Promise<OwnerSettingsView> {
     return this.propertiesService.getSettings(propertyId);
@@ -99,7 +98,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Update owner-editable operational settings' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @PropertyPermission('manage_settings')
   @Patch(':propertyId/settings')
   updateSettings(
     @Param('propertyId', ParseUUIDPipe) propertyId: string,
@@ -110,7 +109,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: "List the property's room types" })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @PropertyPermission(['manage_rooms', 'view_availability'])
   @Get(':propertyId/rooms')
   getRooms(@Param('propertyId', ParseUUIDPipe) propertyId: string) {
     return this.propertiesService.getRooms(propertyId);
@@ -118,7 +117,7 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Edit a room type (count, rates, occupancy)' })
   @UseGuards(PropertyRoleGuard)
-  @PropertyRoles(PropertyRole.OWNER)
+  @PropertyPermission('manage_rooms')
   @Patch(':propertyId/rooms/:roomId')
   updateRoom(
     @Param('propertyId', ParseUUIDPipe) propertyId: string,

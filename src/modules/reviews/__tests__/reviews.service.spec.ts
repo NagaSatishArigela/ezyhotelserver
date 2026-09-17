@@ -145,10 +145,12 @@ describe(ReviewsService.name, () => {
 
   let service: ReviewsService;
 
+  const access = { authorize: jest.fn() };
   beforeEach(() => {
+    access.authorize.mockReset().mockResolvedValue(undefined);
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(now);
-    service = new ReviewsService(
+    service = new ReviewsService(access as never,
       repo as unknown as ReviewsRepository,
       bookingsRepo as unknown as BookingsRepository,
       notifications as unknown as NotificationsRepository,
@@ -306,7 +308,8 @@ describe(ReviewsService.name, () => {
       await expect(service.ownerReply('review-1', 'owner-1', 'Thanks!')).rejects.toThrow(NotFoundException);
     });
 
-    it('throws ForbiddenException when ownerId does not match', async () => {
+    it('denies callers without hotel review permission', async () => {
+      access.authorize.mockRejectedValueOnce(new ForbiddenException());
       repo.findById.mockResolvedValue(buildReview({ status: ReviewStatus.published, ownerId: 'other-owner' }));
       await expect(service.ownerReply('review-1', 'owner-1', 'Thanks!')).rejects.toThrow(ForbiddenException);
     });
@@ -351,7 +354,8 @@ describe(ReviewsService.name, () => {
   describe('ownerFlag', () => {
     const published = buildReview({ status: ReviewStatus.published });
 
-    it('throws ForbiddenException when ownerId does not match', async () => {
+    it('denies callers without hotel review permission', async () => {
+      access.authorize.mockRejectedValueOnce(new ForbiddenException());
       repo.findById.mockResolvedValue(buildReview({ ownerId: 'other-owner', status: ReviewStatus.published }));
       await expect(service.ownerFlag('review-1', 'owner-1')).rejects.toThrow(ForbiddenException);
     });

@@ -1,3 +1,6 @@
+import { HotelTeamController } from './hotel-team.controller';
+import { HotelTeamService } from './hotel-team.service';
+import { PropertyAccessService } from './property-access.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -20,8 +23,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({}),
   ],
-  controllers: [AuthController, MeController],
+  controllers: [AuthController, MeController, HotelTeamController],
   providers: [
+    PropertyAccessService,
+    HotelTeamService,
     AuthService,
     FirebaseService,
     OtpService,
@@ -38,6 +43,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   // is re-instantiated in the context of any module that uses
   // @UseGuards(PropertyRoleGuard) (e.g. PropertiesModule) - Nest resolves
   // that guard's dependencies against the consuming module's imports.
-  exports: [AuthService, JwtAuthGuard, RolesGuard, PropertyRoleGuard, UsersRepository],
+  exports: [PropertyAccessService, AuthService, JwtAuthGuard, RolesGuard, PropertyRoleGuard, UsersRepository],
 })
 export class AuthModule {}

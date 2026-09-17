@@ -62,6 +62,7 @@ const adminComplianceSummary: AdminComplianceSummary = {
 
 describe(AdminPropertiesService.name, () => {
   const repo = {
+    approveWithOwner: jest.fn(),
     findManyByStatus: jest.fn(),
     findById: jest.fn(),
     update: jest.fn(),
@@ -143,16 +144,11 @@ describe(AdminPropertiesService.name, () => {
     it('marks the property approved, logs the action and emits hotel.verified', async () => {
       const property = buildProperty();
       repo.findById.mockResolvedValue(property);
-      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.approved }));
+      repo.approveWithOwner.mockResolvedValue(buildProperty({ status: PropertyStatus.approved }));
 
       const result = await service.approve('prop-1', 'admin-1');
 
-      expect(repo.update).toHaveBeenCalledWith('prop-1', { status: PropertyStatus.approved });
-      expect(repo.createModerationLog).toHaveBeenCalledWith({
-        propertyId: 'prop-1',
-        adminId: 'admin-1',
-        action: ModerationAction.approved,
-      });
+      expect(repo.approveWithOwner).toHaveBeenCalledWith('prop-1', 'owner-1', 'admin-1');
       expect(events.emit).toHaveBeenCalledWith(DOMAIN_EVENTS.HOTEL_VERIFIED, {
         hotelId: 'prop-1',
         ownerId: 'owner-1',

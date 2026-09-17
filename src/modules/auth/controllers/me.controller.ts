@@ -1,3 +1,4 @@
+import { PropertyAccessService } from '../property-access.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -13,6 +14,7 @@ type MeRequest = Request & { user?: JwtPayload };
 @Controller()
 export class MeController {
   constructor(
+    private readonly access: PropertyAccessService,
     private readonly authService: AuthService,
     private readonly prisma: PrismaService,
   ) {}
@@ -40,6 +42,9 @@ export class MeController {
   onboarding(@Req() request: MeRequest) {
     return this.authService.getOnboarding(request.user as JwtPayload);
   }
+
+  @Get('me/properties')
+  memberships(@Req() request: MeRequest) { return this.access.memberships(request.user!.id); }
 
   @ApiOperation({ summary: "Get the owner's most recent property status (for portal routing)" })
   @ApiOkResponse({ description: 'Property status or nulls if owner has no property yet' })

@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import {
   Booking,
   BookingPolicy,
@@ -137,7 +137,9 @@ describe(BookingsService.name, () => {
 
   let service: BookingsService;
 
+  const access = { authorize: jest.fn() };
   beforeEach(() => {
+    access.authorize.mockReset().mockResolvedValue(undefined);
     jest.clearAllMocks();
     platformConfig.getMoneyConfig.mockResolvedValue({
       commissionPct: 15,
@@ -146,7 +148,7 @@ describe(BookingsService.name, () => {
       cancellationWindowHours: 24,
     });
     platformConfig.commissionPaise.mockImplementation((base: number, pct: number) => Math.round((base * pct) / 100));
-    service = new BookingsService(repo as unknown as BookingsRepository, events as never, platformConfig as never);
+    service = new BookingsService(access as never, repo as unknown as BookingsRepository, events as never, platformConfig as never);
   });
 
   describe('getAvailability', () => {
@@ -348,11 +350,12 @@ describe(BookingsService.name, () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('throws NotFoundException for users who are neither the guest, the owner, nor an admin', async () => {
+    it('denies booking access without guest or hotel permissions', async () => {
+      access.authorize.mockRejectedValueOnce(new ForbiddenException());
       repo.findById.mockResolvedValue(buildBooking());
       await expect(
         service.getBooking('booking-1', { id: 'stranger', globalRole: GlobalRole.USER }),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('allows the guest, the owner and admins to view the booking', async () => {
@@ -383,9 +386,10 @@ describe(BookingsService.name, () => {
       await expect(service.checkIn('booking-1', { qrCode: 'x' }, 'guest-1')).rejects.toThrow(NotFoundException);
     });
 
-    it('throws NotFoundException if the caller is not the booking guest', async () => {
+    it('denies callers without hotel check-in/out permissions', async () => {
+      access.authorize.mockRejectedValueOnce(new ForbiddenException());
       repo.findById.mockResolvedValue(confirmedBooking);
-      await expect(service.checkIn('booking-1', { qrCode: 'valid-token' }, 'other-user')).rejects.toThrow(NotFoundException);
+      await expect(service.checkIn('booking-1', { qrCode: 'valid-token' }, 'other-user')).rejects.toThrow(ForbiddenException);
     });
 
     it('throws ConflictException if the booking is not confirmed', async () => {
@@ -456,9 +460,10 @@ describe(BookingsService.name, () => {
       await expect(service.checkOut('booking-1', 'guest-1')).rejects.toThrow(NotFoundException);
     });
 
-    it('throws NotFoundException if the caller is not the booking guest', async () => {
+    it('denies callers without hotel check-in/out permissions', async () => {
+      access.authorize.mockRejectedValueOnce(new ForbiddenException());
       repo.findById.mockResolvedValue(buildBooking({ status: BookingStatus.checked_in }));
-      await expect(service.checkOut('booking-1', 'other-user')).rejects.toThrow(NotFoundException);
+      await expect(service.checkOut('booking-1', 'other-user')).rejects.toThrow(ForbiddenException);
     });
 
     it('throws ConflictException if the booking was never checked in', async () => {

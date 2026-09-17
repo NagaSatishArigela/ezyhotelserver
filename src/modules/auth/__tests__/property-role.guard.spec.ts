@@ -1,121 +1,36 @@
 import { BadRequestException, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { GlobalRole, PropertyRole } from '@prisma/client';
 import { PropertyRoleGuard } from '../guards/property-role.guard';
-
+import { PROPERTY_PERMISSION_KEY, APPLICATION_ACCESS_KEY } from '../property-permissions';
+const propertyId = '11111111-1111-4111-8111-111111111111';
 describe(PropertyRoleGuard.name, () => {
+  const access = { authorize: jest.fn() };
   const reflector = { getAllAndOverride: jest.fn() };
-  const users = { hasPropertyRole: jest.fn() };
-  const handler = jest.fn();
-  const guard = new PropertyRoleGuard(
-    reflector as unknown as Reflector,
-    users as never,
-  );
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    reflector.getAllAndOverride.mockReturnValue([PropertyRole.MANAGER]);
-  });
-
-  it('allows a manager on the requested property', async () => {
-    users.hasPropertyRole.mockResolvedValue(true);
-
-    await expect(
-      guard.canActivate(
-        context({
-          user: {
-            id: 'user-1',
-            phone: '9876543210',
-            globalRole: GlobalRole.USER,
-          },
-          params: { propertyId: 'property-1' },
-        }),
-      ),
-    ).resolves.toBe(true);
-    expect(users.hasPropertyRole).toHaveBeenCalledWith('user-1', 'property-1', [
-      PropertyRole.MANAGER,
-    ]);
-  });
-
-  it('denies a manager accessing another property', async () => {
-    users.hasPropertyRole.mockResolvedValue(false);
-
-    await expect(
-      guard.canActivate(
-        context({
-          user: {
-            id: 'user-1',
-            phone: '9876543210',
-            globalRole: GlobalRole.USER,
-          },
-          params: { propertyId: 'property-2' },
-        }),
-      ),
-    ).rejects.toBeInstanceOf(ForbiddenException);
-  });
-
-  it('allows an owner on own property', async () => {
-    reflector.getAllAndOverride.mockReturnValue([PropertyRole.OWNER]);
-    users.hasPropertyRole.mockResolvedValue(true);
-
-    await expect(
-      guard.canActivate(
-        context({
-          user: {
-            id: 'owner-1',
-            phone: '9876543210',
-            globalRole: GlobalRole.USER,
-          },
-          body: { propertyId: 'property-1' },
-        }),
-      ),
-    ).resolves.toBe(true);
-    expect(users.hasPropertyRole).toHaveBeenCalledWith('owner-1', 'property-1', [
-      PropertyRole.OWNER,
-    ]);
-  });
-
-  it('throws BadRequestException when propertyId is missing', async () => {
-    await expect(
-      guard.canActivate(
-        context({
-          user: {
-            id: 'user-1',
-            phone: '9876543210',
-            globalRole: GlobalRole.USER,
-          },
-        }),
-      ),
-    ).rejects.toBeInstanceOf(BadRequestException);
-  });
-
-  it('allows global admins without property lookup', async () => {
-    await expect(
-      guard.canActivate(
-        context({
-          user: {
-            id: 'admin-1',
-            phone: '9876543210',
-            globalRole: GlobalRole.ADMIN,
-          },
-        }),
-      ),
-    ).resolves.toBe(true);
-    expect(users.hasPropertyRole).not.toHaveBeenCalled();
-  });
-
+  const guard = new PropertyRoleGuard(reflector as never, access as never);
+  const user = { id: 'user', globalRole: 'USER' };
   function context(request: Record<string, unknown>): ExecutionContext {
-    return {
-      getHandler: () => handler,
-      getClass: () => PropertyRoleGuard,
-      switchToHttp: () => ({
-        getRequest: () => ({
-          params: {},
-          query: {},
-          body: {},
-          ...request,
-        }),
-      }),
-    } as unknown as ExecutionContext;
+    return { getHandler: () => guard.canActivate, getClass: () => PropertyRoleGuard, switchToHttp: () => ({ getRequest: () => ({ user, ...request }) }) } as unknown as ExecutionContext;
   }
+  beforeEach(() => { jest.resetAllMocks(); reflector.getAllAndOverride.mockImplementation(key => key === PROPERTY_PERMISSION_KEY ? 'view_bookings' : undefined); });
+  it('delegates the authenticated user and property permission', async () => {
+    await expect(guard.canActivate(context({ params: { propertyId } }))).resolves.toBe(true);
+    expect(access.authorize).toHaveBeenCalledWith(user, propertyId, 'view_bookings', false, []);
+  });
+  it.each([undefined, 'invalid', ['invalid']])('rejects invalid property context %s', async id => {
+    await expect(guard.canActivate(context({ params: { propertyId: id } }))).rejects.toThrow(BadRequestException);
+    expect(access.authorize).not.toHaveBeenCalled();
+  });
+  it('propagates authorization denial', async () => {
+    access.authorize.mockRejectedValue(new ForbiddenException());
+    await expect(guard.canActivate(context({ query: { propertyId } }))).rejects.toThrow(ForbiddenException);
+  });
+  it('passes application access separately from operational permissions', async () => {
+    reflector.getAllAndOverride.mockImplementation(key => key === APPLICATION_ACCESS_KEY ? true : undefined);
+    await guard.canActivate(context({ body: { propertyId } }));
+    expect(access.authorize).toHaveBeenCalledWith(user, propertyId, undefined, true, []);
+  });
+  it('does not enforce metadata-free endpoints', async () => {
+    reflector.getAllAndOverride.mockReturnValue(undefined);
+    await expect(guard.canActivate(context({}))).resolves.toBe(true);
+    expect(access.authorize).not.toHaveBeenCalled();
+  });
 });

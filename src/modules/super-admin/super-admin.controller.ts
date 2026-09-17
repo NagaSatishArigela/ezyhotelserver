@@ -1,3 +1,4 @@
+import { DirectoryQueryDto, UpdatePlatformUserDto, HotelStatusDto } from './dto/directory.dto';
 import {
   Body, Controller, Get, HttpCode, HttpStatus,
   Param, ParseUUIDPipe, Patch, Post, Query, UseGuards,
@@ -24,6 +25,11 @@ import { SuperAdminService } from './super-admin.service';
 export class SuperAdminController {
   constructor(private readonly service: SuperAdminService) {}
 
+  @Get('users') users(@Query() query: DirectoryQueryDto) { return this.service.users(query); }
+  @Patch('users/:id') updateUser(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload, @Body() dto: UpdatePlatformUserDto) { return this.service.updateUser(id, user.id, dto); }
+  @Get('properties') properties(@Query() query: DirectoryQueryDto) { return this.service.properties(query); }
+  @Patch('properties/:id/status') hotelStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: HotelStatusDto) { return this.service.suspendHotel(id, dto.suspended); }
+
   @ApiOperation({ summary: 'Platform-wide KPI stats' })
   @Get('stats')
   getStats() {
@@ -39,19 +45,21 @@ export class SuperAdminController {
   @ApiOperation({ summary: 'Create a new admin account' })
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('admins')
-  createAdmin(@Body() dto: CreateAdminDto) {
-    return this.service.createAdmin(dto);
+  async createAdmin(@Body() dto: CreateAdminDto) {
+    const { passwordHash: _passwordHash, ...user } = await this.service.createAdmin(dto);
+    return user;
   }
 
   @ApiOperation({ summary: 'Suspend or activate an admin account' })
   @Patch('admins/:id/status')
   @HttpCode(HttpStatus.OK)
-  toggleStatus(
+  async toggleStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ToggleAdminStatusDto,
     @CurrentUser() caller: JwtPayload,
   ) {
-    return this.service.toggleAdminStatus(id, caller.id, dto.status);
+    const { passwordHash: _passwordHash, ...user } = await this.service.toggleAdminStatus(id, caller.id, dto.status);
+    return user;
   }
 
   @ApiOperation({ summary: 'Get platform settings singleton' })
