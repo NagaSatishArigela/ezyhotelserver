@@ -21,6 +21,7 @@ enum GlobalRole {
 
 enum PropertyRole {
   OWNER
+  HOTEL_ADMIN
   MANAGER
   STAFF
 
@@ -89,6 +90,8 @@ model UserPropertyRole {
   id         String       @id @default(uuid()) @db.Uuid
   userId     String       @map("user_id") @db.Uuid
   propertyId String       @map("property_id") @db.Uuid
+  hotelRoleId String? @map("hotel_role_id") @db.Uuid
+  hotelRole HotelRole? @relation(fields: [hotelRoleId], references: [id], onDelete: Restrict)
   role       PropertyRole
   user       User         @relation(fields: [userId], references: [id])
   createdAt  DateTime     @default(now()) @map("created_at")
@@ -1035,4 +1038,15 @@ model SupportTicket {
   @@index([raisedByUserId])
   @@map("support_tickets")
   @@schema("support")
+}
+
+model HotelRole {
+  id String @id @default(uuid()) @db.Uuid
+  propertyId String @map("property_id") @db.Uuid
+  name String @db.VarChar(80)
+  permissions String[]
+  members UserPropertyRole[]
+  @@unique([propertyId, name])
+  @@map("hotel_roles")
+  @@schema("auth")
 }

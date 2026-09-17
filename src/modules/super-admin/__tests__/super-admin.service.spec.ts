@@ -70,7 +70,7 @@ describe(SuperAdminService.name, () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new SuperAdminService(repo as never);
+    service = new SuperAdminService(repo as never, {} as never);
   });
 
   // ── stats ──────────────────────────────────────────────────────────────────

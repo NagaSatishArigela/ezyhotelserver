@@ -163,7 +163,7 @@ describe(PropertiesService.name, () => {
       expect(repo.create).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'Untitled property', ownerId: 'owner-1', status: PropertyStatus.draft }),
       );
-      expect(repo.createOwnerRole).toHaveBeenCalledWith('owner-1', 'prop-1');
+      expect(repo.createOwnerRole).not.toHaveBeenCalled();
       expect(result).toEqual({ propertyId: 'prop-1' });
     });
   });

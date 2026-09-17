@@ -104,22 +104,7 @@ export class UsersRepository {
       select: { id: true },
     });
 
-    if (propertyRole) {
-      return true;
-    }
-
-    if (!roles.includes(PropertyRole.OWNER)) {
-      return false;
-    }
-
-    const ownedProperty = await this.prisma.property.findFirst({
-      where: {
-        id: propertyId,
-        ownerId: userId,
-      },
-      select: { id: true },
-    });
-
-    return Boolean(ownedProperty);
+    const property = await this.prisma.property.findFirst({ where: { id: propertyId, status: 'approved' }, select: { id: true } });
+    return Boolean(propertyRole && property);
   }
 }

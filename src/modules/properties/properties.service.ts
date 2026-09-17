@@ -155,7 +155,7 @@ export class PropertiesService {
       status: PropertyStatus.draft,
       amenities: [],
     });
-    await this.repo.createOwnerRole(ownerId, property.id);
+
     return { propertyId: property.id };
   }
 

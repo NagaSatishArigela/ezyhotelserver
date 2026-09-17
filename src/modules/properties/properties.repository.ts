@@ -227,6 +227,16 @@ export class PropertiesRepository {
   // Cross-schema write (auth.user_property_roles): grants the draft creator
   // OWNER on their new property. No Prisma relation/FK - plain UUID columns,
   // same pattern as PropertyRoleGuard's existing cross-schema reads.
+  async approveWithOwner(propertyId: string, ownerId: string, adminId: string) {
+    return this.prisma.$transaction(async tx => {
+      const changed = await tx.property.updateMany({ where: { id: propertyId, status: PropertyStatus.pending_review }, data: { status: PropertyStatus.approved } });
+      if (!changed.count) return null;
+      await tx.userPropertyRole.upsert({ where: { userId_propertyId: { userId: ownerId, propertyId } }, create: { userId: ownerId, propertyId, role: PropertyRole.OWNER }, update: { role: PropertyRole.OWNER, hotelRoleId: null } });
+      await tx.propertyModerationLog.create({ data: { propertyId, adminId, action: ModerationAction.approved } });
+      return tx.property.findUniqueOrThrow({ where: { id: propertyId } });
+    });
+  }
+
   createOwnerRole(userId: string, propertyId: string): Promise<unknown> {
     return this.prisma.userPropertyRole.create({
       data: { userId, propertyId, role: PropertyRole.OWNER },

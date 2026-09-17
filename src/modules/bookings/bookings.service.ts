@@ -1,3 +1,4 @@
+import { PropertyAccessService } from '../auth/property-access.service';
 import {
   BadRequestException,
   ConflictException,
@@ -39,6 +40,7 @@ export function calculateBookingRefund(booking: Booking): number {
 @Injectable()
 export class BookingsService {
   constructor(
+    private readonly access: PropertyAccessService,
     private readonly repo: BookingsRepository,
     private readonly events: TypedEventEmitter,
     private readonly platformConfig: PlatformConfigService,
@@ -68,7 +70,7 @@ export class BookingsService {
 
   async createBooking(guestId: string, dto: CreateBookingDto): Promise<Booking> {
     const property = await this.repo.findProperty(dto.propertyId);
-    if (!property || property.status !== PropertyStatus.approved) {
+    if (!property || (property.status !== PropertyStatus.approved || !property.isActive)) {
       throw new NotFoundException('Property not found');
     }
 
@@ -185,8 +187,8 @@ export class BookingsService {
     if (!booking) throw new NotFoundException('Booking not found');
 
     const isAdmin = user.globalRole === GlobalRole.SUPER_ADMIN || user.globalRole === GlobalRole.ADMIN;
-    if (!isAdmin && booking.guestId !== user.id && booking.ownerId !== user.id) {
-      throw new NotFoundException('Booking not found');
+    if (!isAdmin && booking.guestId !== user.id) {
+      await this.access.authorize(user, booking.propertyId, 'view_bookings');
     }
     return booking;
   }
@@ -254,15 +256,10 @@ export class BookingsService {
     };
   }
 
-  async checkIn(bookingId: string, dto: CheckInDto, userId: string): Promise<Booking> {
-    // FLAG (Layer-C follow-up, not fixed here): check-in is gated on
-    // booking.guestId === userId, so the guest scans/enters the QR that was
-    // returned to them and self-marks the booking checked_in. Physical
-    // check-in should instead be owner/staff-scoped (the property verifies the
-    // guest's QR), i.e. authorize userId against the property's owner/staff
-    // roles rather than the guest. Same concern in checkOut() below.
+  async checkIn(bookingId: string, dto: CheckInDto, userId: string, globalRole: GlobalRole = GlobalRole.USER): Promise<Booking> {
     const booking = await this.repo.findById(bookingId);
-    if (!booking || booking.guestId !== userId) throw new NotFoundException('Booking not found');
+    if (!booking) throw new NotFoundException('Booking not found');
+    await this.access.authorize({ id: userId, globalRole }, booking.propertyId, 'check_in_out');
     if (booking.status !== BookingStatus.confirmed) {
       throw new ConflictException('This booking cannot be checked in.');
     }
@@ -302,9 +299,10 @@ export class BookingsService {
     return updated;
   }
 
-  async checkOut(bookingId: string, userId: string): Promise<Booking> {
+  async checkOut(bookingId: string, userId: string, globalRole: GlobalRole = GlobalRole.USER): Promise<Booking> {
     const booking = await this.repo.findById(bookingId);
-    if (!booking || booking.guestId !== userId) throw new NotFoundException('Booking not found');
+    if (!booking) throw new NotFoundException('Booking not found');
+    await this.access.authorize({ id: userId, globalRole }, booking.propertyId, 'check_in_out');
     if (booking.status !== BookingStatus.checked_in) {
       throw new ConflictException('This booking has not been checked in yet.');
     }

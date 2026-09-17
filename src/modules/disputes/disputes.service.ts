@@ -1,3 +1,5 @@
+import { PropertyAccessService } from '../auth/property-access.service';
+import { GlobalRole } from '@prisma/client';
 import {
   BadRequestException,
   ConflictException,
@@ -13,7 +15,6 @@ import {
   NotificationType,
   PaymentStatus,
   Prisma,
-  PropertyRole,
   WalletCreditSourceType,
 } from '@prisma/client';
 import { DOMAIN_EVENTS } from '../../common/events/domain-events';
@@ -102,6 +103,7 @@ function mapListRow(row: DisputeListRow): AdminDisputeListItem {
 @Injectable()
 export class DisputesService {
   constructor(
+    private readonly access: PropertyAccessService,
     private readonly repo: DisputesRepository,
     private readonly bookingsRepo: BookingsRepository,
     private readonly notifications: NotificationsRepository,
@@ -280,16 +282,10 @@ export class DisputesService {
   }
 
   /** POST /disputes/:id/hotel-response (M6 spec §3.6). */
-  async submitHotelResponse(id: string, userId: string, dto: HotelResponseDto): Promise<Dispute> {
+  async submitHotelResponse(id: string, userId: string, dto: HotelResponseDto, globalRole: GlobalRole = GlobalRole.USER): Promise<Dispute> {
     const dispute = await this.findOrThrow(id);
 
-    const allowed = await this.users.hasPropertyRole(userId, dispute.propertyId, [
-      PropertyRole.OWNER,
-      PropertyRole.MANAGER,
-    ]);
-    if (!allowed) {
-      throw new ForbiddenException('Insufficient property role');
-    }
+    await this.access.authorize({ id: userId, globalRole }, dispute.propertyId, 'manage_disputes');
 
     if (
       dispute.status !== DisputeStatus.awaiting_hotel_response ||
