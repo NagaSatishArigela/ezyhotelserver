@@ -127,6 +127,8 @@ function fullDraftData(overrides: Record<string, unknown> = {}) {
 
 describe(PropertiesService.name, () => {
   const repo = {
+    findRoomTypes: jest.fn(),
+    findPhotos: jest.fn(),
     create: jest.fn(),
     findById: jest.fn(),
     update: jest.fn(),
@@ -149,12 +151,14 @@ describe(PropertiesService.name, () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service = new PropertiesService(repo as never, compliance as never, events as never);
+    repo.findRoomTypes.mockResolvedValue([{ type: 'ac', count: 2, hourlyRatePaise: 50000, fulldayRatePaise: null, maxOccupancy: 2 }]);
+    repo.findPhotos.mockResolvedValue([{ category: 'exterior', url: 'https://example.com/1.jpg', isPrimary: true, sortOrder: 0 }]);
     repo.replaceRoomTypes.mockResolvedValue(undefined);
     repo.replacePhotos.mockResolvedValue(undefined);
   });
 
   describe('createDraft', () => {
-    it('creates a property and grants the caller OWNER on it', async () => {
+    it('creates an application without granting operational OWNER membership', async () => {
       repo.create.mockResolvedValue(buildProperty({ id: 'prop-1' }));
       repo.createOwnerRole.mockResolvedValue(undefined);
 
@@ -188,6 +192,51 @@ describe(PropertiesService.name, () => {
         draftData: { step1: step1Hourly },
         compliance: null,
       });
+    });
+  });
+
+  describe('restoring submitted applications', () => {
+    function submitted() {
+      return buildProperty({ ...step2, latitude: step2.latitude as never, longitude: step2.longitude as never,
+        name: step1Hourly.propertyName, propertyType: step1Hourly.propertyType,
+        bookingPolicy: step1Hourly.bookingPolicy, businessEntity: step1Hourly.businessEntity,
+        ownerFirstName: 'Ravi', ownerLastName: 'Kumar', category: step1Hourly.category,
+        status: PropertyStatus.needs_revision, submittedAt: now, submissionRef: 'REF-1',
+        amenities: ['wifi'], houseRules, minBookingHours: 2 });
+    }
+    it('restores canonical rooms/photos and keeps compliance masked after draft clearing', async () => {
+      repo.findById.mockResolvedValue(submitted());
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      const result = await service.getDraft('prop-1');
+      expect(result.draftData.step1).toEqual(expect.objectContaining(step1Hourly));
+      expect(result.draftData.step2).toEqual(expect.objectContaining(step2));
+      expect(result.draftData.step3).toEqual(expect.objectContaining({ minBookingHours: '2', rooms: [{ type: 'ac', count: 2, maxOccupancy: 2, hourlyRate: 500 }] }));
+      expect(result.draftData.step4).toEqual({ photos: [{ category: 'exterior', url: 'https://example.com/1.jpg', isPrimary: true, sortOrder: 0 }] });
+      expect(result.compliance).toEqual(complianceSummary);
+      expect(result.compliance).not.toHaveProperty('bankAccountNumber');
+    });
+    it('preserves canonical sections when saving one revision step', async () => {
+      repo.findById.mockResolvedValue(submitted());
+      repo.update.mockImplementation(async (_id, data) => ({ ...submitted(), ...data }));
+      await service.saveStep('prop-1', 1, { ...step1Hourly, propertyName: 'Revised name' });
+      expect(repo.update).toHaveBeenCalledWith('prop-1', expect.objectContaining({ draftData: expect.objectContaining({
+        step1: expect.objectContaining({ propertyName: 'Revised name' }),
+        step2: expect.objectContaining({ city: 'Bengaluru' }),
+        step3: expect.objectContaining({ minBookingHours: '2' }), step4: expect.any(Object),
+      }) }));
+    });
+    it('overlays saved revision data instead of overwriting it with old property columns', async () => {
+      repo.findById.mockResolvedValue({ ...submitted(), draftData: { step1: { ...step1Hourly, propertyName: 'Revised name' } } });
+      const result = await service.getDraft('prop-1');
+      expect(result.draftData.step1).toEqual(expect.objectContaining({ propertyName: 'Revised name' }));
+    });
+    it('resubmits canonical application data without requiring unchanged steps to be rewritten', async () => {
+      repo.findById.mockResolvedValue(submitted());
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      repo.update.mockResolvedValue({ ...submitted(), status: PropertyStatus.pending_review });
+      const result = await service.revise('prop-1');
+      expect(result.status).toBe(PropertyStatus.pending_review);
+      expect(repo.replaceRoomTypes).toHaveBeenCalledWith('prop-1', [expect.objectContaining({ hourlyRatePaise: 50000 })]);
     });
   });
 

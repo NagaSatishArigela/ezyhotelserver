@@ -170,7 +170,7 @@ export class PropertiesService {
       propertyId: property.id,
       status: property.status,
       draftStep: property.draftStep,
-      draftData: this.draftDataOf(property),
+      draftData: await this.applicationDataOf(property),
       compliance: await this.compliance.getSummary(propertyId),
     };
   }
@@ -206,7 +206,7 @@ export class PropertiesService {
     }
 
     const draftData = {
-      ...this.draftDataOf(property),
+      ...await this.applicationDataOf(property),
       [`step${stepNum}`]: validated,
     };
     const draftStep = Math.max(property.draftStep ?? 0, stepNum);
@@ -399,7 +399,7 @@ export class PropertiesService {
   // applies cross-step conditional requirements deferred from step-save
   // time, and converts wizard data into the columns/rows submission writes.
   private async validateAndMaterialize(property: Property): Promise<MaterializedSubmission> {
-    const draftData = this.draftDataOf(property);
+    const draftData = await this.applicationDataOf(property);
 
     const step1 = await this.validateStoredStep<Step1BasicsDto>(
       1,
@@ -645,6 +645,41 @@ export class PropertiesService {
         'Cannot edit this property while it is under review or approved',
       );
     }
+  }
+
+  /** Submitted applications store their baseline in canonical tables, not draftData.
+   * Overlay saved revision steps so unchanged sections survive partial revisions. */
+  private async applicationDataOf(property: Property): Promise<Record<string, unknown>> {
+    const draft = this.draftDataOf(property);
+    if (!property.submittedAt || property.status === PropertyStatus.draft) return draft;
+    const [rooms, photos] = await Promise.all([
+      this.repo.findRoomTypes(property.id), this.repo.findPhotos(property.id),
+    ]);
+    const defined = (data: Record<string, unknown>) => Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== null && value !== undefined),
+    );
+    return {
+      step1: defined({ propertyName: property.name, propertyType: property.propertyType,
+        bookingPolicy: property.bookingPolicy, businessEntity: property.businessEntity,
+        ownerFirstName: property.ownerFirstName, ownerMiddleName: property.ownerMiddleName,
+        ownerLastName: property.ownerLastName, category: property.category, description: property.description }),
+      step2: defined({ latitude: property.latitude === null ? null : Number(property.latitude),
+        longitude: property.longitude === null ? null : Number(property.longitude),
+        addressLine1: property.addressLine1, addressLine2: property.addressLine2,
+        city: property.city, state: property.state, pincode: property.pincode,
+        landmark: property.landmark, specialNote: property.specialNote }),
+      step3: defined({ rooms: rooms.map(room => defined({ type: room.type, count: room.count,
+        maxOccupancy: room.maxOccupancy,
+        hourlyRate: room.hourlyRatePaise === null ? null : room.hourlyRatePaise / 100,
+        fulldayRate: room.fulldayRatePaise === null ? null : room.fulldayRatePaise / 100 })),
+        amenities: property.amenities, houseRules: property.houseRules,
+        minBookingHours: property.minBookingHours === null ? null : String(property.minBookingHours),
+        defaultCheckinTime: property.defaultCheckinTime, defaultCheckoutTime: property.defaultCheckoutTime,
+        seatingCapacity: property.seatingCapacity }),
+      step4: { photos: photos.map(photo => ({ category: photo.category, url: photo.url,
+        isPrimary: photo.isPrimary, sortOrder: photo.sortOrder })) },
+      ...draft,
+    };
   }
 
   private draftDataOf(property: Property): Record<string, unknown> {
