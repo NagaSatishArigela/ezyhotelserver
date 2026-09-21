@@ -1,3 +1,4 @@
+import { StorageService } from '../../uploads/storage.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { DocumentStatus } from '@prisma/client';
 import { EncryptionService } from '../../../common/crypto/encryption.service';
@@ -36,6 +37,7 @@ export class ComplianceService {
   constructor(
     private readonly repo: ComplianceRepository,
     private readonly encryption: EncryptionService,
+    private readonly storage: StorageService,
   ) {}
 
   /**
@@ -46,6 +48,7 @@ export class ComplianceService {
    * PropertyComplianceDoc rows EXCEPT the row for this same propertyId.
    */
   async saveStep5(propertyId: string, dto: Step5LegalDto): Promise<ComplianceSummary> {
+    for (const document of dto.documents ?? []) await this.storage.validateDocument(propertyId, document.url);
     // GSTIN is entity-only: absent for individual/sole_proprietor. When absent
     // we store NULL for both columns (nullable @unique gstin_hash, NULLs never
     // collide) and skip the cross-property GSTIN dedup check.

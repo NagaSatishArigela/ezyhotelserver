@@ -1,3 +1,5 @@
+import { EmailVerificationService } from './email-verification.service';
+import { EmailVerificationController } from './email-verification.controller';
 import { HotelTeamController } from './hotel-team.controller';
 import { HotelTeamService } from './hotel-team.service';
 import { PropertyAccessService } from './property-access.service';
@@ -23,8 +25,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({}),
   ],
-  controllers: [AuthController, MeController, HotelTeamController],
+  controllers: [EmailVerificationController, AuthController, MeController, HotelTeamController],
   providers: [
+    EmailVerificationService,
     PropertyAccessService,
     HotelTeamService,
     AuthService,

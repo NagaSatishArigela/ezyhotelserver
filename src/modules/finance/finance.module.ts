@@ -1,7 +1,8 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LedgerService } from './ledger.service';
 import { PAYMENT_GATEWAY, PaymentGateway } from './gateway/payment-gateway.interface';
+import { DisabledPaymentGateway } from './gateway/disabled-payment-gateway';
 import { SandboxPaymentGateway } from './gateway/sandbox-payment-gateway';
 
 /**
@@ -22,7 +23,12 @@ import { SandboxPaymentGateway } from './gateway/sandbox-payment-gateway';
       provide: PAYMENT_GATEWAY,
       inject: [ConfigService],
       useFactory: (config: ConfigService): PaymentGateway => {
-        const provider = config.get<string>('PAYMENT_PROVIDER') ?? 'sandbox';
+        const production = config.get<string>('NODE_ENV') === 'production';
+        const provider = config.get<string>('PAYMENT_PROVIDER') ?? (production ? 'disabled' : 'sandbox');
+        if (provider === 'disabled' || (production && provider === 'sandbox')) {
+          new Logger('FinanceModule').warn('Checkout disabled: a production payment provider is not configured');
+          return new DisabledPaymentGateway();
+        }
         switch (provider) {
           case 'sandbox': {
             const secret = config.get<string>('SANDBOX_PAYMENT_SECRET') ?? 'sandbox_dev_secret';

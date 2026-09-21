@@ -1,6 +1,6 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
 import { PresignUploadDto } from './dto/presign-upload.dto';
@@ -50,6 +50,37 @@ export class StorageService {
     });
   }
 
+  private privateBucket(): string {
+    const bucket = this.config.get<string>('S3_PRIVATE_BUCKET', '').trim();
+    if (!bucket || bucket === this.bucket) throw new ServiceUnavailableException('Private document storage is not configured');
+    return bucket;
+  }
+  private documentBase(): string {
+    const base = this.config.get<string>('API_PUBLIC_URL', '').replace(/\/$/, '');
+    if (!base || !/^https?:\/\//.test(base)) throw new ServiceUnavailableException('Document API URL is not configured');
+    return base + '/uploads/documents';
+  }
+  private documentKey(propertyId: string, file: string): string {
+    if (!/^[0-9a-f-]{36}\.(pdf|jpg|png|webp)$/.test(file)) throw new BadRequestException('Invalid document reference');
+    return 'properties/' + propertyId + '/document/' + file;
+  }
+  async validateDocument(propertyId: string, url: string): Promise<void> {
+    if (!this.client) throw new ServiceUnavailableException('Object storage is not configured');
+    const prefix = this.documentBase() + '/' + propertyId + '/';
+    if (!url.startsWith(prefix)) throw new BadRequestException('Upload documents to private storage before saving');
+    const key = this.documentKey(propertyId, url.slice(prefix.length));
+    const object = await this.client.send(new HeadObjectCommand({ Bucket: this.privateBucket(), Key: key }));
+    if (!object.ContentLength || object.ContentLength > 10 * 1024 * 1024 || !Object.keys(EXT_MAP).includes(object.ContentType ?? '')) {
+      throw new BadRequestException('Document size or content type is invalid');
+    }
+  }
+  async readDocument(propertyId: string, file: string): Promise<{ url: string }> {
+    if (!this.client) throw new ServiceUnavailableException('Object storage is not configured');
+    const key = this.documentKey(propertyId, file);
+    return { url: await getSignedUrl(this.client, new GetObjectCommand({
+      Bucket: this.privateBucket(), Key: key, ResponseCacheControl: 'private, no-store',
+    }), { expiresIn: 60 }) };
+  }
   async presignPut(dto: PresignUploadDto): Promise<PresignedUpload> {
     if (!this.client) {
       throw new ServiceUnavailableException('Object storage is not configured');
@@ -58,13 +89,15 @@ export class StorageService {
     const extension = EXT_MAP[dto.contentType];
     const key = `properties/${dto.propertyId}/${dto.kind}/${randomUUID()}${extension}`;
     const command = new PutObjectCommand({
-      Bucket: this.bucket,
+      Bucket: dto.kind === 'document' ? this.privateBucket() : this.bucket,
       Key: key,
       ContentType: dto.contentType,
+      ContentLength: dto.size,
     });
 
     const uploadUrl = await getSignedUrl(this.client, command, {
       expiresIn: this.presignExpiresIn,
+      signableHeaders: new Set(['content-type', 'content-length']),
     });
 
     this.logger.log({ event: 'storage.upload_presigned', propertyId: dto.propertyId, kind: dto.kind });
@@ -72,7 +105,7 @@ export class StorageService {
     return {
       key,
       uploadUrl,
-      url: this.publicBaseUrl ? `${this.publicBaseUrl}/${key}` : `${endpointForObject(this.config, this.bucket, key)}`,
+      url: dto.kind === 'document' ? this.documentBase() + '/' + dto.propertyId + '/' + key.split('/').pop() : this.publicBaseUrl ? `${this.publicBaseUrl}/${key}` : `${endpointForObject(this.config, this.bucket, key)}`,
       expiresIn: this.presignExpiresIn,
     };
   }

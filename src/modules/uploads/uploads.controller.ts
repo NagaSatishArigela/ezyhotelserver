@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApplicationAccess } from '../auth/property-permissions';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -15,6 +15,12 @@ import { PresignedUpload, StorageService } from './storage.service';
 @ApplicationAccess()
 export class UploadsController {
   constructor(private readonly storage: StorageService) {}
+
+  @Get('documents/:propertyId/:file')
+  @Header('Cache-Control', 'private, no-store')
+  readDocument(@Param('propertyId', ParseUUIDPipe) propertyId: string, @Param('file') file: string) {
+    return this.storage.readDocument(propertyId, file);
+  }
 
   @ApiOperation({ summary: 'Create a presigned S3 upload URL for a hotel image or verification document' })
   @Post('presign')
