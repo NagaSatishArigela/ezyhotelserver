@@ -82,12 +82,13 @@ export class HotelTeamService {
         email: { equals: dto.email.trim(), mode: 'insensitive' },
         status: 'active',
         globalRole: 'USER',
+        isEmailVerified: true,
       },
       select: PUBLIC_USER,
     });
     if (!target)
       throw new NotFoundException(
-        'An active registered customer account with this email is required',
+        'An active account with a verified email is required before assigning hotel access',
       );
     if (target.id === property.ownerId)
       throw new ForbiddenException('Owner membership cannot be changed');

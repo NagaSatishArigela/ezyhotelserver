@@ -70,7 +70,7 @@ describe(ComplianceService.name, () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new ComplianceService(repo as never, encryption as never);
+    service = new ComplianceService(repo as never, encryption as never, { validateDocument: jest.fn().mockResolvedValue(undefined) } as never);
 
     encryption.lookupHash.mockImplementation((value: string) => `hash-${value}`);
     encryption.encrypt.mockImplementation((value: string) => `enc:${value}`);
