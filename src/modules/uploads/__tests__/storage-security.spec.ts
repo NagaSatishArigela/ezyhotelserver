@@ -13,8 +13,14 @@ it('signs the declared length and stores documents in a separate bucket', async 
   expect(args[1].input).toMatchObject({ Bucket: 'private', ContentLength: 128 });
   expect(result.url).toContain('https://api.example.test/uploads/documents/' + propertyId + '/');
 });
-it('rejects document upload without private storage', async () => { await expect(create({ ...config, S3_PRIVATE_BUCKET: '' }).presignPut({ propertyId, kind: 'document', contentType: 'application/pdf', fileName: 'test.pdf', size: 128 })).rejects.toThrow('Private'); });
-it('rejects sharing the public bucket', async () => { await expect(create({ ...config, S3_PRIVATE_BUCKET: 'public' }).readDocument(propertyId, file)).rejects.toThrow('Private'); });
+it('uses the configured public bucket temporarily when no private bucket is set', async () => {
+  await create({ ...config, S3_PRIVATE_BUCKET: '' }).presignPut({ propertyId, kind: 'document', contentType: 'application/pdf', fileName: 'test.pdf', size: 128 });
+  expect(jest.mocked(getSignedUrl).mock.calls[0][1].input).toMatchObject({ Bucket: 'public' });
+});
+it('supports a separate private bucket when configured', async () => {
+  await create({ ...config, S3_PRIVATE_BUCKET: 'private' }).readDocument(propertyId, file);
+  expect(jest.mocked(getSignedUrl).mock.calls[0][1].input).toMatchObject({ Bucket: 'private' });
+});
 it('keeps photos in public storage with size binding', async () => {
   const result = await create().presignPut({ propertyId, kind: 'photo', contentType: 'image/jpeg', fileName: 'test.jpg', size: 256 });
   expect(jest.mocked(getSignedUrl).mock.calls[0][1].input).toMatchObject({ Bucket: 'public', ContentLength: 256 });

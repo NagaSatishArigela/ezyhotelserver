@@ -51,9 +51,9 @@ export class StorageService {
   }
 
   private privateBucket(): string {
-    const bucket = this.config.get<string>('S3_PRIVATE_BUCKET', '').trim();
-    if (!bucket || bucket === this.bucket) throw new ServiceUnavailableException('Private document storage is not configured');
-    return bucket;
+    // Temporary staging mode: use the configured bucket until a dedicated
+    // private bucket is provisioned. Set S3_PRIVATE_BUCKET later to split it.
+    return this.config.get<string>('S3_PRIVATE_BUCKET', '').trim() || this.bucket;
   }
   private documentBase(): string {
     const base = this.config.get<string>('API_PUBLIC_URL', '').replace(/\/$/, '');
