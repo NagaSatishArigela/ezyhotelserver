@@ -56,7 +56,7 @@ export class StorageService {
     return this.config.get<string>('S3_PRIVATE_BUCKET', '').trim() || this.bucket;
   }
   private documentBase(): string {
-    const base = this.config.get<string>('API_PUBLIC_URL', '').replace(/\/$/, '');
+    const base = (this.config.get<string>('API_PUBLIC_URL', '').trim() || 'https://ezyhotelserver-production.up.railway.app').replace(/\/$/, '');
     if (!base || !/^https?:\/\//.test(base)) throw new ServiceUnavailableException('Document API URL is not configured');
     return base + '/uploads/documents';
   }
