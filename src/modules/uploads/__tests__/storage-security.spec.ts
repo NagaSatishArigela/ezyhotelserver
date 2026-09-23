@@ -21,6 +21,10 @@ it('supports a separate private bucket when configured', async () => {
   await create({ ...config, S3_PRIVATE_BUCKET: 'private' }).readDocument(propertyId, file);
   expect(jest.mocked(getSignedUrl).mock.calls[0][1].input).toMatchObject({ Bucket: 'private' });
 });
+it('uses the Railway API URL when API_PUBLIC_URL is not configured', async () => {
+  const result = await create({ ...config, API_PUBLIC_URL: '' }).presignPut({ propertyId, kind: 'document', contentType: 'application/pdf', fileName: 'test.pdf', size: 128 });
+  expect(result.url).toMatch(new RegExp('^https://ezyhotelserver-production\\.up\\.railway\\.app/uploads/documents/' + propertyId + '/[0-9a-f-]{36}\\.pdf$'));
+});
 it('keeps photos in public storage with size binding', async () => {
   const result = await create().presignPut({ propertyId, kind: 'photo', contentType: 'image/jpeg', fileName: 'test.jpg', size: 256 });
   expect(jest.mocked(getSignedUrl).mock.calls[0][1].input).toMatchObject({ Bucket: 'public', ContentLength: 256 });
