@@ -16,6 +16,12 @@ import { PresignedUpload, StorageService } from './storage.service';
 export class UploadsController {
   constructor(private readonly storage: StorageService) {}
 
+  @Get('photos/:propertyId/:file')
+  @Header('Cache-Control', 'private, no-store')
+  readPhoto(@Param('propertyId', ParseUUIDPipe) propertyId: string, @Param('file') file: string) {
+    return this.storage.readPhoto(propertyId, file);
+  }
+
   @Get('documents/:propertyId/:file')
   @Header('Cache-Control', 'private, no-store')
   readDocument(@Param('propertyId', ParseUUIDPipe) propertyId: string, @Param('file') file: string) {

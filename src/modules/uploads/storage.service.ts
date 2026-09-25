@@ -81,6 +81,17 @@ export class StorageService {
       Bucket: this.privateBucket(), Key: key, ResponseCacheControl: 'private, no-store',
     }), { expiresIn: 60 }) };
   }
+  async readPhoto(propertyId: string, file: string): Promise<{ url: string }> {
+    if (!this.client) throw new ServiceUnavailableException('Object storage is not configured');
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/.test(file)) {
+      throw new BadRequestException('Invalid photo reference');
+    }
+    return { url: await getSignedUrl(this.client, new GetObjectCommand({
+      Bucket: this.bucket, Key: `properties/${propertyId}/photo/${file}`,
+      ResponseCacheControl: 'private, no-store',
+    }), { expiresIn: 300 }) };
+  }
+
   async presignPut(dto: PresignUploadDto): Promise<PresignedUpload> {
     if (!this.client) {
       throw new ServiceUnavailableException('Object storage is not configured');

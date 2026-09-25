@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { IsEmail, IsString, Length, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateAdminDto {
   @IsString()
@@ -10,6 +11,6 @@ export class CreateAdminDto {
   phone: string;
 
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  @Transform(({ value }) => typeof value === 'string' ? value.trim().toLowerCase() : value)
+  email: string;
 }
