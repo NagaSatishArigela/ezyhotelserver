@@ -7,6 +7,17 @@ const propertyId = '11111111-1111-4111-8111-111111111111';
 const file = '22222222-2222-4222-8222-222222222222.pdf';
 const create = (values = config) => new StorageService({ get: (k: string, fallback: unknown) => values[k] ?? fallback, getOrThrow: (k: string) => values[k] } as never);
 beforeEach(() => jest.clearAllMocks());
+it('signs photo reads in the configured bucket without using the public URL', async () => {
+  const photo = file.replace('.pdf', '.jpg');
+  await create({ ...config, S3_PUBLIC_BASE_URL: '' }).readPhoto(propertyId, photo);
+  expect(jest.mocked(getSignedUrl).mock.calls[0][1].input).toMatchObject({ Bucket: 'public', Key: `properties/${propertyId}/photo/${photo}`, ResponseCacheControl: 'private, no-store' });
+  expect(jest.mocked(getSignedUrl).mock.calls[0][2]).toEqual({ expiresIn: 300 });
+});
+it('rejects photo traversal and document extensions without signing a read', async () => {
+  await expect(create().readPhoto(propertyId, '../' + file)).rejects.toThrow('Invalid photo');
+  await expect(create().readPhoto(propertyId, file)).rejects.toThrow('Invalid photo');
+  expect(getSignedUrl).not.toHaveBeenCalled();
+});
 it('signs the declared length and stores documents in a separate bucket', async () => {
   const result = await create().presignPut({ propertyId, kind: 'document', contentType: 'application/pdf', fileName: 'test.pdf', size: 128 });
   const args = jest.mocked(getSignedUrl).mock.calls[0];

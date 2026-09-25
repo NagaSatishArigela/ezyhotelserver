@@ -122,7 +122,7 @@ describe(SuperAdminService.name, () => {
 
     it('throws BadRequestException when email is missing (BS-02: email required for admin accounts)', async () => {
       await expect(
-        service.createAdmin({ name: 'Admin', phone: '9000000002' }),
+        service.createAdmin({ name: 'Admin', phone: '9000000002', email: '' }),
       ).rejects.toThrow(BadRequestException);
     });
 
