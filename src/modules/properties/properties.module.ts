@@ -1,4 +1,5 @@
 import { UploadsModule } from '../uploads/uploads.module';
+import { ApplicationStateController, ApplicationStateService } from './application-state';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { AdminPropertiesController } from './admin/admin-properties.controller';
@@ -13,8 +14,9 @@ import { PublicPropertiesService } from './public/public-properties.service';
 
 @Module({
   imports: [AuthModule, UploadsModule],
-  controllers: [PropertiesController, AdminPropertiesController, PublicPropertiesController],
+  controllers: [PropertiesController, AdminPropertiesController, PublicPropertiesController, ApplicationStateController],
   providers: [
+    ApplicationStateService,
     PropertiesService,
     PropertiesRepository,
     ComplianceService,

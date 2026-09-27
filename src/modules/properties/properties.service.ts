@@ -36,12 +36,6 @@ import { validateStepPayload } from './utils/validate-step';
 
 const MAX_PHOTOS_PER_CATEGORY = 10;
 
-// businessEntity values for which a GSTIN is NOT required at submit time.
-const GSTIN_EXEMPT_ENTITIES: BusinessEntity[] = [
-  BusinessEntity.individual,
-  BusinessEntity.sole_proprietor,
-];
-
 // Entity -> extra compliance documents required at submit time (in addition
 // to the always-required fire_safety_cert and food-gated fssai_license).
 // individual / sole_proprietor require no extra entity documents.
@@ -554,15 +548,6 @@ export class PropertiesService {
 
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
-
-    // GSTIN is entity-only: required unless the entity is individual /
-    // sole_proprietor. compliance.gstinMasked is null when no GSTIN was stored.
-    if (!GSTIN_EXEMPT_ENTITIES.includes(step1.businessEntity) && !compliance.gstinMasked) {
-      step5Errors.push({
-        field: 'gstin',
-        constraints: [`GSTIN is required for ${step1.businessEntity} entities`],
-      });
-    }
 
     if (!documentTypes.has(DocumentType.fire_safety_cert)) {
       step5Errors.push({
