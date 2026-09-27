@@ -40,7 +40,9 @@ export class ApplicationStateService {
 export class ApplicationStateController {
   constructor(private readonly state: ApplicationStateService) {}
   @Patch(':propertyId/application-state')
-  @SkipThrottle({ strict: true })
+  // Draft autosave is protected by the 200/min default bucket. It must not
+  // consume the strict write or hourly file-upload buckets.
+  @SkipThrottle({ strict: true, upload: true })
   save(@Param('propertyId', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.state.save(id, body); }
   @Get(':propertyId/application-state')
   @Header('Cache-Control', 'private, no-store')

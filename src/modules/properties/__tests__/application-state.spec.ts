@@ -1,4 +1,17 @@
-import { ApplicationStateService } from '../application-state';
+import { THROTTLER_SKIP } from '@nestjs/throttler/dist/throttler.constants';
+import { ApplicationStateController, ApplicationStateService } from '../application-state';
+import { PropertiesController } from '../properties.controller';
+
+describe('onboarding autosave throttling', () => {
+  it.each([
+    ['encrypted snapshot', ApplicationStateController.prototype.save],
+    ['canonical step', PropertiesController.prototype.saveStep],
+  ])('keeps %s saves out of strict and upload buckets', (_name, handler) => {
+    expect(Reflect.getMetadata(THROTTLER_SKIP + 'strict', handler)).toBe(true);
+    expect(Reflect.getMetadata(THROTTLER_SKIP + 'upload', handler)).toBe(true);
+    expect(Reflect.getMetadata(THROTTLER_SKIP + 'default', handler)).toBeUndefined();
+  });
+});
 describe('encrypted incomplete application state', () => {
   const prisma = { $executeRaw: jest.fn(), property: { findUnique: jest.fn() } };
   const encryption = { encrypt: jest.fn(), decrypt: jest.fn() };
