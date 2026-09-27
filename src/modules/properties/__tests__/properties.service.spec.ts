@@ -423,15 +423,14 @@ describe(PropertiesService.name, () => {
       });
     });
 
-    it('rejects when the fire safety certificate is missing', async () => {
-      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData() }));
+    it('allows submission when the optional fire safety certificate is missing', async () => {
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData(), draftStep: 5 }));
       compliance.getSummary.mockResolvedValue({ ...complianceSummary, documents: [] });
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00002');
+      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
 
-      await expect(service.submit('prop-1')).rejects.toMatchObject({
-        response: expect.objectContaining({
-          step: 5,
-          errors: [expect.objectContaining({ constraints: ['Fire safety certificate is required'] })],
-        }),
+      await expect(service.submit('prop-1')).resolves.toMatchObject({
+        status: PropertyStatus.pending_review,
       });
     });
 
@@ -466,7 +465,6 @@ describe(PropertiesService.name, () => {
         ...complianceSummary,
         gstinMasked: null,
         documents: [
-          { type: DocumentType.fire_safety_cert, status: DocumentStatus.pending, expiresAt: null },
           { type: DocumentType.partnership_deed, status: DocumentStatus.pending, expiresAt: null },
         ],
       });

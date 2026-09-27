@@ -22,7 +22,7 @@ const BANK_ACCOUNT_REGEX = /^\d{9,18}$/;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 
 /**
- * Supporting documents (PAN card image, ID proof, fire safety cert, etc.).
+ * Supporting documents (PAN card image, ID proof, optional fire safety cert, etc.).
  * Not part of the frontend `step5Schema` (which covers only the legal/bank
  * fields) but required by the M1 spec's PropertyDocument model - DTOs accept
  * `url` strings for now (S3 presigned-upload pipeline is out of scope).

@@ -36,8 +36,8 @@ import { validateStepPayload } from './utils/validate-step';
 
 const MAX_PHOTOS_PER_CATEGORY = 10;
 
-// Entity -> extra compliance documents required at submit time (in addition
-// to the always-required fire_safety_cert and food-gated fssai_license).
+// Entity -> extra compliance documents required at submit time. FSSAI remains
+// amenity-gated; the fire safety certificate is an optional supporting document.
 // individual / sole_proprietor require no extra entity documents.
 const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>> = {
   [BusinessEntity.partnership]: [DocumentType.partnership_deed],
@@ -556,13 +556,6 @@ export class PropertiesService {
 
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
-
-    if (!documentTypes.has(DocumentType.fire_safety_cert)) {
-      step5Errors.push({
-        field: 'documents',
-        constraints: ['Fire safety certificate is required'],
-      });
-    }
 
     const fssaiIds = REQUIRES_FSSAI as readonly string[];
     const requiresFssai = step3.amenities.some((amenity) => fssaiIds.includes(amenity));
