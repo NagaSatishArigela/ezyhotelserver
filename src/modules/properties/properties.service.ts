@@ -190,18 +190,26 @@ export class PropertiesService {
     }
 
     const dtoClass = STEP_DTO_MAP[stepNum as 1 | 2 | 3 | 4];
-    const validated = await validateStepPayload(stepNum, dtoClass, body);
+    const validated = await validateStepPayload(stepNum, dtoClass, body, true);
 
-    if (stepNum === 3) {
+    if (stepNum === 3 && validated.rooms !== undefined) {
       this.assertAtLeastOneRoomCounted(stepNum, validated);
     }
-    if (stepNum === 4) {
+    if (stepNum === 4 && validated.photos !== undefined) {
       this.assertPhotoCategoryLimits(stepNum, validated as unknown as Step4PhotosDto);
     }
 
+    const currentData = await this.applicationDataOf(property);
+    const currentStepData = currentData[`step${stepNum}`];
+    const mergedStepData = {
+      ...(currentStepData && typeof currentStepData === 'object' && !Array.isArray(currentStepData)
+        ? currentStepData as Record<string, unknown>
+        : {}),
+      ...validated,
+    };
     const draftData = {
-      ...await this.applicationDataOf(property),
-      [`step${stepNum}`]: validated,
+      ...currentData,
+      [`step${stepNum}`]: mergedStepData,
     };
     const draftStep = Math.max(property.draftStep ?? 0, stepNum);
 
@@ -209,7 +217,7 @@ export class PropertiesService {
       draftData: draftData as Prisma.InputJsonValue,
       draftStep,
     };
-    if (stepNum === 1) {
+    if (stepNum === 1 && typeof validated.propertyName === 'string') {
       // Keep the canonical `name` column in sync with step 1's
       // propertyName for listings/search before submission.
       const step1 = validated as unknown as Step1BasicsDto;

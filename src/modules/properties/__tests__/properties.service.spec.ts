@@ -271,6 +271,23 @@ describe(PropertiesService.name, () => {
       expect(result.draftStep).toBe(1);
     });
 
+    it('saves partial step 1 owner names without imposing a surname format', async () => {
+      const property = buildProperty({ draftData: { step1: { businessEntity: BusinessEntity.individual } } });
+      repo.findById.mockResolvedValue(property);
+      repo.update.mockImplementation(async (_id, data) => buildProperty(data as Partial<Property>));
+
+      await service.saveStep('prop-1', 1, { ownerFirstName: "O'Neil #1" });
+
+      expect(repo.update).toHaveBeenCalledWith('prop-1', expect.objectContaining({
+        draftData: expect.objectContaining({
+          step1: expect.objectContaining({
+            businessEntity: BusinessEntity.individual,
+            ownerFirstName: "O'Neil #1",
+          }),
+        }),
+      }));
+    });
+
     it('rejects step 1 with an invalid propertyType', async () => {
       repo.findById.mockResolvedValue(buildProperty());
       await expect(

@@ -43,8 +43,9 @@ export class PropertiesController {
 
   @ApiOperation({ summary: 'Auto-save a wizard step (1-5) for a draft property' })
   // Onboarding autosave fires frequently as the owner fills the wizard; exempt
-  // it from the strict per-IP tier (the 200/min default still caps abuse).
-  @SkipThrottle({ strict: true })
+  // it from the strict write and hourly file-upload tiers (the 200/min default
+  // still caps abuse).
+  @SkipThrottle({ strict: true, upload: true })
   @UseGuards(PropertyRoleGuard)
   @ApplicationAccess()
   @Patch(':propertyId/step/:stepNum')

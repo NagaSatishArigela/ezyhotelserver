@@ -9,7 +9,6 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -38,13 +37,10 @@ export class Step1BasicsDto {
   @IsEnum(BusinessEntity)
   businessEntity: BusinessEntity;
 
-  @ApiProperty({ minLength: 2, maxLength: 50 })
+  @ApiProperty({ minLength: 1, maxLength: 50 })
   @IsString()
-  @MinLength(2)
+  @MinLength(1)
   @MaxLength(50)
-  @Matches(/^[A-Za-z][A-Za-z .'-]*$/, {
-    message: "ownerFirstName may contain letters, spaces, hyphens, apostrophes and dots",
-  })
   ownerFirstName: string;
 
   @ApiProperty({ required: false, maxLength: 50 })
@@ -53,14 +49,12 @@ export class Step1BasicsDto {
   @MaxLength(50)
   ownerMiddleName?: string;
 
-  @ApiProperty({ minLength: 2, maxLength: 50 })
+  @ApiProperty({ required: false, minLength: 1, maxLength: 50 })
+  @IsOptional()
   @IsString()
-  @MinLength(2)
+  @MinLength(1)
   @MaxLength(50)
-  @Matches(/^[A-Za-z][A-Za-z .'-]*$/, {
-    message: "ownerLastName may contain letters, spaces, hyphens, apostrophes and dots",
-  })
-  ownerLastName: string;
+  ownerLastName?: string;
 
   @ApiProperty({ enum: PropertyCategory })
   @IsEnum(PropertyCategory)
