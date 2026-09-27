@@ -30,11 +30,13 @@ export class UsersRepository {
     return this.prisma.session.findUnique({ where: { id } });
   }
 
-  // Fixed-window session expiry: rotate the refresh token hash atomically without extending expiresAt.
+  // Rotate the hash and expiry in one conditional update. This keeps token
+  // rotation replay-safe while allowing an explicit session extension.
   async rotateSessionRefreshToken(
     id: string,
     currentRefreshTokenHash: string,
     refreshTokenHash: string,
+    expiresAt: Date,
   ): Promise<boolean> {
     const result = await this.prisma.session.updateMany({
       where: {
@@ -43,7 +45,7 @@ export class UsersRepository {
         revokedAt: null,
         expiresAt: { gt: new Date() },
       },
-      data: { refreshTokenHash, revokedAt: null },
+      data: { refreshTokenHash, expiresAt, revokedAt: null },
     });
 
     return result.count === 1;

@@ -162,7 +162,7 @@ created at draft-creation time).
      entry (see `REQUIRES_FSSAI` in `amenities.ts`).
    - Pool safety cert required only if amenities include a pool entry
      (`REQUIRES_POOL_SAFETY`).
-   - Fire safety cert is **always required** (per spec section 3.2 Step 5).
+   - Fire safety cert is optional and may be supplied as a supporting document.
 7. **GSTIN dedup**: `lookupHash(gstin)` must be unique across
    `PropertyComplianceDoc` rows EXCEPT the row belonging to the same
    `propertyId` (re-saving step 5 for the same draft is allowed). Conflict →

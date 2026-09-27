@@ -144,8 +144,8 @@ Portal / uploads `docId → DocumentType`:
 
 ## 4. businessEntity → required-documents matrix (submit)
 
-Every submission always requires `fire_safety_cert`. `fssai_license` is added
-when FSSAI-gating amenities are selected (§2). On top of that, by entity:
+`fire_safety_cert` is optional. `fssai_license` is required when
+FSSAI-gating amenities are selected (§2). On top of that, by entity:
 
 | businessEntity | Extra required documents | GSTIN required? |
 |---|---|---|

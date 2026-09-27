@@ -285,10 +285,11 @@ describe(AuthService.name, () => {
       activeSession.id,
       activeSession.refreshTokenHash,
       'hashed-refresh-token',
+      expect.any(Date),
     );
   });
 
-  it('does not extend session expiry when rotating refresh tokens', async () => {
+  it('extends session expiry when rotating refresh tokens', async () => {
     tokens.verifyRefreshToken.mockResolvedValue({
       id: activeUser.id,
       sessionId: activeSession.id,
@@ -303,14 +304,7 @@ describe(AuthService.name, () => {
       activeSession.id,
       activeSession.refreshTokenHash,
       'hashed-refresh-token',
-    );
-    // expiresAt must remain unchanged - rotation only swaps the hash, it
-    // does not extend the session's lifetime (fixed-window expiry).
-    expect(users.rotateSessionRefreshToken).not.toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      expect.objectContaining({ expiresAt: expect.anything() }),
+      new Date('2026-05-03T00:00:00.000Z'),
     );
   });
 

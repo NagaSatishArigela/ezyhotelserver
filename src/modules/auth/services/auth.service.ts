@@ -415,6 +415,7 @@ export class AuthService {
         sessionId,
         currentRefreshTokenHash,
         refreshTokenHash,
+        this.tokens.refreshTokenExpiresAt(),
       );
       if (!rotated) {
         throw new UnauthorizedException('Invalid refresh token');
