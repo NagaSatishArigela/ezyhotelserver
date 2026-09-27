@@ -50,11 +50,8 @@ export class PropertyDocumentWizardDto {
  * `documents` array for PropertyDocument rows.
  */
 export class Step5LegalDto {
-  // GSTIN is ENTITY-ONLY: optional for individual/sole_proprietor, required
-  // for partnership/llp/private_limited/public_limited. The "required unless"
-  // rule is enforced at submit time in PropertiesService.assertConditionalFields
-  // (it needs the Step-1 businessEntity, out of scope for a single-step DTO).
-  // Regex is applied only when a value is present.
+  // GSTIN is optional for listing, regardless of business entity.
+  // Validate its format when supplied.
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

@@ -436,7 +436,7 @@ describe(PropertiesService.name, () => {
       });
     });
 
-    it('rejects when a GSTIN-required entity has no GSTIN on file', async () => {
+    it('allows a partnership with no GSTIN when its entity documents are supplied', async () => {
       repo.findById.mockResolvedValue(
         buildProperty({
           draftData: fullDraftData({
@@ -444,8 +444,7 @@ describe(PropertiesService.name, () => {
           }),
         }),
       );
-      // Partnership needs a GSTIN AND a partnership_deed; provide the deed so
-      // the GSTIN error is isolated.
+      // GSTIN is optional; the partnership deed remains mandatory.
       compliance.getSummary.mockResolvedValue({
         ...complianceSummary,
         gstinMasked: null,
@@ -455,11 +454,10 @@ describe(PropertiesService.name, () => {
         ],
       });
 
-      await expect(service.submit('prop-1')).rejects.toMatchObject({
-        response: expect.objectContaining({
-          step: 5,
-          errors: [expect.objectContaining({ field: 'gstin' })],
-        }),
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00002');
+      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
+      await expect(service.submit('prop-1')).resolves.toMatchObject({
+        status: PropertyStatus.pending_review,
       });
     });
 
