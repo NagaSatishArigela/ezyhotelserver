@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -126,6 +126,8 @@ export class AuthController {
   @ApiOkResponse({ description: 'Refresh token rotated successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid, revoked, or expired refresh token' })
   @ApiTooManyRequestsResponse({ description: 'Too many refresh attempts' })
+  // Refresh is not a file upload. Keep the per-minute auth limits only.
+  @SkipThrottle({ upload: true })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('refresh-token')
   refreshToken(@Body() dto: RefreshTokenDto, @Req() request: AuthRequest) {
