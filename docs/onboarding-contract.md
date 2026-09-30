@@ -112,8 +112,8 @@ cctv, ev_charging
 
 Compliance gates (id-based, evaluated at submit):
 
-- **REQUIRES_FSSAI** = `restaurant`, `bar`, `room_service` → if any selected, a
-  `fssai_license` document is required.
+- `restaurant`, `bar`, `room_service` show the optional `fssai_license`
+  upload in the portal. Its absence does not block submission, including PG listings.
 - **REQUIRES_POOL_SAFETY** = `pool` → informational (not blocking) unless
   otherwise enforced.
 
@@ -144,8 +144,8 @@ Portal / uploads `docId → DocumentType`:
 
 ## 4. businessEntity → required-documents matrix (submit)
 
-`fire_safety_cert` is optional. `fssai_license` is required when
-FSSAI-gating amenities are selected (§2). On top of that, by entity:
+`fire_safety_cert` and `fssai_license` are optional for submission.
+Required entity documents remain:
 
 | businessEntity | Extra required documents | GSTIN required? |
 |---|---|---|

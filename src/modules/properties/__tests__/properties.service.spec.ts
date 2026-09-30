@@ -434,21 +434,21 @@ describe(PropertiesService.name, () => {
       });
     });
 
-    it('rejects when amenities require FSSAI but no fssai_license document exists', async () => {
+    it.each([PropertyType.pg, PropertyType.hotel])('allows %s submission with food amenities without FSSAI', async (propertyType) => {
       repo.findById.mockResolvedValue(
         buildProperty({
           draftData: fullDraftData({
+            step1: { ...step1Hourly, propertyType },
             step3: { ...step3Hourly, amenities: ['restaurant'] },
           }),
         }),
       );
       compliance.getSummary.mockResolvedValue(complianceSummary);
 
-      await expect(service.submit('prop-1')).rejects.toMatchObject({
-        response: expect.objectContaining({
-          step: 5,
-          errors: [expect.objectContaining({ constraints: ['FSSAI license is required for the selected amenities'] })],
-        }),
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00002');
+      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
+      await expect(service.submit('prop-1')).resolves.toMatchObject({
+        status: PropertyStatus.pending_review,
       });
     });
 

@@ -30,12 +30,6 @@ export const AMENITY_IDS = [
 export type AmenityId = (typeof AMENITY_IDS)[number];
 
 /**
- * Amenity ids that make an FSSAI license mandatory at submission time
- * (M1 spec edge case 6). Food/beverage service on premises.
- */
-export const REQUIRES_FSSAI: AmenityId[] = ['restaurant', 'bar', 'room_service'];
-
-/**
  * Amenity ids that trigger the pool-safety requirement. Informational unless
  * already enforced elsewhere - kept id-based for a stable contract.
  */

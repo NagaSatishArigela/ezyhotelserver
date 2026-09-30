@@ -51,6 +51,7 @@ async function bootstrap(): Promise<void> {
       callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
     },
     credentials: true,
+    exposedHeaders: ['Retry-After', 'Retry-After-strict', 'Retry-After-upload'],
   });
   // Keep the local uploads directory available for existing development files.
   // New hotel media is uploaded directly to S3-compatible object storage via

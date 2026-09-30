@@ -17,7 +17,6 @@ import {
 import { DOMAIN_EVENTS } from '../../common/events/domain-events';
 import { TypedEventEmitter } from '../../common/events/typed-event-emitter.service';
 import { ComplianceService, ComplianceSummary } from './compliance/compliance.service';
-import { REQUIRES_FSSAI } from './constants/amenities';
 import { PropertiesRepository } from './properties.repository';
 import {
   MAX_STEP,
@@ -36,8 +35,8 @@ import { validateStepPayload } from './utils/validate-step';
 
 const MAX_PHOTOS_PER_CATEGORY = 10;
 
-// Entity -> extra compliance documents required at submit time. FSSAI remains
-// amenity-gated; the fire safety certificate is an optional supporting document.
+// Entity -> extra compliance documents required at submit time. Fire safety
+// and FSSAI certificates are optional supporting documents for submission.
 // individual / sole_proprietor require no extra entity documents.
 const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>> = {
   [BusinessEntity.partnership]: [DocumentType.partnership_deed],
@@ -556,15 +555,6 @@ export class PropertiesService {
 
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
-
-    const fssaiIds = REQUIRES_FSSAI as readonly string[];
-    const requiresFssai = step3.amenities.some((amenity) => fssaiIds.includes(amenity));
-    if (requiresFssai && !documentTypes.has(DocumentType.fssai_license)) {
-      step5Errors.push({
-        field: 'documents',
-        constraints: ['FSSAI license is required for the selected amenities'],
-      });
-    }
 
     // Entity -> required documents matrix.
     const requiredEntityDocs = ENTITY_REQUIRED_DOCUMENTS[step1.businessEntity] ?? [];
