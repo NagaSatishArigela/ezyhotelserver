@@ -58,7 +58,6 @@ const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>>
 const DOCUMENT_LABELS: Record<string, string> = {
   [DocumentType.pan_card]: 'PAN card',
   [DocumentType.id_proof]: 'Aadhaar front',
-  [DocumentType.id_proof_back]: 'Aadhaar back',
   [DocumentType.rental_agreement]: 'Property ownership / lease proof',
   [DocumentType.cancelled_cheque]: 'Cancelled cheque',
   [DocumentType.trade_license]: 'Business licence',
@@ -562,23 +561,9 @@ export class PropertiesService {
 
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
-    for (const type of [
-      DocumentType.pan_card,
-      DocumentType.id_proof,
-      DocumentType.id_proof_back,
-      DocumentType.rental_agreement,
-      DocumentType.cancelled_cheque,
-      DocumentType.trade_license,
-    ]) {
-      if (!documentTypes.has(type)) {
-        step5Errors.push({
-          field: 'documents',
-          constraints: [`${DOCUMENT_LABELS[type]} is required`],
-        });
-      }
-    }
 
-    // Entity -> required documents matrix.
+    // Contract §3/§4: no universal document gate. Only entity-specific
+    // compliance documents are required for submission.
     const requiredEntityDocs = ENTITY_REQUIRED_DOCUMENTS[step1.businessEntity] ?? [];
     for (const docType of requiredEntityDocs) {
       if (!documentTypes.has(docType)) {

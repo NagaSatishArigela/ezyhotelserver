@@ -387,18 +387,28 @@ describe(PropertiesService.name, () => {
       });
     });
 
-    it('rejects when a portal-required KYC document is missing', async () => {
-      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData() }));
+    it('rejects when an entity-required KYC document is missing', async () => {
+      repo.findById.mockResolvedValue(buildProperty({
+        draftData: fullDraftData({
+          step1: { ...step1Hourly, businessEntity: BusinessEntity.partnership },
+        }),
+      }));
       compliance.getSummary.mockResolvedValue({
         ...complianceSummary,
-        documents: complianceSummary.documents.filter(document => document.type !== DocumentType.cancelled_cheque),
+        documents: [
+          { type: DocumentType.pan_card, status: DocumentStatus.pending, expiresAt: null },
+          { type: DocumentType.id_proof, status: DocumentStatus.pending, expiresAt: null },
+          { type: DocumentType.rental_agreement, status: DocumentStatus.pending, expiresAt: null },
+          { type: DocumentType.cancelled_cheque, status: DocumentStatus.pending, expiresAt: null },
+          { type: DocumentType.trade_license, status: DocumentStatus.pending, expiresAt: null },
+        ],
       });
 
       await expect(service.submit('prop-1')).rejects.toMatchObject({
         response: expect.objectContaining({
           step: 5,
           errors: expect.arrayContaining([
-            expect.objectContaining({ field: 'documents', constraints: ['Cancelled cheque is required'] }),
+            expect.objectContaining({ field: 'documents', constraints: ['Partnership deed is required for partnership entities'] }),
           ]),
         }),
       });
