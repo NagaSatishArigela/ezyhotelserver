@@ -64,12 +64,13 @@ export class StorageService {
     if (!/^[0-9a-f-]{36}\.(pdf|jpg|png|webp)$/.test(file)) throw new BadRequestException('Invalid document reference');
     return 'properties/' + propertyId + '/document/' + file;
   }
-  async validateDocument(propertyId: string, url: string): Promise<void> {
+  async validateDocument(propertyId: string, url: string, imageOnly = false): Promise<void> {
     if (!this.client) throw new ServiceUnavailableException('Object storage is not configured');
     const prefix = this.documentBase() + '/' + propertyId + '/';
     if (!url.startsWith(prefix)) throw new BadRequestException('Upload documents to private storage before saving');
     const key = this.documentKey(propertyId, url.slice(prefix.length));
     const object = await this.client.send(new HeadObjectCommand({ Bucket: this.privateBucket(), Key: key }));
+    if (imageOnly && !['image/jpeg', 'image/png', 'image/webp'].includes(object.ContentType ?? '')) throw new BadRequestException('Owner photo must be an image');
     if (!object.ContentLength || object.ContentLength > 10 * 1024 * 1024 || !Object.keys(EXT_MAP).includes(object.ContentType ?? '')) {
       throw new BadRequestException('Document size or content type is invalid');
     }

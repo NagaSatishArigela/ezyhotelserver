@@ -108,6 +108,8 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiTooManyRequestsResponse({ description: 'Too many login attempts' })
   // Tight limit to slow down credential-stuffing/brute-force attempts.
+  // Login is not an upload; retain both per-minute authentication limits.
+  @SkipThrottle({ upload: true })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
   login(@Body() dto: LoginDto, @Req() request: AuthRequest) {

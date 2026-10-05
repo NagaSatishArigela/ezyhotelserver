@@ -56,6 +56,12 @@ const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>>
 
 // Human-readable labels for entity-document errors.
 const DOCUMENT_LABELS: Record<string, string> = {
+  [DocumentType.pan_card]: 'PAN card',
+  [DocumentType.id_proof]: 'Aadhaar front',
+  [DocumentType.id_proof_back]: 'Aadhaar back',
+  [DocumentType.rental_agreement]: 'Property ownership / lease proof',
+  [DocumentType.cancelled_cheque]: 'Cancelled cheque',
+  [DocumentType.trade_license]: 'Business licence',
   [DocumentType.partnership_deed]: 'Partnership deed',
   [DocumentType.llp_agreement]: 'LLP agreement',
   [DocumentType.incorporation_certificate]: 'Certificate of incorporation',
@@ -443,8 +449,8 @@ export class PropertiesService {
       .map((room) => ({
         type: room.type,
         count: room.count,
-        hourlyRatePaise: room.hourlyRate != null ? Math.round(room.hourlyRate * 100) : null,
-        fulldayRatePaise: room.fulldayRate != null ? Math.round(room.fulldayRate * 100) : null,
+        hourlyRatePaise: step1.bookingPolicy !== BookingPolicy.fullday && room.hourlyRate != null ? Math.round(room.hourlyRate * 100) : null,
+        fulldayRatePaise: step1.bookingPolicy !== BookingPolicy.hourly && room.fulldayRate != null ? Math.round(room.fulldayRate * 100) : null,
         maxOccupancy: room.maxOccupancy ?? null,
       }));
 
@@ -458,6 +464,7 @@ export class PropertiesService {
     const propertyUpdate: Prisma.PropertyUpdateInput = {
       name: step1.propertyName,
       propertyType: step1.propertyType,
+      propertyDetails: step1.propertyDetails ?? {},
       bookingPolicy: step1.bookingPolicy,
       businessEntity: step1.businessEntity,
       ownerFirstName: step1.ownerFirstName,
@@ -555,6 +562,21 @@ export class PropertiesService {
 
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
+    for (const type of [
+      DocumentType.pan_card,
+      DocumentType.id_proof,
+      DocumentType.id_proof_back,
+      DocumentType.rental_agreement,
+      DocumentType.cancelled_cheque,
+      DocumentType.trade_license,
+    ]) {
+      if (!documentTypes.has(type)) {
+        step5Errors.push({
+          field: 'documents',
+          constraints: [`${DOCUMENT_LABELS[type]} is required`],
+        });
+      }
+    }
 
     // Entity -> required documents matrix.
     const requiredEntityDocs = ENTITY_REQUIRED_DOCUMENTS[step1.businessEntity] ?? [];
@@ -636,6 +658,7 @@ export class PropertiesService {
     );
     return {
       step1: defined({ propertyName: property.name, propertyType: property.propertyType,
+        propertyDetails: property.propertyDetails,
         bookingPolicy: property.bookingPolicy, businessEntity: property.businessEntity,
         ownerFirstName: property.ownerFirstName, ownerMiddleName: property.ownerMiddleName,
         ownerLastName: property.ownerLastName, category: property.category, description: property.description }),

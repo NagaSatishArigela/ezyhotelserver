@@ -118,10 +118,13 @@ enum PropertyStatus {
 enum PropertyType {
   hotel
   resort
+  guest_house
   homestay
   villa
   pg
   farm
+  lodge
+  dormitory
   banquet
   other
 
@@ -200,6 +203,7 @@ model Property {
 
   // --- Step 1: Basic info ---
   propertyType    PropertyType?     @map("property_type")
+  propertyDetails Json?             @map("property_details")
   bookingPolicy   BookingPolicy?    @map("booking_policy")
   category        PropertyCategory?
   businessEntity  BusinessEntity?   @map("business_entity")
@@ -337,6 +341,7 @@ model PropertyComplianceDoc {
   bankAccountNumberHash      String   @map("bank_account_number_hash")
   ifsc                       String
   accountHolderName          String   @map("account_holder_name")
+  accountType                String   @default("savings") @map("account_type")
   tcAcceptedAt               DateTime @map("tc_accepted_at")
   formCAcknowledgedAt        DateTime @map("form_c_acknowledged_at")
   createdAt                  DateTime @default(now()) @map("created_at")
@@ -350,6 +355,8 @@ model PropertyComplianceDoc {
 enum DocumentType {
   owner_photo
   id_proof
+  id_proof_back
+  udyam_certificate
   pan_card
   gstin_certificate
   rental_agreement

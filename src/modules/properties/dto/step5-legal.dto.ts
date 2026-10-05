@@ -6,6 +6,7 @@ import {
   Equals,
   IsArray,
   IsEnum,
+  IsIn,
   IsISO8601,
   IsOptional,
   IsString,
@@ -50,6 +51,11 @@ export class PropertyDocumentWizardDto {
  * `documents` array for PropertyDocument rows.
  */
 export class Step5LegalDto {
+  @ApiProperty({ required: false, enum: ['savings', 'current', 'cash_credit', 'other'] })
+  @IsOptional()
+  @IsIn(['savings', 'current', 'cash_credit', 'other'])
+  accountType?: string;
+
   // GSTIN is optional for listing, regardless of business entity.
   // Validate its format when supplied.
   @ApiProperty({ required: false })

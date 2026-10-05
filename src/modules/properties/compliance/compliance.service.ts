@@ -6,6 +6,7 @@ import { Step5LegalDto } from '../dto/step5-legal.dto';
 import { ComplianceRepository } from './compliance.repository';
 
 export interface ComplianceSummary {
+  accountType?: string;
   legalBusinessName: string;
   // null when no GSTIN was provided (individual / sole_proprietor).
   gstinMasked: string | null;
@@ -17,6 +18,7 @@ export interface ComplianceSummary {
 }
 
 export interface AdminComplianceSummary {
+  accountType?: string;
   legalBusinessName: string;
   // null when no GSTIN was provided (individual / sole_proprietor).
   gstin: string | null;
@@ -48,7 +50,10 @@ export class ComplianceService {
    * PropertyComplianceDoc rows EXCEPT the row for this same propertyId.
    */
   async saveStep5(propertyId: string, dto: Step5LegalDto): Promise<ComplianceSummary> {
-    for (const document of dto.documents ?? []) await this.storage.validateDocument(propertyId, document.url);
+    for (const document of dto.documents ?? []) {
+      if (document.type === 'owner_photo') await this.storage.validateDocument(propertyId, document.url, true);
+      else await this.storage.validateDocument(propertyId, document.url);
+    }
     // GSTIN is entity-only: absent for individual/sole_proprietor. When absent
     // we store NULL for both columns (nullable @unique gstin_hash, NULLs never
     // collide) and skip the cross-property GSTIN dedup check.
@@ -76,6 +81,7 @@ export class ComplianceService {
       bankAccountNumberHash,
       ifsc: dto.ifsc,
       accountHolderName: dto.accountHolderName,
+      accountType: dto.accountType ?? 'savings',
       tcAcceptedAt: now,
       formCAcknowledgedAt: now,
     });
@@ -125,6 +131,7 @@ export class ComplianceService {
       ),
       ifsc: doc.ifsc,
       accountHolderName: doc.accountHolderName,
+      accountType: doc.accountType,
       documents: documents.map((document) => ({
         type: document.type,
         status: document.status,
@@ -153,6 +160,7 @@ export class ComplianceService {
       bankAccountNumber: this.encryption.decrypt(doc.bankAccountNumberEncrypted),
       ifsc: doc.ifsc,
       accountHolderName: doc.accountHolderName,
+      accountType: doc.accountType,
       documents: documents.map((document) => ({
         type: document.type,
         url: document.url,
