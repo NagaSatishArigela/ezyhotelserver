@@ -10,6 +10,7 @@ import {
   RoomType,
 } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
+import { amenityVariants } from './constants/amenity-catalog';
 
 export type PublicPropertySort = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
 
@@ -120,7 +121,11 @@ export class PropertiesRepository {
     }
 
     if (params.amenities && params.amenities.length > 0) {
-      conditions.push(Prisma.sql`p.amenities @> ${params.amenities}::text[]`);
+      // Each requested amenity must match; historical labels and current IDs
+      // are equivalent without requiring destructive updates to existing rows.
+      for (const amenity of params.amenities) {
+        conditions.push(Prisma.sql`p.amenities && ${amenityVariants(amenity)}::text[]`);
+      }
     }
 
     if (params.q) {

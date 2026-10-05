@@ -1,5 +1,6 @@
 import { PropertyAccessService } from '../property-access.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from '../services/auth.service';
@@ -43,6 +44,7 @@ export class MeController {
     return this.authService.getOnboarding(request.user as JwtPayload);
   }
 
+  @SkipThrottle({ upload: true })
   @Get('me/properties')
   memberships(@Req() request: MeRequest) { return this.access.memberships(request.user!.id); }
 

@@ -46,6 +46,7 @@ export interface PublicPhotoView {
 }
 
 export interface PublicPropertyDetail extends PublicPropertySummary {
+  propertyDetails?: Record<string, unknown> | null;
   addressLine1: string | null;
   addressLine2: string | null;
   state: string | null;
@@ -146,6 +147,7 @@ export class PublicPropertiesService {
 
     return {
       ...this.toSummary(property, roomTypes, primaryPhoto),
+      propertyDetails: property.propertyDetails as Record<string, unknown> | null,
       addressLine1: property.addressLine1,
       addressLine2: property.addressLine2,
       state: property.state,

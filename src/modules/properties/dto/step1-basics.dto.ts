@@ -11,7 +11,10 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  ValidateBy,
+  IsObject,
 } from 'class-validator';
+import { propertyDetailsErrors, requiredBookingPolicy, type PropertyDetails } from '../constants/property-details';
 import { StripTags } from '../../../common/decorators/strip-tags.decorator';
 
 /**
@@ -31,7 +34,23 @@ export class Step1BasicsDto {
 
   @ApiProperty({ enum: BookingPolicy })
   @IsEnum(BookingPolicy)
+  @ValidateBy({ name: 'propertyBookingPolicy', validator: {
+    validate: (value, args) => {
+      const expected = requiredBookingPolicy((args?.object as Step1BasicsDto).propertyType);
+      return !expected || value === expected;
+    },
+    defaultMessage: () => 'PG supports full-day bookings only; banquets support hourly bookings only',
+  } })
   bookingPolicy: BookingPolicy;
+
+  @ApiProperty({ required: false, type: Object })
+  @IsOptional()
+  @IsObject()
+  @ValidateBy({ name: 'propertyDetails', validator: {
+    validate: (value, args) => propertyDetailsErrors((args?.object as Step1BasicsDto).propertyType, value).length === 0,
+    defaultMessage: args => propertyDetailsErrors((args?.object as Step1BasicsDto).propertyType, args?.value).join('; '),
+  } })
+  propertyDetails?: PropertyDetails;
 
   @ApiProperty({ enum: BusinessEntity })
   @IsEnum(BusinessEntity)

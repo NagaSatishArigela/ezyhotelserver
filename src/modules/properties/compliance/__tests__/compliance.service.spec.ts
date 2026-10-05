@@ -20,6 +20,7 @@ const step5Dto: Step5LegalDto = {
 function buildComplianceDoc(overrides: Partial<PropertyComplianceDoc> = {}): PropertyComplianceDoc {
   return {
     id: 'doc-1',
+    accountType: 'savings',
     propertyId: 'prop-1',
     legalBusinessName: 'Sunrise Hospitality',
     gstinEncrypted: 'enc:gstin',
@@ -181,6 +182,7 @@ describe(ComplianceService.name, () => {
       const summary = await service.getSummary('prop-1');
 
       expect(summary).toEqual({
+        accountType: 'savings',
         legalBusinessName: 'Sunrise Hospitality',
         gstinMasked: 'masked:gstin',
         panMasked: 'masked:pan',

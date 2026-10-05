@@ -112,7 +112,14 @@ const complianceSummary: ComplianceSummary = {
   bankAccountNumberMasked: '*****6789',
   ifsc: 'HDFC0000123',
   accountHolderName: 'Ravi Kumar',
-  documents: [{ type: DocumentType.fire_safety_cert, status: DocumentStatus.pending, expiresAt: null }],
+  documents: [
+    DocumentType.pan_card,
+    DocumentType.id_proof,
+    DocumentType.id_proof_back,
+    DocumentType.rental_agreement,
+    DocumentType.cancelled_cheque,
+    DocumentType.trade_license,
+  ].map(type => ({ type, status: DocumentStatus.pending, expiresAt: null })),
 };
 
 function fullDraftData(overrides: Record<string, unknown> = {}) {
@@ -297,6 +304,18 @@ describe(PropertiesService.name, () => {
       });
     });
 
+    it.each([PropertyType.guest_house, PropertyType.lodge, PropertyType.dormitory])(
+      'accepts the %s stay type',
+      async propertyType => {
+        repo.findById.mockResolvedValue(buildProperty());
+        repo.update.mockResolvedValue(buildProperty({ draftStep: 1 }));
+
+        await expect(service.saveStep('prop-1', 1, { propertyType })).resolves.toMatchObject({
+          draftStep: 1,
+        });
+      },
+    );
+
     it('rejects step 3 when no room type has a count > 0', async () => {
       repo.findById.mockResolvedValue(buildProperty());
       const payload = { ...step3Hourly, rooms: [{ type: RoomTypeCategory.ac, count: 0 }] };
@@ -368,6 +387,23 @@ describe(PropertiesService.name, () => {
       });
     });
 
+    it('rejects when a portal-required KYC document is missing', async () => {
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData() }));
+      compliance.getSummary.mockResolvedValue({
+        ...complianceSummary,
+        documents: complianceSummary.documents.filter(document => document.type !== DocumentType.cancelled_cheque),
+      });
+
+      await expect(service.submit('prop-1')).rejects.toMatchObject({
+        response: expect.objectContaining({
+          step: 5,
+          errors: expect.arrayContaining([
+            expect.objectContaining({ field: 'documents', constraints: ['Cancelled cheque is required'] }),
+          ]),
+        }),
+      });
+    });
+
     it('rejects when minBookingHours is missing for a non-fullday booking policy', async () => {
       repo.findById.mockResolvedValue(
         buildProperty({
@@ -425,7 +461,7 @@ describe(PropertiesService.name, () => {
 
     it('allows submission when the optional fire safety certificate is missing', async () => {
       repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData(), draftStep: 5 }));
-      compliance.getSummary.mockResolvedValue({ ...complianceSummary, documents: [] });
+      compliance.getSummary.mockResolvedValue(complianceSummary);
       repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00002');
       repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
 
@@ -438,8 +474,8 @@ describe(PropertiesService.name, () => {
       repo.findById.mockResolvedValue(
         buildProperty({
           draftData: fullDraftData({
-            step1: { ...step1Hourly, propertyType },
-            step3: { ...step3Hourly, amenities: ['restaurant'] },
+            step1: { ...step1Hourly, propertyType, bookingPolicy: propertyType === PropertyType.pg ? BookingPolicy.fullday : BookingPolicy.hourly },
+            step3: { ...step3Hourly, rooms: step3Hourly.rooms.map(room => ({ ...room, fulldayRate: 1500 })), amenities: ['restaurant'] },
           }),
         }),
       );
@@ -465,6 +501,7 @@ describe(PropertiesService.name, () => {
         ...complianceSummary,
         gstinMasked: null,
         documents: [
+          ...complianceSummary.documents,
           { type: DocumentType.partnership_deed, status: DocumentStatus.pending, expiresAt: null },
         ],
       });

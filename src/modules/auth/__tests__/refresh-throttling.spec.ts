@@ -9,8 +9,10 @@ import { AuthService } from '../services/auth.service';
 describe('refresh endpoint rate limits', () => {
   let app: INestApplication;
   const refreshToken = jest.fn().mockResolvedValue({ accessToken: 'new-access', refreshToken: 'new-refresh' });
+  const login = jest.fn().mockResolvedValue({ tokens: { accessToken: 'access', refreshToken: 'refresh' } });
   beforeEach(async () => {
     refreshToken.mockClear();
+    login.mockClear();
     const module = await Test.createTestingModule({
       imports: [ThrottlerModule.forRoot([
         { name: 'default', ttl: 60_000, limit: 200 },
@@ -19,7 +21,7 @@ describe('refresh endpoint rate limits', () => {
       ])],
       controllers: [AuthController],
       providers: [
-        { provide: AuthService, useValue: { refreshToken } },
+        { provide: AuthService, useValue: { refreshToken, login } },
         { provide: APP_GUARD, useClass: ThrottlerGuard },
       ],
     }).compile();
@@ -52,5 +54,17 @@ describe('refresh endpoint rate limits', () => {
     await jest.advanceTimersByTimeAsync(61000);
     await request(app.getHttpServer()).post('/auth/refresh-token')
       .send({ refreshToken: 'test-refresh-token' }).expect(201);
+  });
+
+  it('allows login beyond the hourly upload cap while retaining the minute limit', async () => {
+    for (let index = 0; index < 25; index++) {
+      if (index > 0 && index % 5 === 0) await jest.advanceTimersByTimeAsync(61000);
+      const result = await request(app.getHttpServer()).post('/auth/login')
+        .send({ email: 'owner@example.com', password: 'password' }).expect(201);
+      expect(result.headers['x-ratelimit-limit-upload']).toBeUndefined();
+    }
+    await request(app.getHttpServer()).post('/auth/login')
+      .send({ email: 'owner@example.com', password: 'password' }).expect(429);
+    expect(login).toHaveBeenCalledTimes(25);
   });
 });
