@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { mkdir, writeFile } from 'fs/promises';
+import { join } from 'path';
 import { UploadsService } from './uploads.service';
 
 jest.mock('fs/promises', () => ({ mkdir: jest.fn(), writeFile: jest.fn() }));
@@ -22,7 +23,7 @@ describe('UploadsService', () => {
     expect(grant.key).not.toContain('unsafe');
     await expect(service.store(token(grant.uploadUrl), 'image/jpeg', body(photo))).resolves.toEqual({ key: grant.key });
     expect(mkdir).toHaveBeenCalled();
-    expect(writeFile).toHaveBeenCalledWith(expect.stringContaining(grant.key), photo, expect.objectContaining({ flag: 'wx' }));
+    expect(writeFile).toHaveBeenCalledWith(join(process.cwd(), 'uploads', grant.key), photo, expect.objectContaining({ flag: 'wx' }));
   });
 
   it('rejects altered or expired grants before writing a file', () => {
