@@ -1,13 +1,28 @@
+import { DOMAIN_EVENTS } from '../../common/events/domain-events';
+import { TypedEventEmitter } from '../../common/events/typed-event-emitter.service';
 import { Injectable } from '@nestjs/common';
 import { Notification, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class NotificationsRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly events: TypedEventEmitter) {}
 
-  create(data: Prisma.NotificationCreateInput): Promise<Notification> {
-    return this.prisma.notification.create({ data });
+  async create(data: Prisma.NotificationCreateInput): Promise<Notification> {
+    const notification = await this.prisma.notification.create({ data });
+    // Approval/revision already have dedicated SMS templates in PropertyStatusListener.
+    if (notification.propertyId && !['approval', 'revision_request'].includes(notification.type)) {
+      this.events.emit(DOMAIN_EVENTS.NOTIFICATION_REQUESTED, {
+        channel: 'sms', templateId: 'property_notification', recipientUserId: notification.ownerId,
+        data: { propertyId: notification.propertyId, title: notification.title, body: notification.body },
+      });
+    }
+    return notification;
+  }
+
+  async receptionMobile(propertyId: string, ownerId: string): Promise<string | null> {
+    const property = await this.prisma.property.findFirst({ where: { id: propertyId, ownerId }, select: { receptionMobile: true } });
+    return property?.receptionMobile ?? null;
   }
 
   async findManyByOwner(

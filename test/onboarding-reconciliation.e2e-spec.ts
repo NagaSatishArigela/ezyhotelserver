@@ -67,6 +67,7 @@ describe('Onboarding reconciliation (e2e)', () => {
   // ── Frozen-contract step payloads (docs/onboarding-contract.md) ──────────────
   const step1 = (bookingPolicy = 'both') => ({
     propertyName: 'Skyline Hourly Stay',
+    receptionMobile: '9876543210',
     propertyType: 'hotel',
     bookingPolicy,
     businessEntity: 'individual',

@@ -1,3 +1,6 @@
+import { normalizeReceptionMobile, normalizeReceptionLandline } from './reception-contact';
+import { Transform, Type } from 'class-transformer';
+import { OtherAccommodationDto } from './accommodation.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BookingPolicy,
@@ -6,6 +9,8 @@ import {
   PropertyType,
 } from '@prisma/client';
 import {
+  ValidateNested,
+  Matches,
   IsEnum,
   IsOptional,
   IsString,
@@ -31,6 +36,26 @@ export class Step1BasicsDto {
   @ApiProperty({ enum: PropertyType })
   @IsEnum(PropertyType)
   propertyType: PropertyType;
+
+  @ApiProperty({ required: false, description: 'Required at submission for all services; receives property notifications and status updates' })
+  @IsOptional()
+  @Transform(({ value }) => normalizeReceptionMobile(value))
+  @IsString()
+  @Matches(/^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit reception mobile number' })
+  receptionMobile?: string;
+
+  @ApiProperty({ required: false, description: 'Optional reception landline including STD code' })
+  @IsOptional()
+  @Transform(({ value }) => normalizeReceptionLandline(value))
+  @IsString()
+  @Matches(/^\+?\d{6,15}$/, { message: 'Enter a valid reception landline including STD code' })
+  receptionLandline?: string | null;
+
+  @ApiProperty({ required: false, type: OtherAccommodationDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OtherAccommodationDto)
+  otherAccommodation?: OtherAccommodationDto;
 
   @ApiProperty({ enum: BookingPolicy })
   @IsEnum(BookingPolicy)

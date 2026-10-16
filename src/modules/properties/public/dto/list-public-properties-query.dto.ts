@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsIn,
+  IsEnum,
   IsISO8601,
   IsInt,
   IsNumberString,
@@ -11,7 +12,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { BookingType } from '@prisma/client';
+import { BookingType, PropertyType } from '@prisma/client';
 
 export type PublicPropertySortParam = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
 
@@ -43,6 +44,11 @@ export class ListPublicPropertiesQueryDto {
   @IsString()
   @MaxLength(100)
   city?: string;
+
+  @ApiPropertyOptional({ enum: PropertyType })
+  @IsOptional()
+  @IsEnum(PropertyType)
+  propertyType?: PropertyType;
 
   @ApiPropertyOptional({ description: 'Minimum hourly rate in paise', minimum: 0 })
   @IsOptional()

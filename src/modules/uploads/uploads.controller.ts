@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Header, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Optional, Param, ParseUUIDPipe, Post, StreamableFile, UseGuards } from '@nestjs/common';
+import { UploadsService } from './uploads.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { ApplicationAccess } from '../auth/property-permissions';
@@ -16,7 +17,16 @@ import { PresignedUpload, StorageService } from './storage.service';
 @ApplicationAccess()
 @SkipThrottle({ strict: true })
 export class UploadsController {
-  constructor(private readonly storage: StorageService) {}
+  constructor(private readonly storage: StorageService, @Optional() private readonly legacy: UploadsService) {}
+
+  // Inherits the class JWT and property-application guards, just like new documents.
+  @Get(':propertyId/document/:fileName')
+  @SkipThrottle({ upload: true })
+  @Header('Cache-Control', 'no-store')
+  async legacyDocument(@Param('propertyId', ParseUUIDPipe) propertyId: string, @Param('fileName') file: string) {
+    const result = await this.legacy.document(propertyId, file);
+    return new StreamableFile(result.file, { type: result.contentType, disposition: `inline; filename="${file}"` });
+  }
 
   @Get('photos/:propertyId/:file')
   @SkipThrottle({ upload: true })

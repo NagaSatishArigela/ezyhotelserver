@@ -1,3 +1,4 @@
+import { publicUploads } from './modules/uploads/public-uploads.middleware';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -53,15 +54,7 @@ async function bootstrap(): Promise<void> {
     credentials: true,
     exposedHeaders: ['Retry-After', 'Retry-After-strict', 'Retry-After-upload'],
   });
-  // Keep the local uploads directory available for existing development files.
-  // New hotel media is uploaded directly to S3-compatible object storage via
-  // the presigned endpoint in UploadsModule.
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-    setHeaders: (res) => {
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    },
-  });
+  app.use('/uploads', publicUploads(join(config.get<string>('UPLOAD_STORAGE_ROOT') ?? process.cwd(), 'uploads')));
 
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new RequestLoggingInterceptor(), new CacheControlInterceptor());

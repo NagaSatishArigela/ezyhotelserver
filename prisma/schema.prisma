@@ -202,6 +202,7 @@ model Property {
   revisionNotes Json?          @map("revision_notes")
 
   // --- Step 1: Basic info ---
+  otherAccommodation Json? @map("other_accommodation")
   propertyType    PropertyType?     @map("property_type")
   propertyDetails Json?             @map("property_details")
   bookingPolicy   BookingPolicy?    @map("booking_policy")
@@ -211,6 +212,9 @@ model Property {
   ownerFirstName  String?           @map("owner_first_name")
   ownerMiddleName String?           @map("owner_middle_name")
   ownerLastName   String?           @map("owner_last_name")
+
+  receptionMobile String? @map("reception_mobile") @db.VarChar(10)
+  receptionLandline String? @map("reception_landline") @db.VarChar(16)
 
   // --- Step 2: Location ---
   addressLine1 String?  @map("address_line1")
@@ -266,10 +270,11 @@ model RoomType {
   hourlyRatePaise  Int?             @map("hourly_rate_paise")
   fulldayRatePaise Int?             @map("fullday_rate_paise")
   maxOccupancy     Int?             @map("max_occupancy")
+  dormitory        Json?
   createdAt        DateTime         @default(now()) @map("created_at")
   updatedAt        DateTime         @updatedAt @map("updated_at")
 
-  @@unique([propertyId, type])
+  @@index([propertyId, type])
   @@index([propertyId])
   @@map("room_types")
   @@schema("properties")

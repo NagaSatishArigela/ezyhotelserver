@@ -62,6 +62,7 @@ function buildProperty(overrides: Partial<Property> = {}): Property {
 
 const step1Hourly = {
   propertyName: 'Sunrise Hotel',
+  receptionMobile: '9876543210',
   propertyType: PropertyType.hotel,
   bookingPolicy: BookingPolicy.hourly,
   businessEntity: BusinessEntity.individual,
@@ -141,6 +142,7 @@ describe(PropertiesService.name, () => {
     update: jest.fn(),
     createOwnerRole: jest.fn(),
     replaceRoomTypes: jest.fn(),
+    updateRoomType: jest.fn(),
     replacePhotos: jest.fn(),
     generateSubmissionRef: jest.fn(),
   };
@@ -162,6 +164,21 @@ describe(PropertiesService.name, () => {
     repo.findPhotos.mockResolvedValue([{ category: 'exterior', url: 'https://example.com/1.jpg', isPrimary: true, sortOrder: 0 }]);
     repo.replaceRoomTypes.mockResolvedValue(undefined);
     repo.replacePhotos.mockResolvedValue(undefined);
+  });
+
+  it('preserves the larger capacity of a live dormitory and rejects capacity above its bed count', async () => {
+    repo.findById.mockResolvedValue(buildProperty({ status: PropertyStatus.approved }));
+    repo.findRoomTypes.mockResolvedValue([{ id: 'room-dorm', type: RoomTypeCategory.dorm, dormitory: { totalBeds: 24 } }]);
+    repo.updateRoomType.mockResolvedValue({ id: 'room-dorm', maxOccupancy: 24 });
+    await expect(service.updateRoom('prop-1', 'room-dorm', { maxOccupancy: 24 })).resolves.toMatchObject({ maxOccupancy: 24 });
+    await expect(service.updateRoom('prop-1', 'room-dorm', { maxOccupancy: 25 })).rejects.toThrow(BadRequestException);
+  });
+
+  it('keeps the regular-room occupancy ceiling and handles unknown room IDs', async () => {
+    repo.findById.mockResolvedValue(buildProperty({ status: PropertyStatus.approved }));
+    repo.findRoomTypes.mockResolvedValue([{ id: 'room-ac', type: RoomTypeCategory.ac }]);
+    await expect(service.updateRoom('prop-1', 'room-ac', { maxOccupancy: 21 })).rejects.toThrow(BadRequestException);
+    await expect(service.updateRoom('prop-1', 'wrong-room', { maxOccupancy: 2 })).rejects.toThrow(NotFoundException);
   });
 
   describe('createDraft', () => {
@@ -206,6 +223,7 @@ describe(PropertiesService.name, () => {
     function submitted() {
       return buildProperty({ ...step2, latitude: step2.latitude as never, longitude: step2.longitude as never,
         name: step1Hourly.propertyName, propertyType: step1Hourly.propertyType,
+        receptionMobile: step1Hourly.receptionMobile,
         bookingPolicy: step1Hourly.bookingPolicy, businessEntity: step1Hourly.businessEntity,
         ownerFirstName: 'Ravi', ownerLastName: 'Kumar', category: step1Hourly.category,
         status: PropertyStatus.needs_revision, submittedAt: now, submissionRef: 'REF-1',
@@ -566,6 +584,78 @@ describe(PropertiesService.name, () => {
       });
     });
 
+    it('materializes dormitory specifications and rejects capacity exceeding the bed count', async () => {
+      const dormitory = {
+        roomName: 'D-101', totalBeds: 24, bedLength: 200, bedWidth: 90,
+        accommodationAllowedFor: 'Mixed-gender dormitory', category: 'Bunk-bed room',
+        bedType: 'Single bunk', bedAllocation: 'Any available bed',
+        sleepingArrangement: 'Shared room', attachedBathroom: 'No', bathroomType: 'Common',
+        lockerAvailability: 'Individual locker', mattressType: 'Standard',
+        chargingPoint: 'Each bed', readingLight: 'Shared', privacyScreen: 'Yes',
+        linenProvided: ['Bedsheet', 'Pillow'],
+      };
+      const room = { type: RoomTypeCategory.dorm, count: 1, hourlyRate: 500, maxOccupancy: 24, dormitory };
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData({
+        step1: { ...step1Hourly, propertyType: PropertyType.dormitory },
+        step3: { ...step3Hourly, rooms: [room] },
+      }), draftStep: 5 }));
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00001');
+      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
+      await service.submit('prop-1');
+      expect(repo.replaceRoomTypes).toHaveBeenCalledWith('prop-1', [expect.objectContaining({ dormitory, maxOccupancy: 24 })]);
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData({
+        step1: { ...step1Hourly, propertyType: PropertyType.dormitory },
+        step3: { ...step3Hourly, rooms: [{ ...room, maxOccupancy: 25 }] },
+      }), draftStep: 5 }));
+      await expect(service.submit('prop-1')).rejects.toMatchObject({ response: {
+        step: 3, errors: expect.arrayContaining([expect.objectContaining({ field: 'rooms[0].maxOccupancy' })]),
+      } });
+    });
+
+    it.each(['other', 'hotel'] as const)('keeps legacy %s submissions working without new accommodation details', async (propertyType) => {
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData({
+        step1: { ...step1Hourly, propertyType },
+        step3: { ...step3Hourly, rooms: [{ type: RoomTypeCategory.dorm, count: 1, hourlyRate: 500, maxOccupancy: 2 }] },
+      }), draftStep: 5 }));
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00001');
+      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
+      await expect(service.submit('prop-1')).resolves.toMatchObject({ status: PropertyStatus.pending_review });
+    });
+
+    it('requires the reception mobile on submission for every service category', async () => {
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      for (const propertyType of Object.values(PropertyType)) {
+        repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData({ step1: { ...step1Hourly, propertyType, bookingPolicy: propertyType === 'pg' ? 'fullday' : 'hourly', receptionMobile: undefined } }), draftStep: 5 }));
+        await expect(service.submit('prop-1')).rejects.toMatchObject({ response: { step: 1, errors: [expect.objectContaining({ field: 'receptionMobile' })] } });
+      }
+    });
+
+    it('requires specifications for the new Dormitories service', async () => {
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData({
+        step1: { ...step1Hourly, propertyType: PropertyType.dormitory },
+        step3: { ...step3Hourly, rooms: [{ type: RoomTypeCategory.dorm, count: 1, hourlyRate: 500, maxOccupancy: 2 }] },
+      }), draftStep: 5 }));
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      await expect(service.submit('prop-1')).rejects.toMatchObject({ response: { step: 3 } });
+    });
+
+    it('materializes Others facilities on submission', async () => {
+      const otherAccommodation = { type: 'container_home', numberOfBeds: 2, ...Object.fromEntries([
+        'windows', 'bathroom', 'roofInstallation', 'rainWaterProtection', 'sunRoof',
+        'electricity', 'familiesAllowed', 'groupPartiesAllowed', 'soloAccommodationAllowed',
+        'childrenBeds', 'hotWater', 'accommodationService', 'lockDoor', 'privacyProtection',
+        'pillowBlanket', 'luggageStorage', 'housekeeping', 'chargingSockets',
+      ].map((key) => [key, 'no'])) };
+      repo.findById.mockResolvedValue(buildProperty({ draftData: fullDraftData({ step1: { ...step1Hourly, propertyType: PropertyType.other, otherAccommodation } }), draftStep: 5 }));
+      compliance.getSummary.mockResolvedValue(complianceSummary);
+      repo.generateSubmissionRef.mockResolvedValue('PPH-2026-00001');
+      repo.update.mockResolvedValue(buildProperty({ status: PropertyStatus.pending_review }));
+      await service.submit('prop-1');
+      expect(repo.update).toHaveBeenCalledWith('prop-1', expect.objectContaining({ propertyType: PropertyType.other, otherAccommodation }));
+    });
+
     it('materializes room types/photos, marks the property pending_review, and emits the event', async () => {
       jest.useFakeTimers().setSystemTime(now);
       const property = buildProperty({ draftData: fullDraftData(), draftStep: 5 });
@@ -590,6 +680,8 @@ describe(PropertiesService.name, () => {
           submissionRef: 'PPH-2026-00001',
           draftStep: null,
           name: step1Hourly.propertyName,
+          receptionMobile: step1Hourly.receptionMobile,
+          receptionLandline: null,
           businessEntity: BusinessEntity.individual,
           minBookingHours: 2,
           defaultCheckinTime: '12:00',
@@ -603,6 +695,7 @@ describe(PropertiesService.name, () => {
           hourlyRatePaise: 50000,
           fulldayRatePaise: null,
           maxOccupancy: 2,
+          dormitory: expect.anything(),
         },
       ]);
       expect(repo.replacePhotos).toHaveBeenCalledWith('prop-1', [

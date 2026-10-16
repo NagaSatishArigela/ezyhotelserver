@@ -29,10 +29,10 @@ export class UpdateRoomDto {
   @Max(500000)
   fulldayRate?: number;
 
-  @ApiPropertyOptional({ minimum: 1, maximum: 20 })
+  @ApiPropertyOptional({ minimum: 1, maximum: 500 })
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(20)
+  @Max(500)
   maxOccupancy?: number;
 }

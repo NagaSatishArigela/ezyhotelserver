@@ -3,6 +3,7 @@ import {
   BookingPolicy,
   BookingType,
   Property,
+  Prisma,
   PropertyCategory,
   PropertyPhoto,
   PropertyType,
@@ -31,6 +32,7 @@ export interface PublicPropertySummary {
 }
 
 export interface PublicRoomTypeView {
+  dormitory: Prisma.JsonValue | null;
   id: string;
   type: RoomTypeCategory;
   count: number;
@@ -46,6 +48,7 @@ export interface PublicPhotoView {
 }
 
 export interface PublicPropertyDetail extends PublicPropertySummary {
+  otherAccommodation: Prisma.JsonValue | null;
   propertyDetails?: Record<string, unknown> | null;
   addressLine1: string | null;
   addressLine2: string | null;
@@ -98,6 +101,7 @@ export class PublicPropertiesService {
       skip: (page - 1) * limit,
       take: limit,
       city: query.city,
+      propertyType: query.propertyType,
       q: query.q?.trim() || undefined,
       amenities,
       minPricePaise: query.minPrice,
@@ -147,6 +151,7 @@ export class PublicPropertiesService {
 
     return {
       ...this.toSummary(property, roomTypes, primaryPhoto),
+      otherAccommodation: property.otherAccommodation ?? null,
       propertyDetails: property.propertyDetails as Record<string, unknown> | null,
       addressLine1: property.addressLine1,
       addressLine2: property.addressLine2,
@@ -164,6 +169,7 @@ export class PublicPropertiesService {
         hourlyRatePaise: room.hourlyRatePaise,
         fulldayRatePaise: room.fulldayRatePaise,
         maxOccupancy: room.maxOccupancy,
+        dormitory: room.dormitory ?? null,
       })),
       photos: photos.map((photo) => ({
         url: photo.url,
