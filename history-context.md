@@ -1,4 +1,4 @@
-# quicknestserver — history & context
+# ezyhotelsserver — history & context
 
 > Handoff doc for developers picking up this repo. Complements `CLAUDE.md`
 > (coding rules) and `README.md` (usage). Last updated: 2026-08.
@@ -19,9 +19,9 @@ Runs on **port 4000**.
 
 | Repo | Role | Port | Stack |
 |------|------|------|-------|
-| **quicknestserver** (this) | Backend API + DB | 4000 | NestJS + Prisma + Postgres + Redis |
-| quicknestweb | Public storefront (guests) | 3001 | Next.js 16 |
-| quicknestportal | Owner / Admin / Support portal | 3000 | Vite + React |
+| **ezyhotelsserver** (this) | Backend API + DB | 4000 | NestJS + Prisma + Postgres + Redis |
+| ezyhotelsweb | Public storefront (guests) | 3001 | Next.js 16 |
+| ezyhotelsportal | Owner / Admin / Support portal | 3000 | Vite + React |
 
 The portal proxies API calls to `:4000`; the storefront calls `:4000` directly.
 **Contract source of truth is this server** — the onboarding wizard contract is
@@ -95,7 +95,7 @@ unrelated OTP-dev-logging test; e2e: 41/41 green against a real test DB):
 **Prerequisites:** Docker Desktop, Node 20.
 
 ```bash
-# 1. Start Postgres (host :5433) + Redis (:6379). Creates quicknest + quicknest_test.
+# 1. Start Postgres (host :5433) + Redis (:6379). Creates ezyhotels + ezyhotels_test.
 docker compose up -d
 
 # 2. Env — copy the template and fill in the secret placeholders.
@@ -163,6 +163,6 @@ The seed refuses to run in production unless `ALLOW_PROD_SEED=true`.
 
 ## Related
 
-- Storefront: `quicknestweb/history-context.md`
-- Portal: `quicknestportal/history-context.md`
+- Storefront: `ezyhotelsweb/history-context.md`
+- Portal: `ezyhotelsportal/history-context.md`
 - Onboarding contract: `docs/onboarding-contract.md`

@@ -1,3 +1,5 @@
+import { PropertyAccessService } from '../auth/property-access.service';
+import { GlobalRole } from '@prisma/client';
 import {
   ConflictException,
   ForbiddenException,
@@ -100,6 +102,7 @@ export interface ReviewListResult {
 @Injectable()
 export class ReviewsService {
   constructor(
+    private readonly access: PropertyAccessService,
     private readonly repo: ReviewsRepository,
     private readonly bookingsRepo: BookingsRepository,
     private readonly notifications: NotificationsRepository,
@@ -360,10 +363,10 @@ export class ReviewsService {
 
   // ─── Owner: Reply ─────────────────────────────────────────────────────────
 
-  async ownerReply(reviewId: string, ownerId: string, reply: string): Promise<Review> {
+  async ownerReply(reviewId: string, ownerId: string, reply: string, globalRole: GlobalRole = GlobalRole.USER): Promise<Review> {
     const review = await this.findOrThrow(reviewId);
 
-    if (review.ownerId !== ownerId) throw new ForbiddenException('Not your property');
+    await this.access.authorize({ id: ownerId, globalRole }, review.propertyId, 'manage_reviews');
     if (review.status !== ReviewStatus.published) throw new ForbiddenException('Review is not published');
     if (review.ownerReply) throw new ConflictException('REPLY_ALREADY_EXISTS');
 
@@ -389,9 +392,9 @@ export class ReviewsService {
 
   // ─── Owner: Flag ──────────────────────────────────────────────────────────
 
-  async ownerFlag(reviewId: string, ownerId: string, reason?: string): Promise<void> {
+  async ownerFlag(reviewId: string, ownerId: string, reason?: string, globalRole: GlobalRole = GlobalRole.USER): Promise<void> {
     const review = await this.findOrThrow(reviewId);
-    if (review.ownerId !== ownerId) throw new ForbiddenException('Not your property');
+    await this.access.authorize({ id: ownerId, globalRole }, review.propertyId, 'manage_reviews');
 
     const alreadyFlagged = await this.repo.findOwnerFlagForReview(reviewId, ownerId);
     if (alreadyFlagged) throw new ConflictException('ALREADY_FLAGGED_BY_OWNER');

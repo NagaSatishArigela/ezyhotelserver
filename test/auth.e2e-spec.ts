@@ -40,7 +40,7 @@ describe('Auth (e2e)', () => {
   it('returns a 401 for login with unknown credentials without leaking which field is wrong', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ email: 'nobody@quicknest.in', password: 'WrongPass@123' })
+      .send({ email: 'nobody@ezyhotels.in', password: 'WrongPass@123' })
       .expect(401);
 
     expect(response.body.error.message).not.toMatch(/user/i);
@@ -51,8 +51,8 @@ describe('Auth (e2e)', () => {
       .post('/auth/register')
       .send({
         verificationToken: 'not-a-uuid',
-        email: 'guest@quicknest.in',
-        password: 'QuickNest@123',
+        email: 'guest@ezyhotels.in',
+        password: 'EzyHotels@123',
       })
       .expect(400);
   });

@@ -52,6 +52,7 @@ async function bootstrap(): Promise<void> {
       callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
     },
     credentials: true,
+    exposedHeaders: ['Retry-After', 'Retry-After-strict', 'Retry-After-upload'],
   });
   app.use('/uploads', publicUploads(join(config.get<string>('UPLOAD_STORAGE_ROOT') ?? process.cwd(), 'uploads')));
 
@@ -68,8 +69,8 @@ async function bootstrap(): Promise<void> {
 
   if (!isProduction) {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('QuickNest API')
-      .setDescription('Backend APIs for QuickNest hotel booking platform')
+      .setTitle('EzyHotels API')
+      .setDescription('Backend APIs for EzyHotels hotel booking platform')
       .setVersion('0.1.0')
       .addBearerAuth()
       .build();

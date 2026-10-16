@@ -28,7 +28,7 @@ ticketing system, no ML).
 | `GET /admin/anomalies` — filterable list | **ANO-008 Same device, multiple accounts** — needs device-fingerprinting infra (no `deviceId`/fingerprint captured anywhere); deferred to a fraud/trust module |
 | `GET /admin/anomalies/:id` — detail + evidence + related entities | "Escalate" → real internal ops ticket — no ticketing system exists (same `future module` note as M2 §"escalated"); M5B's Escalate is a status transition + notes only |
 | `PATCH /admin/anomalies/:id` — status transitions incl. auto `investigating` on first view | "Suspend hotel" / "Block user" quick actions — no suspension/ban mechanism exists on `Property`/`User` yet; M5B's quick actions are limited to the M5 booking actions (Void/Flag) that already exist |
-| Anomalies tab in `quicknestportal` (`AdminBookingsPage`, third tab alongside All Bookings / Active Now) | Severity-based push notifications / sound alerts (real-time, deferred per M5 §6) |
+| Anomalies tab in `ezyhotelsportal` (`AdminBookingsPage`, third tab alongside All Bookings / Active Now) | Severity-based push notifications / sound alerts (real-time, deferred per M5 §6) |
 | RBAC: `ADMIN` / `SUPER_ADMIN` only (existing guards) | Cursor pagination at scale (offset pagination per M5 precedent) |
 
 ## 2. Data model
@@ -93,7 +93,7 @@ enum AnomalyStatus {
 
 Notes:
 - **`entity_type: property`** (not `hotel`) — matches the existing
-  `properties.Property` model naming used throughout `quicknestserver`
+  `properties.Property` model naming used throughout `ezyhotelsserver`
   (`Booking_Operations_Module_Spec.docx` uses "hotel" colloquially; M4/M5 both
   use `property`).
 - `entityId` is a plain UUID, no Prisma relation, per the modular-monolith
@@ -251,7 +251,7 @@ anomalies are an internal admin-ops concern, not guest/owner-facing. (If a
 future module needs to notify an owner about e.g. ANO-001, that's a new
 event added then.)
 
-## 4. Frontend (`quicknestportal`)
+## 4. Frontend (`ezyhotelsportal`)
 
 - Extend `adminBookingsSearchSchema.tab` from `['list', 'active']` to
   `['list', 'active', 'anomalies']` — Anomalies becomes a third tab on the

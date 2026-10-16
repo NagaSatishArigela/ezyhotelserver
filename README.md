@@ -1,6 +1,6 @@
-# quicknestserver
+# ezyhotelsserver...
 
-QuickNest server is the backend API for authentication, user session management, and property access control.
+EzyHotels server is the backend API for authentication, user session management, and property access control.
 
 ## Auth & Session Hardening
 
@@ -25,11 +25,44 @@ The Prisma schema includes:
 
 ## Running Tests
 
-From `quicknestserver`:
+From `ezyhotelsserver`:
 
 ```bash
 npm test
 ```
+
+## CI/CD
+
+GitHub Actions runs linting, unit tests, a production build, and E2E tests
+against disposable PostgreSQL and Redis services for every push and pull
+request. Deployments use Railway and occur only after CI succeeds:
+
+| Branch | Railway environment | Purpose |
+| --- | --- | --- |
+| Feature branch / pull request | None | CI validation only |
+| `develop` | `staging` | Shared integration and QA environment |
+| `main` | `production` | Customer-facing release |
+
+### Railway setup
+
+1. Create a Railway project with `staging` and `production` environments. Add
+   a Postgres and Redis service in **each** environment; do not share staging
+   data with production.
+2. Create an API service named `ezyhotels-api` in each environment. Railway
+   will build the repository Dockerfile. Set its variables in the Railway
+   dashboard, including `DATABASE_URL=${{Postgres.DATABASE_URL}}`,
+   `REDIS_URL=${{Redis.REDIS_URL}}`, `NODE_ENV=production`, and the real
+   values for every secret in `.env.example`.
+3. Configure the public domain and set `ALLOWED_ORIGINS` to the corresponding
+   portal URL. Railway supplies `PORT` automatically.
+   In each API service's Deploy settings, set the **Pre-deploy command** to
+   `npx prisma migrate deploy` and allow at least 300 seconds for it.
+4. In GitHub, create protected `staging` and `production` environments. Add a
+   `RAILWAY_TOKEN` secret to each one using a Railway **project token scoped to
+   that environment**. Require approval for `production`.
+
+Railway runs the pre-deploy migration with private-network access to the target
+database; if it fails, the new API version is not started.
 
 Targeted auth tests can be run with:
 
@@ -43,10 +76,10 @@ E2E tests boot the full Nest application (real Postgres + Redis) against a
 dedicated **test database**, never the dev database.
 
 1. One-time setup:
-   - Create the test database: `CREATE DATABASE quicknest_test;` on the same
+   - Create the test database: `CREATE DATABASE ezyhotels_test;` on the same
      Postgres instance as `DATABASE_URL` in `.env` (default: `localhost:5433`).
    - Review `.env.test` (already populated with test-only secrets and
-     `DATABASE_URL=postgresql://postgres:password@localhost:5433/quicknest_test`).
+     `DATABASE_URL=postgresql://postgres:password@localhost:5433/ezyhotels_test`).
    - Apply migrations to the test database:
      ```bash
      npm run prisma:migrate:test
@@ -60,7 +93,7 @@ Notes:
 - `test/load-test-env.ts` loads `.env.test` (overriding any inherited env)
   before the app boots.
 - `test/setup-e2e.ts` refuses to run unless `NODE_ENV=test` and `DATABASE_URL`
-  points at `quicknest_test`, as a guardrail against accidentally truncating
+  points at `ezyhotels_test`, as a guardrail against accidentally truncating
   the dev database.
 - `test/utils/reset-database.ts` truncates all domain-schema tables between
   tests (`beforeEach`).
@@ -83,7 +116,7 @@ npm run test:e2e:ui    # interactive UI mode
 
 By default Playwright starts `npm run dev` (port 3000) for you. Set
 `E2E_BASE_URL` to point at an already-running instance instead (e.g. in CI).
-The backend API (`quicknestserver`, port 4000) must be started separately.
+The backend API (`ezyhotelsserver`, port 4000) must be started separately.
 
 ## Notes
 
@@ -102,6 +135,24 @@ The backend API (`quicknestserver`, port 4000) must be started separately.
   - `FIREBASE_DATABASE_URL` (optional)
 
 ## Environment variables
+
+For Cloudflare R2 (S3-compatible) hotel image and verification document uploads:
+
+```env
+S3_ENDPOINT=https://b23d713271dd401d24cd18b4f687c12c.r2.cloudflarestorage.com/ezyhotels-staging
+S3_BUCKET=ezyhotels-staging
+S3_REGION=auto
+S3_ACCESS_KEY_ID=your-r2-access-key
+S3_SECRET_ACCESS_KEY=your-r2-secret-key
+S3_PUBLIC_BASE_URL=https://your-public-r2-domain.example
+```
+
+The portal calls `POST /uploads/presign` with the property ID, file type, MIME
+type, and size. The browser then uploads directly to R2 with the returned PUT
+URL. Configure the bucket CORS policy to allow `PUT` from the portal origins
+(`http://localhost:3000` and the staging portal origin). Keep verification
+documents private and use a public/custom domain only for media that should be
+rendered by guests.
 
 For Firebase and generic SMS gateway support, add:
 

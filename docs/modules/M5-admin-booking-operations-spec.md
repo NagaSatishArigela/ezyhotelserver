@@ -9,7 +9,7 @@ Bookings tab — KPI strip, filter bar, table, booking detail slide-over), §2.5
 subset); `docs/modules/M3-booking-engine-spec.md` (`Booking` model,
 `BookingStatus`/`PaymentStatus` enums, overlap-check pattern, cancellation
 refund calculation, lifecycle scheduler); `docs/modules/M4-property-search-discovery-spec.md`
-(cross-schema raw-SQL read pattern); `quicknestportal` admin shell/routes
+(cross-schema raw-SQL read pattern); `ezyhotelsportal` admin shell/routes
 (`src/routes/admin/bookings.tsx`, `src/pages/admin/AdminPortalPages.tsx`).
 
 ## 1. Scope boundary
@@ -272,7 +272,7 @@ for guest/owner emails (templates added in Gate 1 alongside M3's existing
 `booking.cancelled` templates — "Your booking was voided by the platform: {reason}"
 / "Your stay has been extended to {newCheckOutAt}").
 
-## 4. Frontend (`quicknestportal`)
+## 4. Frontend (`ezyhotelsportal`)
 
 - Fix `src/routes/admin/bookings.tsx` — currently renders the placeholder
   `AdminPropertiesPage` (copy-paste leftover). Point it at a new

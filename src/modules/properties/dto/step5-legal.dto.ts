@@ -6,6 +6,7 @@ import {
   Equals,
   IsArray,
   IsEnum,
+  IsIn,
   IsISO8601,
   IsOptional,
   IsString,
@@ -22,7 +23,7 @@ const BANK_ACCOUNT_REGEX = /^\d{9,18}$/;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 
 /**
- * Supporting documents (PAN card image, ID proof, fire safety cert, etc.).
+ * Supporting documents (PAN card image, ID proof, optional fire safety cert, etc.).
  * Not part of the frontend `step5Schema` (which covers only the legal/bank
  * fields) but required by the M1 spec's PropertyDocument model - DTOs accept
  * `url` strings for now (S3 presigned-upload pipeline is out of scope).
@@ -50,11 +51,13 @@ export class PropertyDocumentWizardDto {
  * `documents` array for PropertyDocument rows.
  */
 export class Step5LegalDto {
-  // GSTIN is ENTITY-ONLY: optional for individual/sole_proprietor, required
-  // for partnership/llp/private_limited/public_limited. The "required unless"
-  // rule is enforced at submit time in PropertiesService.assertConditionalFields
-  // (it needs the Step-1 businessEntity, out of scope for a single-step DTO).
-  // Regex is applied only when a value is present.
+  @ApiProperty({ required: false, enum: ['savings', 'current', 'cash_credit', 'other'] })
+  @IsOptional()
+  @IsIn(['savings', 'current', 'cash_credit', 'other'])
+  accountType?: string;
+
+  // GSTIN is optional for listing, regardless of business entity.
+  // Validate its format when supplied.
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

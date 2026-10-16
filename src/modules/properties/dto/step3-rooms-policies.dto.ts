@@ -1,7 +1,8 @@
 import { DormitoryDetailsDto } from './accommodation.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { RoomTypeCategory } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+import { AMENITY_IDS, normalizeAmenity } from '../constants/amenity-catalog';
 import {
   ArrayMinSize,
   IsArray,
@@ -147,10 +148,14 @@ export class Step3RoomsPoliciesDto {
   @Max(5000)
   seatingCapacity?: number;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ enum: AMENITY_IDS, isArray: true })
+  @Transform(({ value }: { value: unknown }) => Array.isArray(value)
+    ? [...new Set(value.map(item => typeof item === 'string' ? normalizeAmenity(item) : item))]
+    : value)
   @IsArray()
   @ArrayMinSize(1, { message: 'Select at least one amenity' })
   @IsString({ each: true })
+  @IsIn(AMENITY_IDS, { each: true, message: 'Select a supported amenity' })
   amenities: string[];
 
   @ApiProperty({ type: HouseRulesDto })

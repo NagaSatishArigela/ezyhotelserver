@@ -17,11 +17,13 @@ export async function validateStepPayload<T extends object>(
   stepNum: number,
   dtoClass: new () => T,
   body: unknown,
+  skipMissingProperties = false,
 ): Promise<Record<string, unknown>> {
   const instance = plainToInstance(dtoClass, body ?? {});
   const errors = await validate(instance as object, {
     whitelist: true,
     forbidNonWhitelisted: true,
+    skipMissingProperties,
   });
 
   if (errors.length > 0) {
@@ -31,7 +33,16 @@ export async function validateStepPayload<T extends object>(
     });
   }
 
-  return instanceToPlain(instance) as Record<string, unknown>;
+  return omitUndefined(instanceToPlain(instance)) as Record<string, unknown>;
+}
+
+function omitUndefined(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(omitUndefined);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value).filter(([, child]) => child !== undefined)
+      .map(([key, child]) => [key, omitUndefined(child)]),
+  );
 }
 
 export function flattenValidationErrors(

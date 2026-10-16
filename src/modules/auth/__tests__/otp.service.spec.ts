@@ -75,6 +75,36 @@ describe(OtpService.name, () => {
     expect(delivery.send).toHaveBeenCalledWith('9876543210', expect.stringMatching(/^\d{6}$/));
   });
 
+  it('returns the OTP only when explicitly enabled outside production', async () => {
+    const multi = createMultiMock();
+    redis.multi.mockReturnValue(multi);
+    config.get.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'development';
+      if (key === 'OTP_EXPOSE_IN_RESPONSE') return 'true';
+      return undefined;
+    });
+
+    const result = await service.send('9876543210');
+
+    expect(result.otp).toEqual(expect.stringMatching(/^\d{6}$/));
+    expect(delivery.send).toHaveBeenCalledWith('9876543210', result.otp);
+  });
+
+  it('never returns the OTP when NODE_ENV is production', async () => {
+    const multi = createMultiMock();
+    redis.multi.mockReturnValue(multi);
+    config.get.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'production';
+      if (key === 'OTP_EXPOSE_IN_RESPONSE') return 'true';
+      return undefined;
+    });
+
+    await expect(service.send('9876543210')).resolves.toEqual({
+      expiresIn: 300,
+      resendAfter: 30,
+    });
+  });
+
   it('enforces resend cooldown', async () => {
     redis.set.mockResolvedValue(null);
     redis.ttl.mockResolvedValue(20);

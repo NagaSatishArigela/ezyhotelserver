@@ -21,6 +21,7 @@ enum GlobalRole {
 
 enum PropertyRole {
   OWNER
+  HOTEL_ADMIN
   MANAGER
   STAFF
 
@@ -89,6 +90,8 @@ model UserPropertyRole {
   id         String       @id @default(uuid()) @db.Uuid
   userId     String       @map("user_id") @db.Uuid
   propertyId String       @map("property_id") @db.Uuid
+  hotelRoleId String? @map("hotel_role_id") @db.Uuid
+  hotelRole HotelRole? @relation(fields: [hotelRoleId], references: [id], onDelete: Restrict)
   role       PropertyRole
   user       User         @relation(fields: [userId], references: [id])
   createdAt  DateTime     @default(now()) @map("created_at")
@@ -113,15 +116,15 @@ enum PropertyStatus {
 }
 
 enum PropertyType {
-  guest_house
-  lodge
-  dormitory
   hotel
   resort
+  guest_house
   homestay
   villa
   pg
   farm
+  lodge
+  dormitory
   banquet
   other
 
@@ -201,6 +204,7 @@ model Property {
   // --- Step 1: Basic info ---
   otherAccommodation Json? @map("other_accommodation")
   propertyType    PropertyType?     @map("property_type")
+  propertyDetails Json?             @map("property_details")
   bookingPolicy   BookingPolicy?    @map("booking_policy")
   category        PropertyCategory?
   businessEntity  BusinessEntity?   @map("business_entity")
@@ -342,6 +346,7 @@ model PropertyComplianceDoc {
   bankAccountNumberHash      String   @map("bank_account_number_hash")
   ifsc                       String
   accountHolderName          String   @map("account_holder_name")
+  accountType                String   @default("savings") @map("account_type")
   tcAcceptedAt               DateTime @map("tc_accepted_at")
   formCAcknowledgedAt        DateTime @map("form_c_acknowledged_at")
   createdAt                  DateTime @default(now()) @map("created_at")
@@ -355,6 +360,8 @@ model PropertyComplianceDoc {
 enum DocumentType {
   owner_photo
   id_proof
+  id_proof_back
+  udyam_certificate
   pan_card
   gstin_certificate
   rental_agreement
@@ -1043,4 +1050,15 @@ model SupportTicket {
   @@index([raisedByUserId])
   @@map("support_tickets")
   @@schema("support")
+}
+
+model HotelRole {
+  id String @id @default(uuid()) @db.Uuid
+  propertyId String @map("property_id") @db.Uuid
+  name String @db.VarChar(80)
+  permissions String[]
+  members UserPropertyRole[]
+  @@unique([propertyId, name])
+  @@map("hotel_roles")
+  @@schema("auth")
 }

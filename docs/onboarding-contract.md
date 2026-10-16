@@ -1,4 +1,4 @@
-# QuickNest Onboarding — Frozen Server Contract (Phase 2A)
+# EzyHotels Onboarding — Frozen Server Contract (Phase 2A)
 
 **Status: revised October 14, 2026 for accommodation services.** This is the source of truth the portal and uploads lanes
 build against. Do not diverge without a contract revision. Migration:
@@ -84,7 +84,7 @@ Dorm rooms require `dormitory` specifications; see the October 2026 revision bel
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `gstin` | string | **conditional (new)** | regex `^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$` **only when present**; required unless `businessEntity ∈ {individual, sole_proprietor}` (enforced at submit) |
+| `gstin` | string | optional | regex `^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$` **only when present**; optional for all business entities |
 | `legalBusinessName` | string | yes | 2–200 chars |
 | `pan` | string | yes | `^[A-Z]{5}[0-9]{4}[A-Z]$` |
 | `bankAccountNumber` | string | yes | `^\d{9,18}$` |
@@ -113,8 +113,8 @@ cctv, ev_charging
 
 Compliance gates (id-based, evaluated at submit):
 
-- **REQUIRES_FSSAI** = `restaurant`, `bar`, `room_service` → if any selected, a
-  `fssai_license` document is required.
+- `restaurant`, `bar`, `room_service` show the optional `fssai_license`
+  upload in the portal. Its absence does not block submission, including PG listings.
 - **REQUIRES_POOL_SAFETY** = `pool` → informational (not blocking) unless
   otherwise enforced.
 
@@ -145,31 +145,30 @@ Portal / uploads `docId → DocumentType`:
 
 ## 4. businessEntity → required-documents matrix (submit)
 
-Every submission always requires `fire_safety_cert`. `fssai_license` is added
-when FSSAI-gating amenities are selected (§2). On top of that, by entity:
+`fire_safety_cert` and `fssai_license` are optional for submission.
+Required entity documents remain:
 
 | businessEntity | Extra required documents | GSTIN required? |
 |---|---|---|
 | `individual` | none | no |
 | `sole_proprietor` | none | no |
-| `partnership` | `partnership_deed` | yes |
-| `llp` | `llp_agreement` + `incorporation_certificate` | yes |
-| `private_limited` | `incorporation_certificate` + `board_resolution` | yes |
-| `public_limited` | `incorporation_certificate` + `board_resolution` | yes |
+| `partnership` | `partnership_deed` | no |
+| `llp` | `llp_agreement` + `incorporation_certificate` | no |
+| `private_limited` | `incorporation_certificate` + `board_resolution` | no |
+| `public_limited` | `incorporation_certificate` + `board_resolution` | no |
 
 Missing items surface as `400 { step: 5, errors: [{ field, constraints }] }`.
-The GSTIN-conditional error uses `field: 'gstin'`; document errors use
-`field: 'documents'`.
+Document errors use `field: 'documents'`.
 
 ---
 
-## 5. GSTIN-conditional rule (summary)
+## 5. Optional GSTIN (summary)
 
 - **DTO level (per-step save):** `gstin` is optional; the GSTIN regex is applied
   only when a value is present.
-- **Submit level:** GSTIN must be present unless
-  `businessEntity ∈ {individual, sole_proprietor}`. There is **no turnover
-  field** — the entity type alone drives the requirement.
+- **Submit level:** GSTIN is optional for every business entity. Entity-specific
+  document requirements still apply. The portal separately retains its current
+  KYC upload requirements; see the merge review in the portal repository.
 
 
 ## October 2026 accommodation revision
@@ -249,13 +248,19 @@ without entering a new reception mobile; saving contacts and submitting onboardi
 still require a valid mobile. Local legacy property types `boutique` and
 `service_apt` normalize to `hotel` and `homestay` when the portal resumes a draft.
 
-Only photo paths are served publicly. Verification-document URLs retain the form
-`/uploads/:propertyId/document/:fileName` but require JWT authentication and the
-property OWNER role (ADMIN/SUPER_ADMIN retain the existing administrative bypass).
-New documents are encrypted with the existing EncryptionService under
-`private-uploads/`; older documents remain readable from their original location
-only after authorization. No existing files are moved or deleted. Portal owner and
-admin previews retrieve protected documents through the authenticated API and use
-short-lived browser blob URLs, with a download action. Public photos keep their
-original URLs. `UPLOAD_STORAGE_ROOT` can select a persistent storage mount for both
-`uploads/` and `private-uploads/`; it defaults to the current working directory.
+Only legacy photo paths are served publicly from the local uploads directory.
+New uploads use the authenticated `/uploads/presign` object-storage flow from
+develop. Configure S3-compatible storage for new uploads. New document references
+use `/uploads/documents/:propertyId/:file`; authenticated applicant/admin access
+returns a signed read URL valid for 60 seconds.
+
+Existing `/uploads/:propertyId/document/:fileName` references remain readable
+through the same JWT and application-access guards. Existing encrypted files under
+`private-uploads/` and older files under `uploads/` remain in place. Portal previews
+retrieve these legacy documents as blobs and revoke browser object URLs on cleanup.
+`UPLOAD_STORAGE_ROOT` selects their persistent storage mount and defaults to the
+current working directory. No existing files are moved or deleted.
+
+Set `S3_PRIVATE_BUCKET` to a bucket with public access disabled. The inherited
+storage implementation falls back to `S3_BUCKET` when this value is absent; this
+fallback remains a deployment/security follow-up.

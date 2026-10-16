@@ -1,6 +1,6 @@
-# Local dev dependencies for quicknestserver: Postgres + Redis.
+# Local dev dependencies for ezyhotelsserver: Postgres + Redis.
 # Brings up exactly what .env expects: Postgres on host port 5433 (user
-# postgres / password "password", db "quicknest"), plus the "quicknest_test"
+# postgres / password "password", db "ezyhotels"), plus the "ezyhotels_test"
 # database for e2e/integration tests, and Redis on 6379.
 #
 #   docker compose up -d      # start
@@ -9,33 +9,33 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: postgres-quicknest
+    container_name: postgres-ezyhotels
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: quicknest
+      POSTGRES_DB: ezyhotels
     ports:
       - "5433:5432"
     volumes:
-      - quicknest-pgdata:/var/lib/postgresql/data
-      # Runs once on first init (empty data dir) — creates quicknest_test.
+      - ezyhotels-pgdata:/var/lib/postgresql/data
+      # Runs once on first init (empty data dir) — creates ezyhotels_test.
       - ./docker/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d quicknest"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ezyhotels"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: redis-quicknest
+    container_name: redis-ezyhotels
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - quicknest-redisdata:/data
+      - ezyhotels-redisdata:/data
 
 volumes:
-  quicknest-pgdata:
-  quicknest-redisdata:
+  ezyhotels-pgdata:
+  ezyhotels-redisdata:

@@ -1,7 +1,6 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PropertyRole } from '@prisma/client';
-import { PropertyRoles } from '../auth/decorators/property-roles.decorator';
+import { PropertyPermission } from '../auth/property-permissions';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PropertyRoleGuard } from '../auth/guards/property-role.guard';
 import { DisputesService, OwnerDisputeListResult } from './disputes.service';
@@ -15,7 +14,7 @@ export class OwnerDisputesController {
   constructor(private readonly disputes: DisputesService) {}
 
   @ApiOperation({ summary: "Read-only list of a property's disputes" })
-  @PropertyRoles(PropertyRole.OWNER, PropertyRole.MANAGER)
+  @PropertyPermission('manage_disputes')
   @Get(':propertyId/disputes')
   list(
     @Param('propertyId', ParseUUIDPipe) propertyId: string,

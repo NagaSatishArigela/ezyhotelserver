@@ -63,7 +63,7 @@ describe('Bookings (e2e)', () => {
     return prisma.user.create({
       data: {
         phone: String(phoneCounter),
-        email: `user${phoneCounter}@quicknest.test`,
+        email: `user${phoneCounter}@ezyhotels.test`,
         passwordHash: 'not-used-in-e2e',
         globalRole: GlobalRole.USER,
         status: UserStatus.active,

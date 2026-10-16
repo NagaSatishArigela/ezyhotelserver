@@ -10,7 +10,6 @@ import {
   GlobalRole,
   NotificationType,
   PaymentStatus,
-  PropertyRole,
   User,
   UserStatus,
   WalletCreditSourceType,
@@ -145,13 +144,15 @@ describe(DisputesService.name, () => {
 
   let service: DisputesService;
 
+  const access = { authorize: jest.fn() };
   beforeEach(() => {
+    access.authorize.mockReset().mockResolvedValue(undefined);
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(now);
     // Default: lock always acquired; $transaction passes through to callback
     redis.acquireLock.mockResolvedValue(jest.fn());
     prisma.$transaction.mockImplementation((fn: (tx: unknown) => unknown) => fn(prisma));
-    service = new DisputesService(
+    service = new DisputesService(access as never,
       repo as unknown as DisputesRepository,
       bookingsRepo as unknown as BookingsRepository,
       notifications as unknown as NotificationsRepository,
@@ -363,13 +364,10 @@ describe(DisputesService.name, () => {
           hotelResponseDeadline: new Date('2026-06-17T12:00:00.000Z'),
         }),
       );
-      users.hasPropertyRole.mockResolvedValue(false);
+      access.authorize.mockRejectedValueOnce(new ForbiddenException());
 
       await expect(service.submitHotelResponse('dispute-1', 'user-1', dto)).rejects.toThrow(ForbiddenException);
-      expect(users.hasPropertyRole).toHaveBeenCalledWith('user-1', 'prop-1', [
-        PropertyRole.OWNER,
-        PropertyRole.MANAGER,
-      ]);
+      expect(access.authorize).toHaveBeenCalledWith({ id: 'user-1', globalRole: 'USER' }, 'prop-1', 'manage_disputes');
     });
 
     it('throws ConflictException when the response window has closed', async () => {

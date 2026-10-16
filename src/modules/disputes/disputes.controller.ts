@@ -32,6 +32,6 @@ export class DisputesController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: HotelResponseDto,
   ): Promise<Dispute> {
-    return this.disputes.submitHotelResponse(id, user.id, dto);
+    return this.disputes.submitHotelResponse(id, user.id, dto, user.globalRole);
   }
 }

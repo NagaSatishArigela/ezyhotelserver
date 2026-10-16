@@ -17,7 +17,6 @@ import {
 import { DOMAIN_EVENTS } from '../../common/events/domain-events';
 import { TypedEventEmitter } from '../../common/events/typed-event-emitter.service';
 import { ComplianceService, ComplianceSummary } from './compliance/compliance.service';
-import { REQUIRES_FSSAI } from './constants/amenities';
 import { PropertiesRepository } from './properties.repository';
 import {
   MAX_STEP,
@@ -36,14 +35,8 @@ import { validateStepPayload } from './utils/validate-step';
 
 const MAX_PHOTOS_PER_CATEGORY = 10;
 
-// businessEntity values for which a GSTIN is NOT required at submit time.
-const GSTIN_EXEMPT_ENTITIES: BusinessEntity[] = [
-  BusinessEntity.individual,
-  BusinessEntity.sole_proprietor,
-];
-
-// Entity -> extra compliance documents required at submit time (in addition
-// to the always-required fire_safety_cert and food-gated fssai_license).
+// Entity -> extra compliance documents required at submit time. Fire safety
+// and FSSAI certificates are optional supporting documents for submission.
 // individual / sole_proprietor require no extra entity documents.
 const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>> = {
   [BusinessEntity.partnership]: [DocumentType.partnership_deed],
@@ -63,6 +56,11 @@ const ENTITY_REQUIRED_DOCUMENTS: Partial<Record<BusinessEntity, DocumentType[]>>
 
 // Human-readable labels for entity-document errors.
 const DOCUMENT_LABELS: Record<string, string> = {
+  [DocumentType.pan_card]: 'PAN card',
+  [DocumentType.id_proof]: 'Aadhaar front',
+  [DocumentType.rental_agreement]: 'Property ownership / lease proof',
+  [DocumentType.cancelled_cheque]: 'Cancelled cheque',
+  [DocumentType.trade_license]: 'Business licence',
   [DocumentType.partnership_deed]: 'Partnership deed',
   [DocumentType.llp_agreement]: 'LLP agreement',
   [DocumentType.incorporation_certificate]: 'Certificate of incorporation',
@@ -157,7 +155,7 @@ export class PropertiesService {
       status: PropertyStatus.draft,
       amenities: [],
     });
-    await this.repo.createOwnerRole(ownerId, property.id);
+
     return { propertyId: property.id };
   }
 
@@ -172,7 +170,7 @@ export class PropertiesService {
       propertyId: property.id,
       status: property.status,
       draftStep: property.draftStep,
-      draftData: this.draftDataOf(property),
+      draftData: await this.applicationDataOf(property),
       compliance: await this.compliance.getSummary(propertyId),
     };
   }
@@ -198,18 +196,26 @@ export class PropertiesService {
     }
 
     const dtoClass = STEP_DTO_MAP[stepNum as 1 | 2 | 3 | 4];
-    const validated = await validateStepPayload(stepNum, dtoClass, body);
+    const validated = await validateStepPayload(stepNum, dtoClass, body, true);
 
-    if (stepNum === 3) {
+    if (stepNum === 3 && validated.rooms !== undefined) {
       this.assertAtLeastOneRoomCounted(stepNum, validated);
     }
-    if (stepNum === 4) {
+    if (stepNum === 4 && validated.photos !== undefined) {
       this.assertPhotoCategoryLimits(stepNum, validated as unknown as Step4PhotosDto);
     }
 
+    const currentData = await this.applicationDataOf(property);
+    const currentStepData = currentData[`step${stepNum}`];
+    const mergedStepData = {
+      ...(currentStepData && typeof currentStepData === 'object' && !Array.isArray(currentStepData)
+        ? currentStepData as Record<string, unknown>
+        : {}),
+      ...validated,
+    };
     const draftData = {
-      ...this.draftDataOf(property),
-      [`step${stepNum}`]: validated,
+      ...currentData,
+      [`step${stepNum}`]: mergedStepData,
     };
     const draftStep = Math.max(property.draftStep ?? 0, stepNum);
 
@@ -217,7 +223,7 @@ export class PropertiesService {
       draftData: draftData as Prisma.InputJsonValue,
       draftStep,
     };
-    if (stepNum === 1) {
+    if (stepNum === 1 && typeof validated.propertyName === 'string') {
       // Keep the canonical `name` column in sync with step 1's
       // propertyName for listings/search before submission.
       const step1 = validated as unknown as Step1BasicsDto;
@@ -413,7 +419,7 @@ export class PropertiesService {
   // applies cross-step conditional requirements deferred from step-save
   // time, and converts wizard data into the columns/rows submission writes.
   private async validateAndMaterialize(property: Property): Promise<MaterializedSubmission> {
-    const draftData = this.draftDataOf(property);
+    const draftData = await this.applicationDataOf(property);
 
     const step1 = await this.validateStoredStep<Step1BasicsDto>(
       1,
@@ -459,8 +465,8 @@ export class PropertiesService {
       .map((room) => ({
         type: room.type,
         count: room.count,
-        hourlyRatePaise: room.hourlyRate != null ? Math.round(room.hourlyRate * 100) : null,
-        fulldayRatePaise: room.fulldayRate != null ? Math.round(room.fulldayRate * 100) : null,
+        hourlyRatePaise: step1.bookingPolicy !== BookingPolicy.fullday && room.hourlyRate != null ? Math.round(room.hourlyRate * 100) : null,
+        fulldayRatePaise: step1.bookingPolicy !== BookingPolicy.hourly && room.fulldayRate != null ? Math.round(room.fulldayRate * 100) : null,
         maxOccupancy: room.maxOccupancy ?? null,
         dormitory: room.type === 'dorm' && room.dormitory ? room.dormitory as unknown as Prisma.InputJsonValue : Prisma.DbNull,
       }));
@@ -479,6 +485,7 @@ export class PropertiesService {
       propertyType: step1.propertyType,
       otherAccommodation: step1.propertyType === PropertyType.other && step1.otherAccommodation
         ? step1.otherAccommodation as unknown as Prisma.InputJsonValue : Prisma.DbNull,
+      propertyDetails: step1.propertyDetails ?? {},
       bookingPolicy: step1.bookingPolicy,
       businessEntity: step1.businessEntity,
       ownerFirstName: step1.ownerFirstName,
@@ -589,32 +596,8 @@ export class PropertiesService {
     const documentTypes = new Set(compliance.documents.map((document) => document.type));
     const step5Errors: Array<{ field: string; constraints: string[] }> = [];
 
-    // GSTIN is entity-only: required unless the entity is individual /
-    // sole_proprietor. compliance.gstinMasked is null when no GSTIN was stored.
-    if (!GSTIN_EXEMPT_ENTITIES.includes(step1.businessEntity) && !compliance.gstinMasked) {
-      step5Errors.push({
-        field: 'gstin',
-        constraints: [`GSTIN is required for ${step1.businessEntity} entities`],
-      });
-    }
-
-    if (!documentTypes.has(DocumentType.fire_safety_cert)) {
-      step5Errors.push({
-        field: 'documents',
-        constraints: ['Fire safety certificate is required'],
-      });
-    }
-
-    const fssaiIds = REQUIRES_FSSAI as readonly string[];
-    const requiresFssai = step3.amenities.some((amenity) => fssaiIds.includes(amenity));
-    if (requiresFssai && !documentTypes.has(DocumentType.fssai_license)) {
-      step5Errors.push({
-        field: 'documents',
-        constraints: ['FSSAI license is required for the selected amenities'],
-      });
-    }
-
-    // Entity -> required documents matrix.
+    // Contract §3/§4: no universal document gate. Only entity-specific
+    // compliance documents are required for submission.
     const requiredEntityDocs = ENTITY_REQUIRED_DOCUMENTS[step1.businessEntity] ?? [];
     for (const docType of requiredEntityDocs) {
       if (!documentTypes.has(docType)) {
@@ -679,6 +662,45 @@ export class PropertiesService {
         'Cannot edit this property while it is under review or approved',
       );
     }
+  }
+
+  /** Submitted applications store their baseline in canonical tables, not draftData.
+   * Overlay saved revision steps so unchanged sections survive partial revisions. */
+  private async applicationDataOf(property: Property): Promise<Record<string, unknown>> {
+    const draft = this.draftDataOf(property);
+    if (!property.submittedAt || property.status === PropertyStatus.draft) return draft;
+    const [rooms, photos] = await Promise.all([
+      this.repo.findRoomTypes(property.id), this.repo.findPhotos(property.id),
+    ]);
+    const defined = (data: Record<string, unknown>) => Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== null && value !== undefined),
+    );
+    return {
+      step1: defined({ propertyName: property.name, propertyType: property.propertyType,
+        propertyDetails: property.propertyDetails,
+        receptionMobile: property.receptionMobile, receptionLandline: property.receptionLandline,
+        otherAccommodation: property.otherAccommodation,
+        bookingPolicy: property.bookingPolicy, businessEntity: property.businessEntity,
+        ownerFirstName: property.ownerFirstName, ownerMiddleName: property.ownerMiddleName,
+        ownerLastName: property.ownerLastName, category: property.category, description: property.description }),
+      step2: defined({ latitude: property.latitude === null ? null : Number(property.latitude),
+        longitude: property.longitude === null ? null : Number(property.longitude),
+        addressLine1: property.addressLine1, addressLine2: property.addressLine2,
+        city: property.city, state: property.state, pincode: property.pincode,
+        landmark: property.landmark, specialNote: property.specialNote }),
+      step3: defined({ rooms: rooms.map(room => defined({ type: room.type, count: room.count,
+        dormitory: room.dormitory,
+        maxOccupancy: room.maxOccupancy,
+        hourlyRate: room.hourlyRatePaise === null ? null : room.hourlyRatePaise / 100,
+        fulldayRate: room.fulldayRatePaise === null ? null : room.fulldayRatePaise / 100 })),
+        amenities: property.amenities, houseRules: property.houseRules,
+        minBookingHours: property.minBookingHours === null ? null : String(property.minBookingHours),
+        defaultCheckinTime: property.defaultCheckinTime, defaultCheckoutTime: property.defaultCheckoutTime,
+        seatingCapacity: property.seatingCapacity }),
+      step4: { photos: photos.map(photo => ({ category: photo.category, url: photo.url,
+        isPrimary: photo.isPrimary, sortOrder: photo.sortOrder })) },
+      ...draft,
+    };
   }
 
   private draftDataOf(property: Property): Record<string, unknown> {

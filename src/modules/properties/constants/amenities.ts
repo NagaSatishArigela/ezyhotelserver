@@ -1,39 +1,16 @@
 /**
- * Frozen amenity vocabulary for QuickNest onboarding (Phase 2A contract).
+ * Amenity vocabulary for EzyHotels onboarding, including the PDF additions.
  *
  * Amenities are ID-BASED: Step 3 `amenities: string[]` carries these stable
  * ids, and the compliance gates below match on ids (not display phrases).
  * The canonical id list is published in docs/onboarding-contract.md and MUST
  * stay in sync with the portal's amenity picker.
  */
-export const AMENITY_IDS = [
-  'wifi',
-  'ac',
-  'parking',
-  'pool',
-  'gym',
-  'restaurant',
-  'bar',
-  'spa',
-  'reception_24',
-  'room_service',
-  'laundry',
-  'conference',
-  'rooftop',
-  'couples',
-  'pets',
-  'wheelchair',
-  'cctv',
-  'ev_charging',
-] as const;
+import { AMENITY_IDS } from './amenity-catalog';
+import { amenityVariants } from './amenity-catalog';
+export { AMENITY_IDS } from './amenity-catalog';
 
 export type AmenityId = (typeof AMENITY_IDS)[number];
-
-/**
- * Amenity ids that make an FSSAI license mandatory at submission time
- * (M1 spec edge case 6). Food/beverage service on premises.
- */
-export const REQUIRES_FSSAI: AmenityId[] = ['restaurant', 'bar', 'room_service'];
 
 /**
  * Amenity ids that trigger the pool-safety requirement. Informational unless
@@ -56,5 +33,6 @@ const AMENITY_ALIASES: Record<string, string[]> = {
 
 export function amenityAliases(value: string): string[] {
   const normalized = value.trim().toLowerCase();
-  return Object.values(AMENITY_ALIASES).find((aliases) => aliases.includes(normalized)) ?? [normalized];
+  const legacy = Object.values(AMENITY_ALIASES).find((aliases) => aliases.includes(normalized)) ?? [];
+  return [...new Set([...legacy, ...amenityVariants(value).map(alias => alias.toLowerCase()), normalized])];
 }

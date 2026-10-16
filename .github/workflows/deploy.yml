@@ -1,0 +1,47 @@
+name: Deploy to Railway
+
+on:
+  workflow_run:
+    workflows: [CI]
+    branches: [develop, main]
+    types: [completed]
+
+concurrency:
+  # Keep staging and production independent, but never overlap deploys to one.
+  group: railway-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    name: Deploy staging
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Deploy the verified commit
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: npx -y @railway/cli@latest up --ci --service ezyhotels-api
+
+  production:
+    name: Deploy production
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Deploy the verified commit
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: npx -y @railway/cli@latest up --ci --service ezyhotels-api

@@ -158,11 +158,11 @@ created at draft-creation time).
    - `fulldayRate` required per room type only if `bookingPolicy != 'hourly'`.
    - `hourlyRate` required per room type only if `bookingPolicy != 'fullday'`.
    - `seatingCapacity` required only if `propertyType == 'banquet'`.
-   - FSSAI document required only if amenities include an FSSAI-triggering
-     entry (see `REQUIRES_FSSAI` in `amenities.ts`).
+   - FSSAI document is optional for submission, including PG properties with
+     food-service amenities. It may be uploaded as a supporting document.
    - Pool safety cert required only if amenities include a pool entry
      (`REQUIRES_POOL_SAFETY`).
-   - Fire safety cert is **always required** (per spec section 3.2 Step 5).
+   - Fire safety cert is optional and may be supplied as a supporting document.
 7. **GSTIN dedup**: `lookupHash(gstin)` must be unique across
    `PropertyComplianceDoc` rows EXCEPT the row belonging to the same
    `propertyId` (re-saving step 5 for the same draft is allowed). Conflict →

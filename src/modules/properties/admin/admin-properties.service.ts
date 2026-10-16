@@ -100,14 +100,8 @@ export class AdminPropertiesService {
     const property = await this.findPropertyOrThrow(propertyId);
     this.assertPendingReview(property);
 
-    const updated = await this.repo.update(propertyId, {
-      status: PropertyStatus.approved,
-    });
-    await this.repo.createModerationLog({
-      propertyId,
-      adminId,
-      action: ModerationAction.approved,
-    });
+    const updated = await this.repo.approveWithOwner(propertyId, property.ownerId, adminId);
+    if (!updated) throw new ConflictException('Property was already moderated');
 
     this.events.emit(DOMAIN_EVENTS.HOTEL_VERIFIED, {
       hotelId: property.id,

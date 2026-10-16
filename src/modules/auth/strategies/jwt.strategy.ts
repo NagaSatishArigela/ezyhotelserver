@@ -21,7 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    const user = await this.users.findById(payload.id);
+    if (!payload.sessionId) throw new UnauthorizedException('Invalid access token');
+    const [user, session] = await Promise.all([
+      this.users.findById(payload.id), this.users.findSessionById(payload.sessionId),
+    ]);
+    if (!session || session.userId !== payload.id || session.revokedAt || session.expiresAt.getTime() <= Date.now()) {
+      throw new UnauthorizedException('Session has expired or been revoked');
+    }
     if (!user || user.status !== UserStatus.active) {
       throw new UnauthorizedException('Invalid access token');
     }

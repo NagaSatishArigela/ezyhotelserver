@@ -367,7 +367,7 @@
             "auth": null,
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+              "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -394,7 +394,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -432,7 +432,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -470,7 +470,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -508,7 +508,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"verificationToken\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -561,7 +561,7 @@
             "auth": null,
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+              "raw": "{\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -588,7 +588,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -626,7 +626,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -664,7 +664,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"guest@quicknest.in\",\n  \"password\": \"QuickNest@123\"\n}",
+                  "raw": "{\n  \"email\": \"guest@ezyhotels.in\",\n  \"password\": \"EzyHotels@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -9833,10 +9833,10 @@
   ],
   "info": {
     "_postman_id": "d994ce3a-d9fa-4c8b-9a41-1575e23a4bfa",
-    "name": "QuickNest API",
+    "name": "EzyHotels API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": {
-      "content": "Backend APIs for QuickNest hotel booking platform",
+      "content": "Backend APIs for EzyHotels hotel booking platform",
       "type": "text/plain"
     }
   }

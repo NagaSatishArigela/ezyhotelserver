@@ -17,8 +17,8 @@ async function main(): Promise<void> {
   const app = await NestFactory.create(AppModule, { logger: false, abortOnError: false });
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('QuickNest API')
-    .setDescription('Backend APIs for QuickNest hotel booking platform')
+    .setTitle('EzyHotels API')
+    .setDescription('Backend APIs for EzyHotels hotel booking platform')
     .setVersion('0.1.0')
     .addBearerAuth()
     .build();

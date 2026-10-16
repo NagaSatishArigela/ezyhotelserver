@@ -36,10 +36,13 @@ async function main() {
 
   // Credentials come from env so they are never hard-coded/committed; the
   // literals below are dev-only conveniences.
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'superadmin@ezyhotels.com'
+  const adminName = process.env.SEED_ADMIN_NAME ?? 'Super Admin'
+  const adminPhone = process.env.SEED_ADMIN_PHONE ?? '9000000001'
   const DEFAULT_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'Admin@123!'
   const hash = await bcrypt.hash(DEFAULT_PASSWORD, 12)
 
-  const superAdmin = await upsertUser('superadmin@ezyhotels.com', '9000000001', 'Super Admin', GlobalRole.SUPER_ADMIN, hash)
+  const superAdmin = await upsertUser(adminEmail, adminPhone, adminName, GlobalRole.SUPER_ADMIN, hash)
   console.log('  ✅ Super admin:', superAdmin.email)
 
   const admin = await upsertUser('admin@ezyhotels.com', '9000000002', 'Platform Admin', GlobalRole.ADMIN, hash)

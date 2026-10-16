@@ -69,13 +69,13 @@ export class BookingsController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: CheckInDto,
   ) {
-    return this.bookings.checkIn(id, dto, user.id);
+    return this.bookings.checkIn(id, dto, user.id, user.globalRole);
   }
 
   @ApiOperation({ summary: 'Manually check out a booking' })
   @Post(':id/check-out')
   checkOut(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
-    return this.bookings.checkOut(id, user.id);
+    return this.bookings.checkOut(id, user.id, user.globalRole);
   }
 
   @ApiOperation({ summary: 'Cancel a confirmed booking' })

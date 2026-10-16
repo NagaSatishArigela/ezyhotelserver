@@ -47,7 +47,7 @@ describe('Onboarding reconciliation (e2e)', () => {
     return prisma.user.create({
       data: {
         phone: String(phoneCounter),
-        email: `u${phoneCounter}@quicknest.test`,
+        email: `u${phoneCounter}@ezyhotels.test`,
         passwordHash: 'not-used-in-e2e',
         globalRole: role,
         status: UserStatus.active,
@@ -98,7 +98,7 @@ describe('Onboarding reconciliation (e2e)', () => {
     },
   });
   const step4 = { photos: [{ category: 'exterior', url: 'https://cdn.test/e.png', isPrimary: true, sortOrder: 0 }] };
-  const step5 = (documents: object[] = [{ type: 'fire_safety_cert', url: 'https://cdn.test/f.pdf' }]) => ({
+  const step5 = (documents: object[] = []) => ({
     legalBusinessName: 'Ravi Nair', pan: 'ABCDE1234F', bankAccountNumber: '123456789012',
     ifsc: 'HDFC0001234', accountHolderName: 'Ravi Nair', tcAccepted: true, formCAcknowledged: true, documents,
   });
@@ -169,16 +169,15 @@ describe('Onboarding reconciliation (e2e)', () => {
     expect(booking.body.totalAmountPaise).toBe(118000); // 500*2 + 18% GST = ₹1180
   });
 
-  it('rejects submit without a fire-safety certificate (400, step 5)', async () => {
+  it('submits without the optional fire-safety certificate', async () => {
     const owner = await createUser();
     const ownerToken = await tokenFor(owner);
     const pid = await newDraft(ownerToken);
     await fillAll(ownerToken, pid, { s5: step5([]) });
 
     const res = await request(app.getHttpServer())
-      .post(`/properties/${pid}/submit`).set('Authorization', `Bearer ${ownerToken}`).expect(400);
-    expect(res.body.error.step).toBe(5);
-    expect(JSON.stringify(res.body.error.errors)).toContain('Fire safety certificate is required');
+      .post(`/properties/${pid}/submit`).set('Authorization', `Bearer ${ownerToken}`).expect(201);
+    expect(res.body.status).toBe('pending_review');
   });
 
   it('rejects submit when a room lacks the rate for the booking policy (400, step 3)', async () => {

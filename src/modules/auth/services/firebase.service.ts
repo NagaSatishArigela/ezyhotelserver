@@ -27,6 +27,19 @@ export class FirebaseService {
       return;
     }
 
+    const hasUsableCredentials =
+      !projectId.startsWith('your-') &&
+      !clientEmail.startsWith('your-') &&
+      privateKey.includes('-----BEGIN PRIVATE KEY-----') &&
+      !privateKey.includes('...');
+
+    if (!hasUsableCredentials) {
+      this.logger.warn(
+        'Firebase auth is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.',
+      );
+      return;
+    }
+
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId,
