@@ -28,13 +28,15 @@ describe(NotificationDeliveryService.name, () => {
 
   const config = { get: jest.fn() };
   const users = { findById: jest.fn() };
+  const notifications = { receptionMobile: jest.fn() };
   const events = { emit: jest.fn(), on: jest.fn() };
 
   let service: NotificationDeliveryService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new NotificationDeliveryService(config as never, users as never, events as never);
+    notifications.receptionMobile.mockResolvedValue(null);
+    service = new NotificationDeliveryService(config as never, users as never, events as never, notifications as never);
     (global as any).fetch = jest.fn();
   });
 
@@ -154,6 +156,20 @@ describe(NotificationDeliveryService.name, () => {
       expect(Logger.prototype.warn).toHaveBeenCalledWith(
         'SMS gateway not configured - skipping "revision_requested" for 98******10',
       );
+    });
+
+    it('uses the reception mobile for property notifications while preserving the owner fallback', async () => {
+      const handler = getDeliverHandler();
+      users.findById.mockResolvedValue(buildUser());
+      config.get.mockImplementation((key: string) => key === 'SMS_GATEWAY_URL' ? 'https://sms.example/send' : 'test-key');
+      (global as any).fetch.mockResolvedValue({ ok: true });
+      notifications.receptionMobile.mockResolvedValueOnce('9123456789');
+      const payload = { channel: 'sms' as const, templateId: 'property_approved', recipientUserId: 'owner-1', data: { hotelId: 'prop-1' } };
+      await handler(payload);
+      expect(notifications.receptionMobile).toHaveBeenCalledWith('prop-1', 'owner-1');
+      expect(JSON.parse((global as any).fetch.mock.calls[0][1].body).to).toBe('+919123456789');
+      await handler(payload);
+      expect(JSON.parse((global as any).fetch.mock.calls[1][1].body).to).toBe('+919876543210');
     });
 
     it('posts to the configured sms gateway with the +91 prefix', async () => {

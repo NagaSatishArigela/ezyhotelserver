@@ -1,5 +1,7 @@
+import { Transform } from 'class-transformer';
+import { normalizeReceptionMobile, normalizeReceptionLandline } from './reception-contact';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsIn, IsOptional, IsString, Matches } from 'class-validator';
+import { IsBoolean, IsIn, ValidateIf, IsOptional, IsString, Matches } from 'class-validator';
 
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -9,6 +11,20 @@ const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
  * endpoint). `isActive=false` pauses the public listing (owner kill-switch).
  */
 export class UpdateOwnerSettingsDto {
+  @ApiPropertyOptional()
+  @ValidateIf((_dto, value) => value !== undefined)
+  @Transform(({ value }) => normalizeReceptionMobile(value))
+  @IsString()
+  @Matches(/^[6-9]\d{9}$/)
+  receptionMobile?: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @Transform(({ value }) => normalizeReceptionLandline(value))
+  @IsString()
+  @Matches(/^\+?\d{6,15}$/)
+  receptionLandline?: string | null;
+
   @ApiPropertyOptional({ description: 'Default check-in time, HH:MM (24h)' })
   @IsOptional()
   @IsString()

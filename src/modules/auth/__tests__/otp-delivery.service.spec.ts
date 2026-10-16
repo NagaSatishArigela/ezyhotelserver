@@ -53,8 +53,15 @@ describe(OtpDeliveryService.name, () => {
 
     await expect(service.send('9876543210', '123456')).resolves.toBeUndefined();
     expect(Logger.prototype.warn).toHaveBeenCalledWith(
-      'Development OTP fallback for 98******10: ******56',
+      '[DEV] OTP for 98******10: 123456',
     );
+  });
+
+  it('refuses the development fallback in production', async () => {
+    config.get.mockImplementation((key: string) => key === 'NODE_ENV' ? 'production' : null);
+    await expect(service.send('9876543210', '123456')).rejects.toThrow('SMS gateway is not configured');
+    expect(Logger.prototype.warn).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('throws if generic SMS gateway response is not ok', async () => {

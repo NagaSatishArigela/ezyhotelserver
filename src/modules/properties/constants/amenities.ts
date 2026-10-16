@@ -40,3 +40,21 @@ export const REQUIRES_FSSAI: AmenityId[] = ['restaurant', 'bar', 'room_service']
  * already enforced elsewhere - kept id-based for a stable contract.
  */
 export const REQUIRES_POOL_SAFETY: AmenityId[] = ['pool'];
+
+
+// Historical listings store display labels; new onboarding stores stable IDs.
+const AMENITY_ALIASES: Record<string, string[]> = {
+  wifi: ['wifi', 'wi-fi'], ac: ['ac', 'air conditioning'], parking: ['parking'],
+  pool: ['pool', 'swimming pool'], gym: ['gym', 'gym / fitness', 'gym/fitness'],
+  restaurant: ['restaurant'], bar: ['bar', 'bar / lounge'], spa: ['spa'],
+  reception_24: ['reception_24', '24hr reception'], room_service: ['room_service', 'room service'],
+  laundry: ['laundry'], conference: ['conference', 'conference room'], rooftop: ['rooftop', 'rooftop access'],
+  couples: ['couples', 'couples allowed', 'couples welcome'], pets: ['pets', 'pets allowed'],
+  wheelchair: ['wheelchair', 'wheelchair access'], cctv: ['cctv', 'cctv security'],
+  ev_charging: ['ev_charging', 'ev charging'],
+};
+
+export function amenityAliases(value: string): string[] {
+  const normalized = value.trim().toLowerCase();
+  return Object.values(AMENITY_ALIASES).find((aliases) => aliases.includes(normalized)) ?? [normalized];
+}

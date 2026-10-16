@@ -122,6 +122,8 @@ export interface StatusView {
 }
 
 export interface OwnerSettingsView {
+  receptionMobile: string | null;
+  receptionLandline: string | null;
   defaultCheckinTime: string | null;
   defaultCheckoutTime: string | null;
   minBookingHours: number | null;
@@ -347,6 +349,8 @@ export class PropertiesService {
   async getSettings(propertyId: string): Promise<OwnerSettingsView> {
     const p = await this.findPropertyOrThrow(propertyId);
     return {
+      receptionMobile: p.receptionMobile ?? null,
+      receptionLandline: p.receptionLandline ?? null,
       defaultCheckinTime: p.defaultCheckinTime,
       defaultCheckoutTime: p.defaultCheckoutTime,
       minBookingHours: p.minBookingHours,
@@ -359,6 +363,8 @@ export class PropertiesService {
   async updateSettings(propertyId: string, dto: UpdateOwnerSettingsDto): Promise<OwnerSettingsView> {
     await this.findPropertyOrThrow(propertyId);
     const data: Prisma.PropertyUpdateInput = {};
+    if (dto.receptionMobile !== undefined) data.receptionMobile = dto.receptionMobile;
+    if (dto.receptionLandline !== undefined) data.receptionLandline = dto.receptionLandline;
     if (dto.defaultCheckinTime !== undefined) data.defaultCheckinTime = dto.defaultCheckinTime;
     if (dto.defaultCheckoutTime !== undefined) data.defaultCheckoutTime = dto.defaultCheckoutTime;
     if (dto.minBookingHours !== undefined) data.minBookingHours = dto.minBookingHours;
@@ -376,6 +382,14 @@ export class PropertiesService {
   /** PATCH /owner/.../rooms/:roomId — edit count/rates/occupancy (rupees → paise). */
   async updateRoom(propertyId: string, roomId: string, dto: UpdateRoomDto): Promise<RoomType> {
     await this.findPropertyOrThrow(propertyId);
+    if (dto.maxOccupancy !== undefined) {
+      const room = (await this.repo.findRoomTypes(propertyId)).find((candidate) => candidate.id === roomId);
+      if (!room) throw new NotFoundException('Room not found for this property');
+      const beds = room.dormitory && typeof room.dormitory === 'object' && !Array.isArray(room.dormitory)
+        ? room.dormitory.totalBeds : undefined;
+      const limit = room.type === 'dorm' ? typeof beds === 'number' ? beds : 500 : 20;
+      if (dto.maxOccupancy > limit) throw new BadRequestException(`Maximum occupancy for this room is ${limit}`);
+    }
     const data: Prisma.RoomTypeUpdateInput = {};
     if (dto.count !== undefined) data.count = dto.count;
     if (dto.maxOccupancy !== undefined) data.maxOccupancy = dto.maxOccupancy;
@@ -435,6 +449,9 @@ export class PropertiesService {
       });
     }
 
+    if (!step1.receptionMobile) {
+      throw new BadRequestException({ step: 1, errors: [{ field: 'receptionMobile', constraints: ['Office Reception mobile number is required for all service categories'] }] });
+    }
     this.assertConditionalFields(step1, step3, compliance);
 
     const roomTypes = step3.rooms
@@ -445,6 +462,7 @@ export class PropertiesService {
         hourlyRatePaise: room.hourlyRate != null ? Math.round(room.hourlyRate * 100) : null,
         fulldayRatePaise: room.fulldayRate != null ? Math.round(room.fulldayRate * 100) : null,
         maxOccupancy: room.maxOccupancy ?? null,
+        dormitory: room.type === 'dorm' && room.dormitory ? room.dormitory as unknown as Prisma.InputJsonValue : Prisma.DbNull,
       }));
 
     const photos = step4.photos.map((photo, index) => ({
@@ -456,7 +474,11 @@ export class PropertiesService {
 
     const propertyUpdate: Prisma.PropertyUpdateInput = {
       name: step1.propertyName,
+      receptionMobile: step1.receptionMobile,
+      receptionLandline: step1.receptionLandline ?? null,
       propertyType: step1.propertyType,
+      otherAccommodation: step1.propertyType === PropertyType.other && step1.otherAccommodation
+        ? step1.otherAccommodation as unknown as Prisma.InputJsonValue : Prisma.DbNull,
       bookingPolicy: step1.bookingPolicy,
       businessEntity: step1.businessEntity,
       ownerFirstName: step1.ownerFirstName,
@@ -540,6 +562,18 @@ export class PropertiesService {
           });
         }
       });
+
+    step3.rooms.forEach((room, index) => {
+      if (step1.propertyType === PropertyType.dormitory && (!room.dormitory || room.type !== 'dorm' || room.maxOccupancy == null)) {
+        step3Errors.push({ field: `rooms[${index}].type`, constraints: ['Dormitory properties require dorm rooms with specifications and capacity'] });
+      }
+      if (room.type !== 'dorm' && (room.maxOccupancy ?? 0) > 20) {
+        step3Errors.push({ field: `rooms[${index}].maxOccupancy`, constraints: ['Maximum 20 guests per room'] });
+      }
+      if (room.type === 'dorm' && room.dormitory && (room.maxOccupancy ?? 0) > room.dormitory.totalBeds) {
+        step3Errors.push({ field: `rooms[${index}].maxOccupancy`, constraints: ['Room capacity cannot exceed total beds'] });
+      }
+    });
 
     if (step1.propertyType === PropertyType.banquet && step3.seatingCapacity == null) {
       step3Errors.push({

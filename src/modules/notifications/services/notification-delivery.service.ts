@@ -1,3 +1,4 @@
+import { NotificationsRepository } from '../notifications.repository';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -23,6 +24,7 @@ export class NotificationDeliveryService implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly users: UsersRepository,
     private readonly events: TypedEventEmitter,
+    private readonly notifications: NotificationsRepository,
   ) {}
 
   onModuleInit(): void {
@@ -50,7 +52,10 @@ export class NotificationDeliveryService implements OnModuleInit {
       return;
     }
 
-    await this.sendSms(user.phone, payload);
+    const propertyId = payload.data.propertyId ?? payload.data.hotelId;
+    const receptionMobile = typeof propertyId === 'string'
+      ? await this.notifications.receptionMobile(propertyId, payload.recipientUserId) : null;
+    await this.sendSms(receptionMobile ?? user.phone, payload);
   }
 
   private async sendEmail(

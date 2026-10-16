@@ -1,3 +1,4 @@
+import { DormitoryDetailsDto } from './accommodation.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { RoomTypeCategory } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -53,8 +54,14 @@ export class RoomTypeWizardDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(20)
+  @Max(500)
   maxOccupancy?: number;
+
+  @ApiProperty({ required: false, type: DormitoryDetailsDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => DormitoryDetailsDto)
+  dormitory?: DormitoryDetailsDto;
 }
 
 /**

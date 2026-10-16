@@ -7,7 +7,8 @@ dist
 coverage
 
 # Locally-stored uploads (dev disk storage; prod uses object storage)
-uploads/
+/uploads/
+/private-uploads/
 
 # Runtime logs
 *.log

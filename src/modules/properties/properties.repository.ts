@@ -1,3 +1,4 @@
+import { amenityAliases } from './constants/amenities';
 import { Injectable } from '@nestjs/common';
 import {
   ModerationAction,
@@ -7,6 +8,7 @@ import {
   PropertyPhoto,
   PropertyRole,
   PropertyStatus,
+  PropertyType,
   RoomType,
 } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
@@ -16,6 +18,7 @@ export type PublicPropertySort = 'relevance' | 'price_asc' | 'price_desc' | 'new
 export interface PublicPropertySearchParams {
   skip: number;
   take: number;
+  propertyType?: PropertyType;
   city?: string;
   q?: string;
   amenities?: string[];
@@ -119,8 +122,12 @@ export class PropertiesRepository {
       conditions.push(Prisma.sql`lower(p.city) = lower(${params.city})`);
     }
 
-    if (params.amenities && params.amenities.length > 0) {
-      conditions.push(Prisma.sql`p.amenities @> ${params.amenities}::text[]`);
+    if (params.propertyType) conditions.push(Prisma.sql`p.property_type::text = ${params.propertyType}`);
+    for (const amenity of params.amenities ?? []) {
+      conditions.push(Prisma.sql`EXISTS (
+        SELECT 1 FROM unnest(p.amenities) AS entry(value)
+        WHERE lower(entry.value) = ANY(${amenityAliases(amenity)}::text[])
+      )`);
     }
 
     if (params.q) {
